@@ -30,7 +30,7 @@
 pip install colorama
 ```
 
-3. Загрузите архив (zip/7z) со [страницы последнего релиза](https://github.com/Flowseal/zapret-discord-youtube/releases/latest)
+3. Загрузите архив (zip/7z) со [страницы последнего релиза](https://github.com/SlenderSolo/zapret-manager/releases/latest)
 
 4. Распакуйте содержимое архива по пути, который не содержит кириллицу/спец. символы
 
