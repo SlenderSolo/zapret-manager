@@ -47,16 +47,16 @@ def main_menu():
         print("1. Create/Update Service")
         print("2. Delete Service")
         print("3. Check Service Status")
-        print("4. Run Block Checker")
-        print("5. Auto-adjust Preset")
+        print("4. Auto-adjust Preset")
+        print("5. Run Block Checker")
         print("0. Exit")
         choice = input("Select an option: ").strip()
 
         if choice == '1': create_service()
         elif choice == '2': delete_service()
         elif choice == '3': get_service_status()
-        elif choice == '4': run_block_checker()
-        elif choice == '5': adjust_preset()
+        elif choice == '4': adjust_preset()
+        elif choice == '5': run_block_checker()
         elif choice == '0': break
         else:
             ui.print_warn("Invalid option. Please try again.")
