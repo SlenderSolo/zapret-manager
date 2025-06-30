@@ -69,7 +69,7 @@ def create_service():
     
     bin_path_arg = f'"{parsed_data.executable_path}" {args}'.strip() 
     display_name = f"Zapret DPI Bypass ({selected_filename})"
-    sc_args = ["create", SERVICE_NAME, "binPath=", bin_path_arg, "DisplayName=", f'"{display_name}"', "start=", "auto"]
+    sc_args = ["create", SERVICE_NAME, "binPath=", bin_path_arg, "DisplayName=", display_name, "start=", "auto"]
     
     ui.print_info(f"Creating service...")
     return_code, _, _ = run_sc_command(sc_args)
@@ -98,7 +98,7 @@ def delete_service():
     else: ui.print_warn("No known services were found.")
 
 def get_service_status():
-    """Queries and displays the service status."""
+    """Queries and displays the service status and the preset used."""
     ui.print_header("Service Status")
     service_found = False
     for name in [SERVICE_NAME, "zapret"]:
@@ -116,4 +116,20 @@ def get_service_status():
             else: status = "ERROR"
             status_color = ui.Fore.GREEN if status == "RUNNING" else ui.Fore.RED
             print(f"Service '{name}' status: {status_color}{status}{ui.Style.RESET_ALL}")
-    if not service_found: print(f"Service status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")
+
+            preset_name = "Unknown"
+            qc_ret, qc_stdout, _ = run_sc_command(["qc", name], quiet=True)
+            if qc_ret == 0 and qc_stdout:
+                display_name_match = re.search(r"^\s*(?:DISPLAY_NAME|Выводимое_имя)\s+:\s+(.*)", qc_stdout, re.IGNORECASE | re.MULTILINE)
+                if display_name_match:
+                    display_name_text = display_name_match.group(1).strip()
+                    preset_match = re.search(r"\(([^)]+)\)", display_name_text)
+                    if preset_match:
+                        preset_name = preset_match.group(1)
+                    else:
+                        preset_name = display_name_text if display_name_text else "Unknown"
+            
+            print(f"Preset file: {ui.Style.BRIGHT}{preset_name}{ui.Style.RESET_ALL}")
+
+    if not service_found:
+        print(f"Service status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")
