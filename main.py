@@ -10,7 +10,7 @@ from src.block_checker import BlockChecker, BlockCheckError
 from src.service_manager import create_service, delete_service, get_service_status
 from src.preset_adjuster import adjust_preset
 from src import ui
-from src.utils import run_as_admin
+from src.utils import run_as_admin, enable_ansi_support
 
 def run_block_checker():
     """Wrapper function to run the BlockChecker."""
@@ -66,6 +66,8 @@ def main_menu():
         if os.name == 'nt': os.system('cls')
 
 if __name__ == "__main__":
+    enable_ansi_support()
     run_as_admin() 
     main_menu()
     print("\nExiting program.")
+    

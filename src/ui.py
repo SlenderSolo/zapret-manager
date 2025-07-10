@@ -1,4 +1,18 @@
-from colorama import Fore, Style
+class Fore:
+    BLACK   = '\033[30m'
+    RED     = '\033[31m'
+    GREEN   = '\033[32m'
+    YELLOW  = '\033[33m'
+    BLUE    = '\033[34m'
+    CYAN    = '\033[36m'
+    WHITE   = '\033[37m'
+    RESET   = '\033[39m'
+
+class Style:
+    BRIGHT    = '\033[1m'
+    NORMAL    = '\033[22m'
+    RESET_ALL = '\033[0m'
+
 
 # Color Printing
 def print_info(msg): print(f"{Fore.CYAN}{msg}{Style.RESET_ALL}")

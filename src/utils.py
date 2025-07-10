@@ -3,6 +3,19 @@ import os
 import subprocess
 import sys
 
+def enable_ansi_support():
+    """Enables ANSI escape code support in the Windows console."""
+    if os.name == 'nt':
+        try:
+            kernel32 = ctypes.windll.kernel32
+            handle = kernel32.GetStdHandle(-11)
+            mode = ctypes.c_ulong()
+            if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+                mode.value |= 0x0004
+                kernel32.SetConsoleMode(handle, mode)
+        except (AttributeError, ctypes.WinError):
+            pass
+
 def is_admin() -> bool:
     """Checks for administrator privileges."""
     try:
