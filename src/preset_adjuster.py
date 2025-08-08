@@ -84,7 +84,7 @@ def find_best_strategy_for_key(checker, test_type, desync_key, domain, all_strat
     
     boilerplate = []
     if test_type == 'http': boilerplate = ['--wf-l3=ipv4', '--wf-tcp=80']
-    elif test_type in ['https_tls12', 'https_tls13']: boilerplate = ['--wf-l3=ipv4', '--wf-tcp=443']
+    elif test_type == 'https_tls13': boilerplate = ['--wf-l3=ipv4', '--wf-tcp=443']
     elif test_type == 'http3': boilerplate = ['--wf-l3=ipv4', '--wf-udp=443']
 
     full_original_template = boilerplate + reconstructed_template_parts
@@ -171,7 +171,7 @@ def adjust_preset():
         checker._check_curl_capabilities()
         checker.domains = ["rutracker.org"]
         checker.repeats = 1
-        checker.checks_to_run = {'http': True, 'https_tls12': True, 'https_tls13': True, 'http3': True}
+        checker.checks_to_run = {'http': True, 'https_tls13': True, 'http3': True}
         checker._load_strategies_from_file()
 
         for i, rule in enumerate(parsed_data.rules):

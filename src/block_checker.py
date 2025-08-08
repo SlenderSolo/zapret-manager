@@ -89,8 +89,14 @@ class BlockChecker:
                     test_name_raw, params_raw = line.split(' : ', 1)
                     internal_test_name = test_name_raw.strip()
                     
-                    if self.checks_to_run.get(internal_test_name):
-                        params_list = params_raw.split()[1:] 
+                    if internal_test_name == 'https':
+                        params_list = params_raw.split()[1:]
+                        if self.checks_to_run.get('https_tls12'):
+                            self.strategies_by_test.setdefault('https_tls12', []).append(params_list)
+                        if self.checks_to_run.get('https_tls13'):
+                            self.strategies_by_test.setdefault('https_tls13', []).append(params_list)
+                    elif self.checks_to_run.get(internal_test_name):
+                        params_list = params_raw.split()[1:]
                         self.strategies_by_test[internal_test_name].append(params_list)
         except FileNotFoundError:
             raise BlockCheckError(f"Strategy file not found at: {STRATEGIES_PATH}")
