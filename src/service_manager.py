@@ -26,18 +26,18 @@ def run_sc_command(command_args, quiet=False):
         stderr = proc.stderr.decode(console_encoding, errors='replace')
 
         if proc.returncode != 0 and not quiet and "1060" not in stdout and "1060" not in stderr:
-            print(f"[ServiceManager] SC command failed (Code: {proc.returncode}).")
+            ui.print_err(f"[ServiceManager] SC command failed (Code: {proc.returncode}).")
 
         return proc.returncode, stdout, stderr
 
     except subprocess.TimeoutExpired:
         if not quiet:
-            print("[ServiceManager] SC command timed out")
+            ui.print_err("[ServiceManager] SC command timed out")
         return -1, "", "timeout"
 
     except Exception as e:
         if not quiet:
-            print(f"[ServiceManager] SC command execution failed: {e}")
+            ui.print_err(f"[ServiceManager] SC command execution failed: {e}")
         return -1, "", str(e)
 
 def create_service():
@@ -148,4 +148,5 @@ def get_service_status():
 
     if not service_found:
         print(f"Service status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")
+
 
