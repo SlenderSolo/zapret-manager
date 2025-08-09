@@ -8,21 +8,36 @@ from . import ui
 from .config_parser import parse_preset_file
 
 def run_sc_command(command_args, quiet=False):
-    """Executes an sc.exe command and captures output."""
+    """Executes the 'sc.exe' command with the given arguments."""
     try:
         console_encoding = f'cp{ctypes.windll.kernel32.GetOEMCP()}'
-        process = subprocess.Popen(["sc.exe"] + command_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, creationflags=subprocess.CREATE_NO_WINDOW if quiet else 0)
-        stdout_bytes, stderr_bytes = process.communicate(timeout=15)
-        stdout = stdout_bytes.decode(console_encoding, errors='replace')
-        stderr = stderr_bytes.decode(console_encoding, errors='replace')
-        
-        if process.returncode != 0 and not quiet and "1060" not in stdout and "1060" not in stderr:
-            ui.print_err(f"SC command failed (Code: {process.returncode}).")
-            if stdout.strip(): print(f"  SC STDOUT: {stdout.strip()}")
-            if stderr.strip(): print(f"  SC STDERR: {stderr.strip()}")
-        return process.returncode, stdout, stderr
+    except Exception:
+        console_encoding = 'utf-8'
+
+    try:
+        proc = subprocess.run(
+            ["sc.exe"] + command_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False,
+            timeout=15
+        )
+        stdout = proc.stdout.decode(console_encoding, errors='replace')
+        stderr = proc.stderr.decode(console_encoding, errors='replace')
+
+        if proc.returncode != 0 and not quiet and "1060" not in stdout and "1060" not in stderr:
+            print(f"[ServiceManager] SC command failed (Code: {proc.returncode}).")
+
+        return proc.returncode, stdout, stderr
+
+    except subprocess.TimeoutExpired:
+        if not quiet:
+            print("[ServiceManager] SC command timed out")
+        return -1, "", "timeout"
+
     except Exception as e:
-        if not quiet: ui.print_err(f"SC command execution failed: {e}")
+        if not quiet:
+            print(f"[ServiceManager] SC command execution failed: {e}")
         return -1, "", str(e)
 
 def create_service():
@@ -133,3 +148,4 @@ def get_service_status():
 
     if not service_found:
         print(f"Service status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")
+
