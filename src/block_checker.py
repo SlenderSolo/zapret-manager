@@ -1,12 +1,12 @@
 import os
 import subprocess
-import threading
 import time
 import socket
 
 from .config import *
 from . import ui
 from .utils import is_process_running
+from .winws_manager import WinWSManager
 
 BIN_DIR = os.path.join(BASE_DIR, "bin")
 WINWS_PATH = os.path.join(BIN_DIR, "winws.exe")
@@ -24,7 +24,7 @@ class BlockChecker:
         self.checks_to_run = {} 
         self.curl_caps = {'tls1.3': False, 'http3': False}
         self.reports = {}
-        self.current_winws_proc = None
+        self.winws_manager = WinWSManager(WINWS_PATH, BIN_DIR)
         self.strategies_by_test = {}
         self.initial_accessibility = {}
 
@@ -104,37 +104,6 @@ class BlockChecker:
         for test_name, strategies in self.strategies_by_test.items():
             if self.checks_to_run.get(test_name) and strategies:
                 ui.print_info(f"Loaded {len(strategies)} strategies for {test_name.upper()}.")
-    
-    def _start_winws(self, params):
-        if self.current_winws_proc: self._stop_winws()
-        cmd = [WINWS_PATH] + params
-        self.current_winws_proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
-        ready_event = threading.Event()
-        
-        # Wait for winws to report it's ready.
-        def _wait_for_ready(proc, event):
-            try:
-                for line in iter(proc.stdout.readline, ''):
-                    if "windivert initialized. capture is started." in line:
-                        event.set(); return
-            except Exception: pass
-            finally: 
-                if not event.is_set(): event.set()
-
-        threading.Thread(target=_wait_for_ready, args=(self.current_winws_proc, ready_event), daemon=True).start()
-        if not ready_event.wait(timeout=5) or self.current_winws_proc.poll() is not None:
-            self._stop_winws()
-            return False
-        return True
-
-    def _stop_winws(self):
-        if self.current_winws_proc:
-            try:
-                self.current_winws_proc.terminate()
-                self.current_winws_proc.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                self.current_winws_proc.kill()
-            self.current_winws_proc = None
 
     def _perform_curl_test(self, domain, ip_version, port, tls_version=None, http3_only=False):
         try:
@@ -202,18 +171,14 @@ class BlockChecker:
 
     def _test_one_strategy(self, domain: str, template: list, test_func, test_args, repeats: int):
         winws_command = self._process_strategy_template(template, domain)
-        if not self._start_winws(winws_command):
-            return {'success': False, 'curl_output': '', 'winws_crashed': True, 'winws_stderr': 'Failed to start'}
+        if not self.winws_manager.start(winws_command):
+            return {'success': False, 'curl_output': '', 'winws_crashed': True, 'winws_stderr': self.winws_manager.get_stderr()}
         
         success, _, curl_output, time_taken = self._run_single_test_session(test_func, test_args, repeats)
         
-        winws_crashed = self.current_winws_proc.poll() is not None
-        winws_stderr = ""
-        if winws_crashed:
-            try:
-                _, winws_stderr = self.current_winws_proc.communicate(timeout=1)
-            except subprocess.TimeoutExpired: winws_stderr = "Could not read stderr."
-        self._stop_winws()
+        winws_crashed = self.winws_manager.is_crashed()
+        winws_stderr = self.winws_manager.get_stderr() if winws_crashed else ""
+        self.winws_manager.stop()
         
         return {'success': success, 'time': time_taken, 'curl_output': curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
 
@@ -294,4 +259,4 @@ class BlockChecker:
 
     def cleanup(self):
         ui.print_info("\nCleaning up...")
-        self._stop_winws()
+        self.winws_manager.stop()
