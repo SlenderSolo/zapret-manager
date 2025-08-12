@@ -1,17 +1,17 @@
-import os
 import subprocess
 import time
 import socket
+from pathlib import Path
 
 from .config import *
 from . import ui
 from .utils import is_process_running
 from .winws_manager import WinWSManager
 
-BIN_DIR = os.path.join(BASE_DIR, "bin")
-WINWS_PATH = os.path.join(BIN_DIR, "winws.exe")
-CURL_PATH = os.path.join(BIN_DIR, "curl.exe")
-STRATEGIES_PATH = os.path.join(BIN_DIR, "strategies.txt")
+BIN_DIR = BASE_DIR / "bin"
+WINWS_PATH = BIN_DIR / "winws.exe"
+CURL_PATH = BIN_DIR / "curl.exe"
+STRATEGIES_PATH = BIN_DIR / "strategies.txt"
 
 # Custom exception for clean exits.
 class BlockCheckError(Exception):
@@ -24,7 +24,7 @@ class BlockChecker:
         self.checks_to_run = {} 
         self.curl_caps = {'tls1.3': False, 'http3': False}
         self.reports = {}
-        self.winws_manager = WinWSManager(WINWS_PATH, BIN_DIR)
+        self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         self.strategies_by_test = {}
         self.initial_accessibility = {}
 
@@ -35,7 +35,7 @@ class BlockChecker:
         
         required_files = [WINWS_PATH, CURL_PATH, STRATEGIES_PATH]
         for path in required_files:
-            if not os.path.exists(path):
+            if not path.exists():
                 raise BlockCheckError(f"Required file not found: '{path}'.")
         
         ui.print_ok("All required binaries and strategy file found.")
@@ -81,7 +81,7 @@ class BlockChecker:
         ui.print_header("Loading strategies from file")
         self.strategies_by_test = {key: [] for key in self.checks_to_run.keys()}
         try:
-            with open(STRATEGIES_PATH, 'r') as f:
+            with STRATEGIES_PATH.open('r') as f:
                 for line in f:
                     line = line.strip()
                     if not line or ' : ' not in line: continue
@@ -162,8 +162,8 @@ class BlockChecker:
                 key, value = param.split('=', 1)
                 unquoted_value = value.strip('"')
                 relative_path = unquoted_value.replace("%~dp0bin\\", "")
-                full_path = os.path.join(BIN_DIR, relative_path)
-                final_params.append(f'{key}={full_path}')
+                full_path = BIN_DIR / relative_path
+                final_params.append(f'{key}={str(full_path)}')
             else:
                 final_params.append(param)
         final_params.append(f"--hostlist-domains={domain}")

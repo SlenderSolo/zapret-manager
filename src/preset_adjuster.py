@@ -1,5 +1,6 @@
-import os
 import re
+from pathlib import Path
+from os import sep
 
 from . import ui
 from . import config
@@ -19,14 +20,14 @@ def _get_test_params(checker, test_type, domain):
 def _reconstruct_template(params: list) -> list:
     """Reconstructs a strategy template with placeholder paths."""
     template = []
-    bin_dir_abs = os.path.join(config.BASE_DIR, "bin")
+    bin_dir_abs = config.BASE_DIR / "bin"
     for param in params:
         if '=' in param:
             key, value = param.split('=', 1)
             value_unquoted = value.strip('"')
-            if value_unquoted.startswith(bin_dir_abs):
-                relative_path = os.path.relpath(value_unquoted, bin_dir_abs)
-                template_value = f'"%~dp0bin\\{relative_path.replace(os.sep, "\\")}"'
+            if Path(value_unquoted).is_absolute() and value_unquoted.startswith(str(bin_dir_abs)):
+                relative_path = Path(value_unquoted).relative_to(bin_dir_abs)
+                template_value = f'"%~dp0bin\\{str(relative_path).replace("/", "\\")}"'
                 template.append(f'{key}={template_value}')
             else:
                 template.append(param)
@@ -36,16 +37,15 @@ def _reconstruct_template(params: list) -> list:
 
 def _unresolve_paths(line_to_clean):
     """Replaces absolute paths with placeholders like %BIN%."""
-    bin_path = os.path.normpath(os.path.join(config.BASE_DIR, "bin")) + os.sep
-    lists_path = os.path.normpath(os.path.join(config.BASE_DIR, "lists")) + os.sep
-    line_to_clean = re.sub(re.escape(lists_path), '%LISTS%', line_to_clean, flags=re.IGNORECASE)
-    line_to_clean = re.sub(re.escape(bin_path), '%BIN%', line_to_clean, flags=re.IGNORECASE)
-    return line_to_clean.replace(os.sep, '\\')
+    bin_path = str(config.BASE_DIR / "bin") + sep
+    lists_path = str(config.BASE_DIR / "lists") + sep
+    line_to_clean = re.sub(re.escape(lists_path), '%LISTS%\\', line_to_clean, flags=re.IGNORECASE)
+    line_to_clean = re.sub(re.escape(bin_path), '%BIN%\\', line_to_clean, flags=re.IGNORECASE)
+    return line_to_clean.replace(sep, '\\')
 
-def _generate_new_preset(original_path, global_args, rules, best_strategies_map):
+def _generate_new_preset(original_path: Path, global_args, rules, best_strategies_map):
     """Generates a new, adjusted .bat preset file."""
-    path_parts = os.path.splitext(original_path)
-    new_path = f"{path_parts[0]}_adjusted{path_parts[1]}"
+    new_path = original_path.with_name(f"{original_path.stem}_adjusted{original_path.suffix}")
     
     unresolved_global_args = _unresolve_paths(" ".join(global_args))
     command_start = f'start "zapret: auto-adjusted" /min "%BIN%winws.exe" {unresolved_global_args}'
@@ -63,7 +63,7 @@ def _generate_new_preset(original_path, global_args, rules, best_strategies_map)
     full_command = f"{command_start} ^\n" + " --new ^\n".join(rule_lines)
 
     try:
-        with open(new_path, 'w', encoding='utf-8') as f:
+        with new_path.open('w', encoding='utf-8') as f:
             f.write('set "BIN=%~dp0bin\\"\n')
             f.write('set "LISTS=%~dp0lists\\"\n\n')
             f.write(full_command)
@@ -143,7 +143,7 @@ def adjust_preset():
     """Finds the best working strategies for a given preset and generates a new one."""
     ui.print_header("Auto-adjust Preset")
     try:
-        config_files = [f for f in os.listdir(config.BASE_DIR) if f.lower().endswith(('.bat', '.cmd'))]
+        config_files = [f.name for f in config.BASE_DIR.iterdir() if f.suffix.lower() in ('.bat', '.cmd')]
         if not config_files:
             ui.print_err(f"No .bat or .cmd files found in {config.BASE_DIR}"); return
     except Exception as e: ui.print_err(f"Could not scan for config files: {e}"); return
@@ -152,7 +152,7 @@ def adjust_preset():
     if not selected_filename:
         ui.print_info("Operation cancelled."); return
     
-    preset_path = os.path.join(config.BASE_DIR, selected_filename)
+    preset_path = config.BASE_DIR / selected_filename
     print(f"\nUsing preset: {ui.Style.BRIGHT}{selected_filename}{ui.Style.NORMAL}")
     
     parsed_data = parse_preset_file(preset_path)

@@ -1,7 +1,7 @@
-import os
+from pathlib import Path
 
 # --- Paths and Constants ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- BlockChecker Settings ---
 CURL_TIMEOUT = 1.5

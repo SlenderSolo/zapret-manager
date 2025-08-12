@@ -1,7 +1,7 @@
-import os
 import re
 import subprocess
 import ctypes
+from pathlib import Path
 
 from .config import BASE_DIR, SERVICE_NAME
 from . import ui
@@ -50,7 +50,7 @@ def create_service():
     run_sc_command(["delete", "zapret"], quiet=True)
         
     try:
-        config_files = [f for f in os.listdir(BASE_DIR) if f.lower().endswith(('.bat', '.cmd'))]
+        config_files = [f.name for f in BASE_DIR.iterdir() if f.suffix.lower() in ('.bat', '.cmd')]
         if not config_files:
             ui.print_err(f"No configuration files (.bat, .cmd) found in {BASE_DIR}")
             return
@@ -66,12 +66,12 @@ def create_service():
     print(f"\nUsing configuration: {ui.Style.BRIGHT}{selected_filename}{ui.Style.NORMAL}")
     ui.print_info("Parsing configuration file...")
     
-    parsed_data = parse_preset_file(os.path.join(BASE_DIR, selected_filename))
+    parsed_data = parse_preset_file(BASE_DIR / selected_filename)
     
     if not parsed_data: 
         ui.print_err("Failed to parse parameters from the selected file.")
         return
-    if not os.path.exists(parsed_data.executable_path):
+    if not parsed_data.executable_path.exists():
         ui.print_err(f"Executable not found: {parsed_data.executable_path}")
         return
     
@@ -82,7 +82,7 @@ def create_service():
     
     ui.print_info(f"\nPreparing to create service '{SERVICE_NAME}'...")
     
-    bin_path_arg = f'"{parsed_data.executable_path}" {args}'.strip() 
+    bin_path_arg = f'"{str(parsed_data.executable_path)}" {args}'.strip() 
     display_name = f"Zapret DPI Bypass ({selected_filename})"
     sc_args = ["create", SERVICE_NAME, "binPath=", bin_path_arg, "DisplayName=", display_name, "start=", "auto"]
     
@@ -148,5 +148,3 @@ def get_service_status():
 
     if not service_found:
         print(f"Service status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")
-
-

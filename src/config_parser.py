@@ -1,5 +1,6 @@
-import os
 import re
+from os import sep
+from pathlib import Path
 from dataclasses import dataclass, field
 
 from . import ui
@@ -16,7 +17,7 @@ class PresetRule:
 @dataclass
 class ParsedPreset:
     """Structured data from a parsed .bat preset."""
-    executable_path: str
+    executable_path: Path
     global_args: list[str] = field(default_factory=list)
     rules: list[PresetRule] = field(default_factory=list)
 
@@ -33,10 +34,10 @@ class ParsedPreset:
         
         return " ".join(arg_parts)
 
-def _parse_legacy_bat(run_bat_path):
+def _parse_legacy_bat(run_bat_path: Path):
     """Extracts executable and argument tokens from a legacy .bat file."""
     script_dir = BASE_DIR
-    script_dir_path_for_replace = script_dir if script_dir.endswith(os.sep) else script_dir + os.sep
+    script_dir_path_for_replace = str(script_dir) + sep
     variables = {}
     all_lines = None
     try:
@@ -44,7 +45,7 @@ def _parse_legacy_bat(run_bat_path):
         encodings_to_try = ['utf-8', 'cp866', 'cp1251']
         for enc in encodings_to_try:
             try:
-                with open(run_bat_path, "r", encoding=enc) as f:
+                with run_bat_path.open("r", encoding=enc) as f:
                     all_lines = f.readlines()
                 break
             except UnicodeDecodeError: continue
@@ -56,8 +57,8 @@ def _parse_legacy_bat(run_bat_path):
                 var_name, raw_value = match.group(1).strip(), match.group(2)
                 had_trailing_slash = raw_value.rstrip().endswith(("\\", "/"))
                 resolved_value = raw_value.replace("%~dp0", script_dir_path_for_replace)
-                resolved_value = os.path.normpath(resolved_value)
-                if had_trailing_slash and not resolved_value.endswith(os.sep): resolved_value += os.sep
+                resolved_value = str(Path(resolved_value))
+                if had_trailing_slash and not resolved_value.endswith(sep): resolved_value += sep
                 variables[var_name.upper()] = resolved_value
     except Exception: return None, None
 
@@ -107,12 +108,12 @@ def _parse_legacy_bat(run_bat_path):
             
     if exe_token_index == -1: return None, None
     
-    resolved_exe_path = os.path.normpath(tokens[exe_token_index].strip('"'))
+    resolved_exe_path = Path(tokens[exe_token_index].strip('"'))
     final_args_tokens = tokens[exe_token_index + 1:]
     return resolved_exe_path, final_args_tokens
 
 
-def parse_preset_file(preset_path: str) -> ParsedPreset | None:
+def parse_preset_file(preset_path: Path) -> ParsedPreset | None:
     """Parses a .bat preset file into a ParsedPreset object."""
     try:
         executable_path, all_args_tokens = _parse_legacy_bat(preset_path)
@@ -164,5 +165,5 @@ def parse_preset_file(preset_path: str) -> ParsedPreset | None:
         return ParsedPreset(executable_path=executable_path, global_args=global_args, rules=parsed_rules)
 
     except Exception as e:
-        ui.print_err(f"Error parsing {preset_path}: {e}")
+        ui.print_err(f"Error parsing {preset_path.name}: {e}")
         return None

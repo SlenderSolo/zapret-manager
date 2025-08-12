@@ -2,9 +2,10 @@ import os
 import sys
 import signal
 import traceback
+from pathlib import Path
 
 # This allows importing from sibling directories
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from src.block_checker import BlockChecker, BlockCheckError
 from src.service_manager import create_service, delete_service, get_service_status
