@@ -13,21 +13,41 @@ WINWS_PATH = BIN_DIR / "winws.exe"
 CURL_PATH = BIN_DIR / "curl.exe"
 STRATEGIES_PATH = BIN_DIR / "strategies.txt"
 
-# Custom exception for clean exits.
 class BlockCheckError(Exception):
     pass
 
 class BlockChecker:
+
+    CHECKS_CONFIG = {
+        'http': {
+            'title': 'HTTP',
+            'test_params': {'ip_version': 4, 'port': 80},
+        },
+        'https_tls12': {
+            'title': 'HTTPS (TLS 1.2)',
+            'test_params': {'ip_version': 4, 'port': 443, 'tls_version': "1.2"},
+        },
+        'https_tls13': {
+            'title': 'HTTPS (TLS 1.3)',
+            'capability': 'tls1.3',
+            'test_params': {'ip_version': 4, 'port': 443, 'tls_version': "1.3"},
+        },
+        'http3': {
+            'title': 'HTTP/3 (QUIC)',
+            'capability': 'http3',
+            'test_params': {'ip_version': 4, 'port': 443, 'http3_only': True},
+        }
+    }
+
     def __init__(self):
         self.domains = []
         self.repeats = 1
-        self.checks_to_run = {} 
+        self.checks_to_run = {}
         self.curl_caps = {'tls1.3': False, 'http3': False}
         self.reports = {}
+        self.initial_accessibility = {}
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         self.strategies_by_test = {}
-        self.initial_accessibility = {}
-
 
     def _check_prerequisites(self):
         ui.print_header("Checking prerequisites")
@@ -63,23 +83,21 @@ class BlockChecker:
         repeats_input = input("How many times to repeat each test (default: 1): ")
         self.repeats = int(repeats_input) if repeats_input.isdigit() and int(repeats_input) > 0 else 1
         
-        self.checks_to_run['http'] = ui.ask_yes_no("Check HTTP?", default_yes=DEFAULT_CHECKS.get('http', True))
-        self.checks_to_run['https_tls12'] = ui.ask_yes_no("Check HTTPS (TLS 1.2)?", default_yes=DEFAULT_CHECKS.get('https_tls12', True))
-        if self.curl_caps['tls1.3']:
-            self.checks_to_run['https_tls13'] = ui.ask_yes_no("Check HTTPS (TLS 1.3)?", default_yes=DEFAULT_CHECKS.get('https_tls13', False))
-        else:
-            self.checks_to_run['https_tls13'] = False
-            ui.print_warn("TLS 1.3 not supported by your curl version, skipping.")
-            
-        if self.curl_caps['http3']:
-            self.checks_to_run['http3'] = ui.ask_yes_no("Check HTTP/3 (QUIC)?", default_yes=DEFAULT_CHECKS.get('http3', True))
-        else:
-            self.checks_to_run['http3'] = False
-            ui.print_warn("HTTP/3 not supported by your curl version, skipping.")
+        for key, config in self.CHECKS_CONFIG.items():
+            capability = config.get('capability')
+            if capability and not self.curl_caps.get(capability):
+                self.checks_to_run[key] = False
+                ui.print_warn(f"{config['title']} not supported by your curl version, skipping.")
+            else:
+                prompt = f"Check {config['title']}?"
+                self.checks_to_run[key] = ui.ask_yes_no(prompt, default_yes=DEFAULT_CHECKS.get(key, True))
 
     def _load_strategies_from_file(self):
         ui.print_header("Loading strategies from file")
-        self.strategies_by_test = {key: [] for key in self.checks_to_run.keys()}
+        self.strategies_by_test = {key: [] for key in self.checks_to_run}
+        
+        strategy_map = {'https': ['https_tls12', 'https_tls13']}
+
         try:
             with STRATEGIES_PATH.open('r') as f:
                 for line in f:
@@ -87,23 +105,20 @@ class BlockChecker:
                     if not line or ' : ' not in line: continue
                     
                     test_name_raw, params_raw = line.split(' : ', 1)
-                    internal_test_name = test_name_raw.strip()
+                    params_list = params_raw.split()[1:]
                     
-                    if internal_test_name == 'https':
-                        params_list = params_raw.split()[1:]
-                        if self.checks_to_run.get('https_tls12'):
-                            self.strategies_by_test.setdefault('https_tls12', []).append(params_list)
-                        if self.checks_to_run.get('https_tls13'):
-                            self.strategies_by_test.setdefault('https_tls13', []).append(params_list)
-                    elif self.checks_to_run.get(internal_test_name):
-                        params_list = params_raw.split()[1:]
-                        self.strategies_by_test[internal_test_name].append(params_list)
+                    target_keys = strategy_map.get(test_name_raw.strip(), [test_name_raw.strip()])
+                    for key in target_keys:
+                        if self.checks_to_run.get(key):
+                            self.strategies_by_test.setdefault(key, []).append(params_list)
+
         except FileNotFoundError:
             raise BlockCheckError(f"Strategy file not found at: {STRATEGIES_PATH}")
         
         for test_name, strategies in self.strategies_by_test.items():
             if self.checks_to_run.get(test_name) and strategies:
-                ui.print_info(f"Loaded {len(strategies)} strategies for {test_name.upper()}.")
+                title = self.CHECKS_CONFIG.get(test_name, {}).get('title', test_name.upper())
+                ui.print_info(f"Loaded {len(strategies)} strategies for {title}.")
 
     def _perform_curl_test(self, domain, ip_version, port, tls_version=None, http3_only=False):
         try:
@@ -114,9 +129,8 @@ class BlockChecker:
         
         protocol = "https" if port == 443 else "http"
         url = f"{protocol}://{domain}"
-        timeout = CURL_TIMEOUT 
-
-        cmd = [CURL_PATH, '-sS', '-I', '-A', USER_AGENT, '--max-time', str(timeout),
+        
+        cmd = [CURL_PATH, '-sS', '-I', '-A', USER_AGENT, '--max-time', str(CURL_TIMEOUT),
                '--connect-to', f"{domain}:{port}:{ip}:{port}"]
         if tls_version == "1.2": cmd.extend(['--tlsv1.2', '--tls-max', '1.2'])
         elif tls_version == "1.3": cmd.append('--tlsv1.3')
@@ -125,9 +139,10 @@ class BlockChecker:
         
         try:
             start_time = time.perf_counter()
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
             end_time = time.perf_counter()
             output = (result.stdout + result.stderr).strip()
+
             if result.returncode == 0:
                 http_status_line = output.splitlines()[0] if output else ""
                 if " 30" in http_status_line:
@@ -136,66 +151,100 @@ class BlockChecker:
                             if domain not in line.split(":", 1)[1].strip():
                                 return (False, 254, "Suspicious redirection", -1)
                 return (True, 0, "Success", end_time - start_time)
+            
             return (False, result.returncode, output, -1)
         except subprocess.TimeoutExpired:
             return (False, 28, "Operation timed out", -1)
 
-    def _run_single_test_session(self, test_func, args, repeats):
+    def _run_single_test_session(self, test_func, repeats, *args, **kwargs):
         if repeats == 1:
-            return test_func(*args)
+            return test_func(*args, **kwargs)
         
         fastest_time = float('inf')
         last_output = ""
         last_code = 0
         for _ in range(repeats):
-            success, code, output, time_taken = test_func(*args)
+            success, code, output, time_taken = test_func(*args, **kwargs)
             if not success: return False, code, output, -1
             if time_taken >= 0 and time_taken < fastest_time: fastest_time = time_taken
             last_output = output
             last_code = code
         return True, last_code, last_output, fastest_time
 
-    def _process_strategy_template(self, template: list, domain: str) -> list:
+    def _process_strategy_template(self, template: list, domains: list[str]) -> list:
         final_params = []
         for param in template:
-            if "%~dp0bin\\" in param:
+            if "%~dp0" in param and "=" in param:
                 key, value = param.split('=', 1)
-                unquoted_value = value.strip('"')
-                relative_path = unquoted_value.replace("%~dp0bin\\", "")
-                full_path = BIN_DIR / relative_path
-                final_params.append(f'{key}={str(full_path)}')
+                template_path = value.strip('"')
+                relative_path = template_path.replace("%~dp0", "").lstrip("\\/")
+                full_path = BASE_DIR / relative_path
+                
+                full_path_str = str(full_path)
+                if ' ' in full_path_str:
+                    full_path_str = f'"{full_path_str}"'
+                final_params.append(f'{key}={full_path_str}')
             else:
                 final_params.append(param)
-        final_params.append(f"--hostlist-domains={domain}")
+        
+        final_params.append(f"--hostlist-domains={','.join(domains)}")
         return final_params
 
-    def _test_one_strategy(self, domain: str, template: list, test_func, test_args, repeats: int):
-        winws_command = self._process_strategy_template(template, domain)
+    def _test_one_strategy(self, domains_to_test: list[str], template: list, test_func, base_test_params: dict, repeats: int):
+        winws_command = self._process_strategy_template(template, self.domains)
         if not self.winws_manager.start(winws_command):
             return {'success': False, 'curl_output': '', 'winws_crashed': True, 'winws_stderr': self.winws_manager.get_stderr()}
         
-        success, _, curl_output, time_taken = self._run_single_test_session(test_func, test_args, repeats)
+        is_overall_success = False
+        final_curl_output = ""
+        total_time = 0
         
+        try:
+            for domain in domains_to_test:
+                success, _, curl_output, time_taken = self._run_single_test_session(
+                    test_func, repeats, domain, **base_test_params
+                )
+                
+                if not success:
+                    if len(domains_to_test) > 1:
+                        final_curl_output = f"Failed on '{domain}': {curl_output}"
+                    else:
+                        final_curl_output = curl_output
+                    break
+                total_time += time_taken
+            else:
+                is_overall_success = True
+                final_curl_output = "Success"
+        finally:
+            self.winws_manager.stop()
+
         winws_crashed = self.winws_manager.is_crashed()
         winws_stderr = self.winws_manager.get_stderr() if winws_crashed else ""
-        self.winws_manager.stop()
         
-        return {'success': success, 'time': time_taken, 'curl_output': curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
+        if is_overall_success:
+            avg_time = total_time / len(domains_to_test) if domains_to_test else 0
+            return {'success': True, 'time': avg_time, 'curl_output': final_curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
+        else:
+            return {'success': False, 'curl_output': final_curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
 
-    def _run_test_suite(self, test_name, internal_test_key, test_func, test_args, domain):
-        ui.print_header(f"Testing {test_name.upper()} for {domain}")
-        print("- Checking without DPI bypass...", end="", flush=True)
-        is_available, _, _, _ = self._run_single_test_session(test_func, test_args, 1)
-        self.initial_accessibility[internal_test_key] = is_available
-        print(f" {ui.Fore.GREEN}ACCESSIBLE{ui.Style.RESET_ALL}" if is_available else f" {ui.Fore.RED}BLOCKED{ui.Style.RESET_ALL}")
+    def _check_initial_accessibility(self, test_key, test_func, base_test_params):
+        self.initial_accessibility[test_key] = {}
+        print("- Checking initial accessibility without DPI bypass...")
+        for domain in self.domains:
+            is_available, _, _, _ = self._run_single_test_session(test_func, 1, domain, **base_test_params)
+            self.initial_accessibility[test_key][domain] = is_available
+            status = f" {ui.Fore.GREEN}ACCESSIBLE{ui.Style.RESET_ALL}" if is_available else f" {ui.Fore.RED}BLOCKED{ui.Style.RESET_ALL}"
+            print(f"  - {domain}: {status}")
+        return all(self.initial_accessibility[test_key].values())
 
-        if is_available:
-            ui.print_info("Site is initially accessible, skipping bypass tests for this protocol.")
-            return
+    def _run_strategies_for_test(self, test_key, test_func, base_test_params):
+        blocked_domains = [domain for domain, accessible in self.initial_accessibility[test_key].items() if not accessible]
+        ui.print_info(f"Domains to unblock: {', '.join(blocked_domains)}")
 
-        strategy_templates = self.strategies_by_test.get(internal_test_key, [])
+        strategy_templates = self.strategies_by_test.get(test_key, [])
         if not strategy_templates:
-            ui.print_info(f"No strategies to test for {test_name.upper()}.")
+            title = self.CHECKS_CONFIG.get(test_key, {}).get('title', test_key.upper())
+            ui.print_info(f"No strategies to test for {title}.")
             return
         
         ui.print_info(f"\n- Starting tests with {len(strategy_templates)} loaded strategies...")
@@ -203,11 +252,12 @@ class BlockChecker:
             short_name = ' '.join(p for p in template if '--wf' not in p)
             print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{i+1}/{len(strategy_templates)}]{ui.Style.RESET_ALL} Testing: {short_name}")
 
-            result = self._test_one_strategy(domain, template, test_func, test_args, self.repeats)
+            result = self._test_one_strategy(blocked_domains, template, test_func, base_test_params, self.repeats)
 
             if result['success']:
-                status_message = f"{ui.Style.BRIGHT + ui.Fore.GREEN}SUCCESS (Time: {result['time']:.3f}s){ui.Style.RESET_ALL}"
-                self._add_report(internal_test_key, template, result['time'])
+                time_label = "Avg Time" if len(blocked_domains) > 1 or self.repeats > 1 else "Time"
+                status_message = f"{ui.Style.BRIGHT + ui.Fore.GREEN}SUCCESS ({time_label}: {result['time']:.3f}s){ui.Style.RESET_ALL}"
+                self._add_report(test_key, template, result['time'])
                 print(f"  Result: {status_message}")
             else:
                 status_message = f"{ui.Fore.RED}FAILED{ui.Style.RESET_ALL}"
@@ -217,7 +267,21 @@ class BlockChecker:
                 print(f"  Result: {status_message}")
             if result['winws_crashed']:
                 print(f"    {ui.Fore.RED}WinWS CRASHED. Stderr: {result['winws_stderr'].strip()}{ui.Style.RESET_ALL}")
-            
+
+    def _run_test_suite(self, test_key, test_config):
+        title = test_config['title']
+        base_test_params = test_config['test_params']
+        
+        ui.print_header(f"Testing {title.upper()} for domains: {', '.join(self.domains)}")
+        
+        all_sites_accessible = self._check_initial_accessibility(test_key, self._perform_curl_test, base_test_params)
+
+        if all_sites_accessible:
+            ui.print_info("All sites are initially accessible, skipping bypass tests for this protocol.")
+            return
+
+        self._run_strategies_for_test(test_key, self._perform_curl_test, base_test_params)
+
     def _add_report(self, internal_test_key, strategy_template, time_taken):
         if internal_test_key not in self.reports:
             self.reports[internal_test_key] = []
@@ -225,37 +289,33 @@ class BlockChecker:
 
     def run_all_tests(self):
         self._load_strategies_from_file()
-        for domain in self.domains:
-            self.reports = {}
-            self.initial_accessibility = {}
-            if self.checks_to_run.get('http'):
-                self._run_test_suite("HTTP", "http", self._perform_curl_test, (domain, 4, 80), domain)
-            if self.checks_to_run.get('https_tls12'):
-                self._run_test_suite("HTTPS (TLS 1.2)", "https_tls12", self._perform_curl_test, (domain, 4, 443, "1.2"), domain)
-            if self.checks_to_run.get('https_tls13'):
-                self._run_test_suite("HTTPS (TLS 1.3)", "https_tls13", self._perform_curl_test, (domain, 4, 443, "1.3"), domain)
-            if self.checks_to_run.get('http3'):
-                self._run_test_suite("HTTP/3", "http3", self._perform_curl_test, (domain, 4, 443, None, True), domain)
-            self.print_summary(domain)
+        self.reports.clear()
+        self.initial_accessibility.clear()
 
-    def print_summary(self, domain):
-        ui.print_header(f"SUMMARY for {domain}")
+        for key, config in self.CHECKS_CONFIG.items():
+            if self.checks_to_run.get(key):
+                self._run_test_suite(key, config)
+        
+        self.print_summary()
+
+    def print_summary(self):
+        ui.print_header(f"SUMMARY for {', '.join(self.domains)}")
         if not any(self.reports.values()):
-            ui.print_warn(f"No working strategies found for {domain}.")
+            ui.print_warn(f"No working strategies found for the given domains.")
             return
         
-        report_order = ['http', 'https_tls12', 'https_tls13', 'http3']
-        protocol_titles = {'http': 'HTTP', 'https_tls12': 'HTTPS (TLS 1.2)', 'https_tls13': 'HTTPS (TLS 1.3)', 'http3': 'HTTP/3 (QUIC)'}
-        for protocol_key in report_order:
-            results = self.reports.get(protocol_key, [])
+        time_label = "Avg Time" if len(self.domains) > 1 or self.repeats > 1 else "Time"
+        
+        for key, config in self.CHECKS_CONFIG.items():
+            results = self.reports.get(key, [])
             if results:
-                print(f"\n{ui.Style.BRIGHT + ui.Fore.GREEN}Successful {protocol_titles.get(protocol_key)} strategies (sorted by speed):{ui.Style.RESET_ALL}")
+                print(f"\n{ui.Style.BRIGHT + ui.Fore.GREEN}Successful {config['title']} strategies (sorted by speed):{ui.Style.RESET_ALL}")
                 sorted_results = sorted(results, key=lambda x: x['time'])
                 for res in sorted_results:
                     strategy_parts = res['strategy'].split()
                     display_parts = [p for p in strategy_parts if not p.startswith('--wf-')]
                     display_strategy = ' '.join(display_parts)
-                    print(f"  (Time: {res['time']:.3f}s) {display_strategy}")
+                    print(f"  ({time_label}: {res['time']:.3f}s) {display_strategy}")
 
     def cleanup(self):
         ui.print_info("\nCleaning up...")

@@ -7,15 +7,13 @@ from . import config
 from .block_checker import BlockChecker, BlockCheckError
 from .config_parser import parse_preset_file
 
-def _get_test_params(checker, test_type, domain):
+def _get_test_params(checker, test_type):
     """Gets the correct curl test function and arguments for a given test type."""
-    if test_type == 'http':
-        return checker._perform_curl_test, (domain, 4, 80)
-    elif test_type == 'https_tls13':
-        return checker._perform_curl_test, (domain, 4, 443, "1.3")
-    elif test_type == 'http3':
-        return checker._perform_curl_test, (domain, 4, 443, None, True)
-    return None, None
+    test_config = checker.CHECKS_CONFIG.get(test_type)
+    if not test_config:
+        return None, None
+
+    return checker._perform_curl_test, test_config.get('test_params', {})
 
 def _reconstruct_template(params: list) -> list:
     """Reconstructs a strategy template with placeholder paths."""
@@ -39,8 +37,8 @@ def _unresolve_paths(line_to_clean):
     """Replaces absolute paths with placeholders like %BIN%."""
     bin_path = str(config.BASE_DIR / "bin") + sep
     lists_path = str(config.BASE_DIR / "lists") + sep
-    line_to_clean = re.sub(re.escape(lists_path), '%LISTS%\\', line_to_clean, flags=re.IGNORECASE)
-    line_to_clean = re.sub(re.escape(bin_path), '%BIN%\\', line_to_clean, flags=re.IGNORECASE)
+    line_to_clean = re.sub(re.escape(lists_path), r'%LISTS%\\', line_to_clean, flags=re.IGNORECASE)
+    line_to_clean = re.sub(re.escape(bin_path), r'%BIN%\\', line_to_clean, flags=re.IGNORECASE)
     return line_to_clean.replace(sep, '\\')
 
 def _generate_new_preset(original_path: Path, global_args, rules, best_strategies_map):
@@ -73,7 +71,7 @@ def _generate_new_preset(original_path: Path, global_args, rules, best_strategie
 
 def find_best_strategy_for_key(checker, test_type, desync_key, domain, all_strategies, original_strategy_params):
     """Finds the best working strategy for a specific protocol/desync key combination."""
-    test_func, test_args = _get_test_params(checker, test_type, domain)
+    test_func, base_test_params = _get_test_params(checker, test_type)
     if not test_func: return (False, " ".join(original_strategy_params))
     
     original_strategy_resolved_string = " ".join(original_strategy_params)
@@ -91,7 +89,7 @@ def find_best_strategy_for_key(checker, test_type, desync_key, domain, all_strat
     
     print(f"Testing original preset config: {original_strategy_resolved_string}")
 
-    result = checker._test_one_strategy(domain, full_original_template, test_func, test_args, 1)
+    result = checker._test_one_strategy([domain], full_original_template, test_func, base_test_params, 1)
 
     if result['success']:
         ui.print_ok(f"  Result: SUCCESS. Existing strategy is working. (Time: {result['time']:.3f}s)")
@@ -117,7 +115,7 @@ def find_best_strategy_for_key(checker, test_type, desync_key, domain, all_strat
         short_name = ' '.join(p for p in template if not p.startswith('--wf-'))
         print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{i+1}/{len(candidate_templates)}]{ui.Style.RESET_ALL} Testing: {short_name}")
         
-        result = checker._test_one_strategy(domain, template, test_func, test_args, 1)
+        result = checker._test_one_strategy([domain], template, test_func, base_test_params, 1)
 
         if result['success']:
             successful_results.append({'strategy': template, 'time': result['time']})
@@ -132,7 +130,7 @@ def find_best_strategy_for_key(checker, test_type, desync_key, domain, all_strat
 
     best_result = min(successful_results, key=lambda x: x['time'])
     
-    resolved_params_list = checker._process_strategy_template(best_result['strategy'], domain)
+    resolved_params_list = checker._process_strategy_template(best_result['strategy'], [domain])
     best_strategy_resolved_string = ' '.join(p for p in resolved_params_list if not p.startswith('--wf-') and not p.startswith('--hostlist-domains'))
 
     ui.print_ok(f"Fastest alternative found: {best_strategy_resolved_string} (Time: {best_result['time']:.3f}s)")
