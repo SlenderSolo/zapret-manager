@@ -2,7 +2,8 @@ set "BIN=%~dp0bin\"
 set "LISTS=%~dp0lists\"
 
 start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 --wf-udp=443,50000-50099 ^
---filter-tcp=80 --hostlist="%LISTS%list-general.txt" --dpi-desync=fake,fakedsplit --dpi-desync-split-pos=midsld --dpi-desync-fooling=badseq --new ^
+--filter-tcp=80 --hostlist="%LISTS%list-general.txt" --dpi-desync=multisplit --dpi-desync-split-pos=midsld --new ^
+--filter-tcp=80 --hostlist="%LISTS%list-youtube.txt" --dpi-desync=multisplit --dpi-desync-split-pos=midsld --new ^
 --filter-tcp=443 --hostlist="%LISTS%list-youtube.txt" --dpi-desync=fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=11 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --new ^
 --filter-tcp=443 --hostlist="%LISTS%list-general.txt" --dpi-desync=fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=6 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru --new ^
 --filter-tcp=443 --ipset="%LISTS%ipset-all.txt" --dpi-desync=fake,multisplit --dpi-desync-split-pos=1,midsld --dpi-desync-repeats=6 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru --new ^
