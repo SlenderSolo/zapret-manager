@@ -145,7 +145,7 @@ class BlockChecker:
 
             if result.returncode == 0:
                 http_status_line = output.splitlines()[0] if output else ""
-                if " 30" in http_status_line:
+                if not REDIRECT_AS_SUCCESS and " 30" in http_status_line:
                     for line in output.splitlines():
                         if line.lower().startswith("location:"):
                             if domain not in line.split(":", 1)[1].strip():
@@ -238,8 +238,12 @@ class BlockChecker:
         return all(self.initial_accessibility[test_key].values())
 
     def _run_strategies_for_test(self, test_key, test_func, base_test_params):
-        blocked_domains = [domain for domain, accessible in self.initial_accessibility[test_key].items() if not accessible]
-        ui.print_info(f"Domains to unblock: {', '.join(blocked_domains)}")
+        if ONLY_BLOCKED_DOMAINS:
+            domains_to_test = [domain for domain, accessible in self.initial_accessibility[test_key].items() if not accessible]
+            ui.print_info(f"Domains to unblock: {', '.join(domains_to_test)}")
+        else:
+            domains_to_test = self.domains
+            ui.print_info(f"Testing on all provided domains (ignoring initial status): {', '.join(domains_to_test)}")
 
         strategy_templates = self.strategies_by_test.get(test_key, [])
         if not strategy_templates:
@@ -252,10 +256,10 @@ class BlockChecker:
             short_name = ' '.join(p for p in template if '--wf' not in p)
             print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{i+1}/{len(strategy_templates)}]{ui.Style.RESET_ALL} Testing: {short_name}")
 
-            result = self._test_one_strategy(blocked_domains, template, test_func, base_test_params, self.repeats)
+            result = self._test_one_strategy(domains_to_test, template, test_func, base_test_params, self.repeats)
 
             if result['success']:
-                time_label = "Avg Time" if len(blocked_domains) > 1 or self.repeats > 1 else "Time"
+                time_label = "Avg Time" if len(domains_to_test) > 1 or self.repeats > 1 else "Time"
                 status_message = f"{ui.Style.BRIGHT + ui.Fore.GREEN}SUCCESS ({time_label}: {result['time']:.3f}s){ui.Style.RESET_ALL}"
                 self._add_report(test_key, template, result['time'])
                 print(f"  Result: {status_message}")

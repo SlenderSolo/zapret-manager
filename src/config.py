@@ -4,6 +4,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- BlockChecker Settings ---
+REDIRECT_AS_SUCCESS = True
+ONLY_BLOCKED_DOMAINS = False
 CURL_TIMEOUT = 1.5
 USER_AGENT = "Mozilla"
 DEFAULT_CHECKS = {
