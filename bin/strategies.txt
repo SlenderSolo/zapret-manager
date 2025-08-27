@@ -125,32 +125,32 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multidisorder --dpi-desync-
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multidisorder --dpi-desync-split-pos=1,sniext+1,host+1,midsld-2,midsld,midsld+2,endhost-1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2 --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=2 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=ts --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1
@@ -171,140 +171,140 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desyn
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1
@@ -323,120 +323,120 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-de
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=datanoack --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=ts --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-fooling=md5sig --dup=1 --dup-cutoff=n2 --dup-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multisplit --dpi-desync-split-pos=10 --dpi-desync-split-seqovl=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multisplit --dpi-desync-split-pos=10,sniext+1 --dpi-desync-split-seqovl=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multisplit --dpi-desync-split-pos=10,sniext+4 --dpi-desync-split-seqovl=1
@@ -449,12 +449,12 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multidisorder --dpi-desync-
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=multidisorder --dpi-desync-split-pos=2,midsld --dpi-desync-split-seqovl=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
@@ -462,36 +462,36 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakedsplit --orig-autottl=+
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multisplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakedsplit --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
@@ -499,36 +499,36 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fakeddisorder --orig-autott
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,multidisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,rndsni,dupsid
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
-https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,rndsni,padencap
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
+https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=fake,fakeddisorder --orig-autottl=+1 --dpi-desync-ttl=1 --dpi-desync-autottl=-1 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.yandex.ru
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata --dpi-desync-fake-syndata="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata,multisplit --dpi-desync-split-pos=1
@@ -559,4 +559,3 @@ http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
-
