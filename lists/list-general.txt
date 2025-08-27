@@ -1,7 +1,8 @@
 cloudflare-ech.com
+discord.app
+discordapp.com
 latency.discord.media
 images-ext-1.discordapp.net
-discord.app
 stable.dl2.discordapp.net
 frankerfacez.com
 ffzap.com
