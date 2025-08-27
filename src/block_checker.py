@@ -303,23 +303,42 @@ class BlockChecker:
         self.print_summary()
 
     def print_summary(self):
-        ui.print_header(f"SUMMARY for {', '.join(self.domains)}")
-        if not any(self.reports.values()):
-            ui.print_warn(f"No working strategies found for the given domains.")
-            return
-        
-        time_label = "Avg Time" if len(self.domains) > 1 or self.repeats > 1 else "Time"
-        
-        for key, config in self.CHECKS_CONFIG.items():
-            results = self.reports.get(key, [])
-            if results:
-                print(f"\n{ui.Style.BRIGHT + ui.Fore.GREEN}Successful {config['title']} strategies (sorted by speed):{ui.Style.RESET_ALL}")
-                sorted_results = sorted(results, key=lambda x: x['time'])
-                for res in sorted_results:
-                    strategy_parts = res['strategy'].split()
-                    display_parts = [p for p in strategy_parts if not p.startswith('--wf-')]
-                    display_strategy = ' '.join(display_parts)
-                    print(f"  ({time_label}: {res['time']:.3f}s) {display_strategy}")
+            ui.print_header(f"SUMMARY for {', '.join(self.domains)}")
+            if not any(self.reports.values()):
+                ui.print_warn(f"No working strategies found for the given domains.")
+                return
+
+            time_label = "Avg Time" if len(self.domains) > 1 or self.repeats > 1 else "Time"
+            result_file_path = BASE_DIR / "result.txt"
+
+            try:
+                with result_file_path.open('w', encoding='utf-8') as f:
+                    header_text = f"SUMMARY for {', '.join(self.domains)}"
+                    f.write(header_text + "\n")
+                    f.write("=" * len(header_text) + "\n")
+                    
+                    for key, config in self.CHECKS_CONFIG.items():
+                        results = self.reports.get(key, [])
+                        if not results:
+                            continue
+                        console_header = f"\n{ui.Style.BRIGHT + ui.Fore.GREEN}Successful {config['title']} strategies (sorted by speed):{ui.Style.RESET_ALL}"
+                        file_header = f"\n# Successful {config['title']} strategies (sorted by speed):\n"
+                        print(console_header)
+                        f.write(file_header)
+
+                        sorted_results = sorted(results, key=lambda x: x['time'])
+                        for res in sorted_results:
+                            strategy_parts = res['strategy'].split()
+                            display_parts = [p for p in strategy_parts if not p.startswith('--wf-')]
+                            display_strategy = ' '.join(display_parts)
+                            output_line = f"  ({time_label}: {res['time']:.3f}s) {display_strategy}"
+                            print(output_line)
+                            f.write(output_line + "\n")
+
+                ui.print_ok(f"\nSummary report saved to: {result_file_path}")
+
+            except Exception as e:
+                ui.print_err(f"Failed to save summary report: {e}")
 
     def cleanup(self):
         ui.print_info("\nCleaning up...")
