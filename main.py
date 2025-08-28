@@ -19,7 +19,7 @@ def run_block_checker():
     checker = BlockChecker()
     
     def signal_handler(sig, frame):
-        print("\nCtrl+C detected. Terminating check...")
+        ui.print_info("\nCtrl+C detected. Terminating check...")
         checker.cleanup()
     
     original_handler = signal.getsignal(signal.SIGINT)
