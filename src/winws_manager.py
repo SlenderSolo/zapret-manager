@@ -1,40 +1,57 @@
 import subprocess
 import threading
-import time
 
 class WinWSManager:
-    """Manages the lifecycle of a single winws.exe process."""
+    """
+    Manages the lifecycle of a single winws.exe process.
+    This version uses a definitive, event-driven approach based on parsing
+    stdout and stderr to determine the process state (ready or crashed).
+    """
     def __init__(self, winws_path, bin_dir):
         self.winws_path = winws_path
         self.bin_dir = bin_dir
         self.process = None
         self.stderr_lines = []
-        self._stderr_thread = None
+        self._lock = threading.Condition()
+        self._outcome = None
 
-    def _read_stderr(self):
-        """Continuously reads stderr from the process and stores it."""
+    def _read_stderr_and_store(self):
+        """
+        Dedicated function to read stderr and append lines for later retrieval.
+        This runs in a separate thread.
+        """
         try:
-            for line in iter(self.process.stderr.readline, ''):
+            for line_bytes in iter(self.process.stderr.readline, b''):
+                line = line_bytes.decode('utf-8', errors='replace')
                 self.stderr_lines.append(line)
+                
+                if line.strip():
+                    with self._lock:
+                        if self._outcome is None:
+                            self._outcome = 'crashed'
+                            self._lock.notify()
         except (IOError, ValueError):
-            pass # Process stream was closed
+            pass
 
     def start(self, params: list[str]) -> bool:
         """
-        Starts the winws.exe process with the given parameters and waits for it to be ready.
-        Returns True if successful, False otherwise.
+        Starts the winws.exe process and waits for a definitive signal:
+        - The "ready" message on STDOUT (Success).
+        - Any message on STDERR (Failure).
+        - A timeout if neither signal is received (Failure).
+        Returns True on success, False otherwise.
         """
-        self.stop() # Ensure no previous process is running
+        self.stop() 
 
-        cmd = [self.winws_path] + params
+        cmd = [str(self.winws_path)] + params
         self.stderr_lines.clear()
+        self._outcome = None
 
         try:
             self.process = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                text=True,
                 creationflags=subprocess.CREATE_NO_WINDOW,
                 cwd=self.bin_dir
             )
@@ -42,34 +59,36 @@ class WinWSManager:
             self.stderr_lines.append(f"Failed to start process: {e}")
             self.process = None
             return False
+        
+        stderr_monitor_thread = threading.Thread(target=self._read_stderr_and_store, daemon=True)
+        stderr_monitor_thread.start()
 
-        self._stderr_thread = threading.Thread(target=self._read_stderr, daemon=True)
-        self._stderr_thread.start()
-
-        ready_event = threading.Event()
-
-        def _wait_for_ready(proc, event):
+        def _monitor_stdout():
             try:
-                for line in iter(proc.stdout.readline, ''):
+                for line_bytes in iter(self.process.stdout.readline, b''):
+                    line = line_bytes.decode('utf-8', errors='replace')
                     if "windivert initialized. capture is started." in line:
-                        event.set()
+                        with self._lock:
+                            if self._outcome is None:
+                                self._outcome = 'ready'
+                                self._lock.notify()
                         return
             except (IOError, ValueError):
-                pass # Process stream was closed
+                pass
+        
+        stdout_monitor_thread = threading.Thread(target=_monitor_stdout, daemon=True)
+        stdout_monitor_thread.start()
 
-        ready_thread = threading.Thread(target=_wait_for_ready, args=(self.process, ready_event), daemon=True)
-        ready_thread.start()
+        with self._lock:
+            if self._outcome is None:
+                self._lock.wait(timeout=5.0)
 
-        timeout_seconds = 3
-        start_time = time.monotonic()
-        while time.monotonic() - start_time < timeout_seconds:
-            if ready_event.is_set():
-                return True
-            if self.process.poll() is not None:
-                break
-            time.sleep(0.05)
-        self.stop()
-        return False
+        if self._outcome == 'ready':
+            return True
+        else:
+            self.stop()
+            stderr_monitor_thread.join(timeout=0.5) 
+            return False
 
     def stop(self):
         """Stops the winws.exe process if it's running."""
@@ -80,7 +99,7 @@ class WinWSManager:
             except subprocess.TimeoutExpired:
                 self.process.kill()
             except Exception:
-                pass # Ignore other errors during shutdown
+                pass
             self.process = None
 
     def is_crashed(self) -> bool:
