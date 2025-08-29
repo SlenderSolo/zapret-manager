@@ -64,7 +64,7 @@ class WinWSManager:
         start_time = time.monotonic()
         while time.monotonic() - start_time < timeout_seconds:
             if ready_event.is_set():
-                return True # Успех! Процесс готов.
+                return True
             if self.process.poll() is not None:
                 break
             time.sleep(0.05)
