@@ -1,5 +1,6 @@
 import subprocess
 import threading
+import time
 
 class WinWSManager:
     """Manages the lifecycle of a single winws.exe process."""
@@ -47,7 +48,6 @@ class WinWSManager:
 
         ready_event = threading.Event()
 
-        # Wait for winws to report it's ready by reading stdout
         def _wait_for_ready(proc, event):
             try:
                 for line in iter(proc.stdout.readline, ''):
@@ -56,19 +56,20 @@ class WinWSManager:
                         return
             except (IOError, ValueError):
                 pass # Process stream was closed
-            finally:
-                if not event.is_set():
-                    event.set() # Unblock main thread even if ready message not found
 
         ready_thread = threading.Thread(target=_wait_for_ready, args=(self.process, ready_event), daemon=True)
         ready_thread.start()
 
-        # Wait for the ready signal or timeout
-        if not ready_event.wait(timeout=5) or self.is_crashed():
-            self.stop()
-            return False
-            
-        return True
+        timeout_seconds = 3
+        start_time = time.monotonic()
+        while time.monotonic() - start_time < timeout_seconds:
+            if ready_event.is_set():
+                return True # Успех! Процесс готов.
+            if self.process.poll() is not None:
+                break
+            time.sleep(0.05)
+        self.stop()
+        return False
 
     def stop(self):
         """Stops the winws.exe process if it's running."""
