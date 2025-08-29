@@ -5,7 +5,7 @@ from pathlib import Path
 
 from .config import *
 from . import ui
-from .utils import is_process_running
+from .utils import is_process_running, running_winws
 from .winws_manager import WinWSManager
 
 BIN_DIR = BASE_DIR / "bin"
@@ -192,31 +192,28 @@ class BlockChecker:
 
     def _test_one_strategy(self, domains_to_test: list[str], template: list, test_func, base_test_params: dict, repeats: int):
         winws_command = self._process_strategy_template(template, self.domains)
-        if not self.winws_manager.start(winws_command):
-            return {'success': False, 'curl_output': '', 'winws_crashed': True, 'winws_stderr': self.winws_manager.get_stderr()}
-        
         is_overall_success = False
         final_curl_output = ""
         total_time = 0
-        
+
         try:
-            for domain in domains_to_test:
-                success, _, curl_output, time_taken = self._run_single_test_session(
-                    test_func, repeats, domain, **base_test_params
-                )
-                
-                if not success:
-                    if len(domains_to_test) > 1:
-                        final_curl_output = f"Failed on '{domain}': {curl_output}"
-                    else:
-                        final_curl_output = curl_output
-                    break
-                total_time += time_taken
-            else:
-                is_overall_success = True
-                final_curl_output = "Success"
-        finally:
-            self.winws_manager.stop()
+            with running_winws(self.winws_manager, winws_command):
+                for domain in domains_to_test:
+                    success, _, curl_output, time_taken = self._run_single_test_session(
+                        test_func, repeats, domain, **base_test_params
+                    )
+                    if not success:
+                        if len(domains_to_test) > 1:
+                            final_curl_output = f"Failed on '{domain}': {curl_output}"
+                        else:
+                            final_curl_output = curl_output
+                        break
+                    total_time += time_taken
+                else:
+                    is_overall_success = True
+                    final_curl_output = "Success"
+        except RuntimeError as e:
+            final_curl_output = str(e)
 
         winws_crashed = self.winws_manager.is_crashed()
         winws_stderr = self.winws_manager.get_stderr() if winws_crashed else ""

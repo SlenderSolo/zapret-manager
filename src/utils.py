@@ -2,6 +2,7 @@ import ctypes
 import os
 import subprocess
 import sys
+from contextlib import contextmanager
 
 def enable_ansi_support():
     """Enables ANSI escape code support in the Windows console."""
@@ -50,3 +51,16 @@ def is_process_running(process_name: str) -> bool:
         return f"{process_name}.exe" in result.stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
+
+@contextmanager
+def running_winws(manager, params):
+    """
+    A context manager to safely start and stop a WinWSManager process.
+    Raises RuntimeError if the process fails to start.
+    """
+    if not manager.start(params):
+        raise RuntimeError(f"Failed to start winws: {manager.get_stderr()}")
+    try:
+        yield manager
+    finally:
+        manager.stop()
