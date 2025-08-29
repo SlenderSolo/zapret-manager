@@ -102,12 +102,6 @@ class WinWSManager:
                 pass
             self.process = None
 
-    def is_crashed(self) -> bool:
-        """Checks if the process has terminated unexpectedly."""
-        if not self.process:
-            return False
-        return self.process.poll() is not None
-
     def get_stderr(self) -> str:
         """Returns the captured stderr output as a single string."""
         return "".join(self.stderr_lines)

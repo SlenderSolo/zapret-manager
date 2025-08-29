@@ -17,8 +17,8 @@ class Style:
 # Color Printing
 def print_info(msg): print(f"{Fore.CYAN}{msg}{Style.RESET_ALL}")
 def print_ok(msg): print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
-def print_warn(msg): print(f"{Fore.YELLOW}WARNING! {msg}{Style.RESET_ALL}")
-def print_err(msg): print(f"{Fore.RED}ERROR! {msg}{Style.RESET_ALL}")
+def print_warn(msg): print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
+def print_err(msg): print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
 def print_header(msg): print(f"\n{Style.BRIGHT + Fore.WHITE}* {msg}{Style.RESET_ALL}")
 
 # User Interaction

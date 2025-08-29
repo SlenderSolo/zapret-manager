@@ -194,6 +194,7 @@ class BlockChecker:
         winws_command = self._process_strategy_template(template, self.domains)
         is_overall_success = False
         final_curl_output = ""
+        winws_stderr_output = ""
         total_time = 0
 
         try:
@@ -212,21 +213,20 @@ class BlockChecker:
                 else:
                     is_overall_success = True
                     final_curl_output = "Success"
+        
         except RuntimeError as e:
             final_curl_output = str(e)
+            winws_stderr_output = self.winws_manager.get_stderr()
 
-        winws_crashed = self.winws_manager.is_crashed()
-        winws_stderr = self.winws_manager.get_stderr() if winws_crashed else ""
-        
         if is_overall_success:
             avg_time = total_time / len(domains_to_test) if domains_to_test else 0
-            return {'success': True, 'time': avg_time, 'curl_output': final_curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
+            return {'success': True, 'time': avg_time, 'curl_output': final_curl_output, 'winws_stderr': ''}
         else:
-            return {'success': False, 'curl_output': final_curl_output, 'winws_crashed': winws_crashed, 'winws_stderr': winws_stderr}
+            return {'success': False, 'curl_output': final_curl_output, 'winws_stderr': winws_stderr_output}
 
     def _check_initial_accessibility(self, test_key, test_func, base_test_params):
         self.initial_accessibility[test_key] = {}
-        print("- Checking initial accessibility without DPI bypass...")
+        ui.print_info("- Checking initial accessibility without DPI bypass...")
         for domain in self.domains:
             is_available, _, _, _ = self._run_single_test_session(test_func, 1, domain, **base_test_params)
             self.initial_accessibility[test_key][domain] = is_available
@@ -261,13 +261,13 @@ class BlockChecker:
                 self._add_report(test_key, template, result['time'])
                 print(f"  Result: {status_message}")
             else:
-                status_message = f"{ui.Fore.RED}FAILED{ui.Style.RESET_ALL}"
-                if result['curl_output'] and result['curl_output'] != "Success":
-                    curl_error_msg = f" {ui.Fore.YELLOW}{result['curl_output']}{ui.Style.RESET_ALL}"
-                    status_message += curl_error_msg
-                print(f"  Result: {status_message}")
-            if result['winws_crashed']:
-                print(f"    {ui.Fore.RED}WinWS CRASHED. Stderr: {result['winws_stderr'].strip()}{ui.Style.RESET_ALL}")
+                if result['winws_stderr']:
+                    print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
+                    ui.print_err(f"    WinWS FAILED TO START. Stderr: {result['winws_stderr'].strip()}")
+                elif result['curl_output'] and result['curl_output'] != "Success":
+                    curl_error_msg = result['curl_output'].strip()
+                    status_message = f"{ui.Fore.RED}FAILED{ui.Style.RESET_ALL} {ui.Fore.YELLOW}{curl_error_msg}{ui.Style.RESET_ALL}"
+                    print(f"  Result: {status_message}")
 
     def _run_test_suite(self, test_key, test_config):
         title = test_config['title']
