@@ -1,9 +1,9 @@
 googlevideo.com
-youtubei.googleapis.com
-ytimg.com
+i.ytimg.com
 yt3.ggpht.com
 yt4.ggpht.com
 youtube.com
+youtubei.googleapis.com
 youtubeembeddedplayer.googleapis.com
 ytimg.l.google.com
 jnn-pa.googleapis.com
