@@ -38,11 +38,9 @@ class WinWSManager:
                         if self._outcome is None:
                             self._outcome = outcome_on_output
                             self._lock.notify()
-                    # If we found what we were looking for, no need to read more from this stream
                     if outcome_on_output == 'ready':
                         return
         except (IOError, ValueError):
-            # Stream was closed, e.g., by process termination
             pass
 
     def start(self, params: List[str], timeout: float = 5.0) -> bool:
@@ -101,7 +99,6 @@ class WinWSManager:
         if self._outcome == 'ready':
             return True
         else:
-            # Ensure process is stopped and threads are cleaned up on failure
             self.stop()
             # Give threads a moment to finish after stop() is called
             stdout_thread.join(timeout=0.5)

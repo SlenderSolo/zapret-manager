@@ -53,10 +53,8 @@ def _parse_bat_variables(lines: List[str], script_dir: Path) -> dict[str, str]:
         match = re.match(r'^\s*set\s+"([^"]+)=([^"]+)"\s*$', line.strip(), re.IGNORECASE)
         if match:
             var_name, raw_value = match.group(1).strip(), match.group(2)
-            # Resolve %~dp0 and normalize path
             resolved_value = raw_value.replace("%~dp0", script_dir_str)
             resolved_path = Path(resolved_value)
-            # Preserve trailing slash if it was present
             if raw_value.rstrip().endswith(("/", "\\")) and not str(resolved_path).endswith(sep):
                 resolved_value = str(resolved_path) + sep
             else:
@@ -76,10 +74,9 @@ def _extract_start_command(lines: List[str]) -> Optional[str]:
             in_start_block = True
         
         if in_start_block:
-            # Append the line, removing the line continuation character '^' if present
             full_command.append(stripped.removesuffix("^").strip())
             if not stripped.endswith("^"):
-                break  # End of command block
+                break
     return " ".join(full_command) if full_command else None
 
 def _substitute_variables(command: str, variables: dict[str, str], script_dir: Path) -> str:
@@ -113,7 +110,6 @@ def _tokenize_command_args(args_string: str) -> List[str]:
 def _find_executable_and_args(tokens: List[str]) -> Optional[Tuple[Path, List[str]]]:
     """Finds the executable path and its arguments from a list of tokens."""
     for i, token in enumerate(tokens):
-        # Normalize token to check for executable
         clean_token = token.strip('"').replace("\\", "/")
         if clean_token.lower().endswith("winws.exe"):
             exe_path = Path(token.strip('"'))
@@ -134,7 +130,6 @@ def _parse_legacy_bat(run_bat_path: Path) -> Optional[Tuple[Path, List[str]]]:
 
     command_with_vars = _substitute_variables(start_command, variables, BASE_DIR)
     
-    # Strip "start" and optional /min parameter
     args_part = re.sub(r'^\s*start\s+(?:"[^"]+"\s+)?(?:/min\s+)?', '', command_with_vars, flags=re.IGNORECASE)
     
     tokens = _tokenize_command_args(args_part)
@@ -178,7 +173,6 @@ def parse_preset_file(preset_path: Path) -> Optional[ParsedPreset]:
             else:
                 current_rule.strategy_args.append(token)
             
-            # Extract metadata for the adjuster
             if token.startswith('--filter-tcp=80'): current_rule.test_type = 'http'
             elif token.startswith('--filter-tcp=443'): current_rule.test_type = 'https_tls13'
             elif token.startswith('--filter-udp=443'): current_rule.test_type = 'http3'
