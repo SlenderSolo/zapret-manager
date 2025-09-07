@@ -2,6 +2,7 @@ import re
 from os import sep
 from pathlib import Path
 from dataclasses import dataclass, field
+from typing import List, Optional, Tuple
 
 from . import ui
 from .config import BASE_DIR
@@ -9,17 +10,17 @@ from .config import BASE_DIR
 @dataclass
 class PresetRule:
     """A single rule from a --new block."""
-    prefix_args: list[str] = field(default_factory=list)
-    strategy_args: list[str] = field(default_factory=list)
-    test_type: str | None = None
-    desync_key: str | None = None
-    
+    prefix_args: List[str] = field(default_factory=list)
+    strategy_args: List[str] = field(default_factory=list)
+    test_type: Optional[str] = None
+    desync_key: Optional[str] = None
+
 @dataclass
 class ParsedPreset:
     """Structured data from a parsed .bat preset."""
     executable_path: Path
-    global_args: list[str] = field(default_factory=list)
-    rules: list[PresetRule] = field(default_factory=list)
+    global_args: List[str] = field(default_factory=list)
+    rules: List[PresetRule] = field(default_factory=list)
 
     def get_full_args_string(self) -> str:
         """Reconstructs the full arguments string."""
@@ -31,121 +32,148 @@ class ParsedPreset:
             is_first_rule = False
             arg_parts.extend(rule.prefix_args)
             arg_parts.extend(rule.strategy_args)
-        
         return " ".join(arg_parts)
 
-def _parse_legacy_bat(run_bat_path: Path):
-    """Extracts executable and argument tokens from a legacy .bat file."""
-    script_dir = BASE_DIR
-    script_dir_path_for_replace = str(script_dir) + sep
+def _read_bat_file(path: Path) -> Optional[List[str]]:
+    """Reads a .bat file, trying common encodings."""
+    encodings_to_try = ['utf-8', 'cp866', 'cp1251']
+    for enc in encodings_to_try:
+        try:
+            with path.open("r", encoding=enc) as f:
+                return f.readlines()
+        except UnicodeDecodeError:
+            continue
+    return None
+
+def _parse_bat_variables(lines: List[str], script_dir: Path) -> dict[str, str]:
+    """Parses 'set "VAR=VALUE"' lines from a .bat file."""
     variables = {}
-    all_lines = None
-    try:
-        # Try common encodings for bat files
-        encodings_to_try = ['utf-8', 'cp866', 'cp1251']
-        for enc in encodings_to_try:
-            try:
-                with run_bat_path.open("r", encoding=enc) as f:
-                    all_lines = f.readlines()
-                break
-            except UnicodeDecodeError: continue
-        if all_lines is None: return None, None
-        
-        for line_stripped in [l.strip() for l in all_lines]:
-            match = re.match(r'^\s*set\s+"([^=]+)=([^"]+)"', line_stripped, re.IGNORECASE)
-            if match:
-                var_name, raw_value = match.group(1).strip(), match.group(2)
-                had_trailing_slash = raw_value.rstrip().endswith(("\\", "/"))
-                resolved_value = raw_value.replace("%~dp0", script_dir_path_for_replace)
-                resolved_value = str(Path(resolved_value))
-                if had_trailing_slash and not resolved_value.endswith(sep): resolved_value += sep
-                variables[var_name.upper()] = resolved_value
-    except Exception: return None, None
+    script_dir_str = str(script_dir) + sep
+    for line in lines:
+        match = re.match(r'^\s*set\s+"([^"]+)=([^"]+)"\s*$', line.strip(), re.IGNORECASE)
+        if match:
+            var_name, raw_value = match.group(1).strip(), match.group(2)
+            # Resolve %~dp0 and normalize path
+            resolved_value = raw_value.replace("%~dp0", script_dir_str)
+            resolved_path = Path(resolved_value)
+            # Preserve trailing slash if it was present
+            if raw_value.rstrip().endswith(("/", "\\")) and not str(resolved_path).endswith(sep):
+                resolved_value = str(resolved_path) + sep
+            else:
+                resolved_value = str(resolved_path)
+            variables[var_name.upper()] = resolved_value
+    return variables
 
-    full_start_command = ""
+def _extract_start_command(lines: List[str]) -> Optional[str]:
+    """Finds and reconstructs the full 'start ...' command, handling line continuations."""
+    full_command = []
     in_start_block = False
-    for line_content in all_lines: 
-        line_stripped = line_content.strip()
-        if not in_start_block:
-            if line_stripped.lower().startswith("start ") and "winws.exe" in line_stripped.lower():
-                in_start_block = True
-                full_start_command += line_stripped
-        elif in_start_block:
-            full_start_command += " " + line_stripped 
-        if in_start_block and not line_stripped.endswith("^"): break 
-        elif in_start_block: full_start_command = full_start_command[:-1].strip()
-    
-    if not full_start_command: return None, None
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if not in_start_block and stripped.lower().startswith("start ") and "winws.exe" in stripped.lower():
+            in_start_block = True
+        
+        if in_start_block:
+            # Append the line, removing the line continuation character '^' if present
+            full_command.append(stripped.removesuffix("^").strip())
+            if not stripped.endswith("^"):
+                break  # End of command block
+    return " ".join(full_command) if full_command else None
 
+def _substitute_variables(command: str, variables: dict[str, str], script_dir: Path) -> str:
+    """Substitutes %VAR% and %~dp0 placeholders in the command string."""
     def replacer(match):
         var_name = match.group(1).upper()
         return variables.get(var_name, match.group(0))
     
-    final_command_substituted = re.sub(r'%(\w+)%', replacer, full_start_command, flags=re.IGNORECASE)
-    final_command_substituted = final_command_substituted.replace("%~dp0", script_dir_path_for_replace)
-    
-    args_part = re.sub(r'^\s*start\s+', '', final_command_substituted, flags=re.IGNORECASE)
-    match_title = re.match(r'^"([^"]+)"\s+', args_part) 
-    if match_title: args_part = args_part[len(match_title.group(0)):].lstrip()
-    if args_part.lower().startswith("/min "): args_part = args_part[5:].lstrip()
-    
+    substituted_cmd = re.sub(r'%(\w+)%', replacer, command, flags=re.IGNORECASE)
+    substituted_cmd = substituted_cmd.replace("%~dp0", str(script_dir) + sep)
+    return substituted_cmd
+
+def _tokenize_command_args(args_string: str) -> List[str]:
+    """Splits a command string into tokens, respecting quotes."""
     tokens = []
-    current_token, in_quotes_arg = "", False
-    for char in args_part:
-        if char == '"': in_quotes_arg = not in_quotes_arg
-        if char == ' ' and not in_quotes_arg:
-            if current_token: tokens.append(current_token)
+    current_token = ""
+    in_quotes = False
+    for char in args_string:
+        if char == '"':
+            in_quotes = not in_quotes
+        if char == ' ' and not in_quotes:
+            if current_token:
+                tokens.append(current_token)
             current_token = ""
-        else: current_token += char
-    if current_token: tokens.append(current_token)
-    
-    exe_token_index = -1
+        else:
+            current_token += char
+    if current_token:
+        tokens.append(current_token)
+    return tokens
+
+def _find_executable_and_args(tokens: List[str]) -> Optional[Tuple[Path, List[str]]]:
+    """Finds the executable path and its arguments from a list of tokens."""
     for i, token in enumerate(tokens):
+        # Normalize token to check for executable
         clean_token = token.strip('"').replace("\\", "/")
         if clean_token.lower().endswith("winws.exe"):
-            exe_token_index = i
-            break
-            
-    if exe_token_index == -1: return None, None
+            exe_path = Path(token.strip('"'))
+            return exe_path, tokens[i + 1:]
+    return None
+
+def _parse_legacy_bat(run_bat_path: Path) -> Optional[Tuple[Path, List[str]]]:
+    """Extracts executable and argument tokens from a legacy .bat file."""
+    lines = _read_bat_file(run_bat_path)
+    if not lines:
+        return None, None
+
+    variables = _parse_bat_variables(lines, BASE_DIR)
     
-    resolved_exe_path = Path(tokens[exe_token_index].strip('"'))
-    final_args_tokens = tokens[exe_token_index + 1:]
-    return resolved_exe_path, final_args_tokens
+    start_command = _extract_start_command(lines)
+    if not start_command:
+        return None, None
 
+    command_with_vars = _substitute_variables(start_command, variables, BASE_DIR)
+    
+    # Strip "start" and optional /min parameter
+    args_part = re.sub(r'^\s*start\s+(?:"[^"]+"\s+)?(?:/min\s+)?', '', command_with_vars, flags=re.IGNORECASE)
+    
+    tokens = _tokenize_command_args(args_part)
+    
+    result = _find_executable_and_args(tokens)
+    if not result:
+        return None, None
+    
+    return result[0], result[1]
 
-def parse_preset_file(preset_path: Path) -> ParsedPreset | None:
+def parse_preset_file(preset_path: Path) -> Optional[ParsedPreset]:
     """Parses a .bat preset file into a ParsedPreset object."""
     try:
-        executable_path, all_args_tokens = _parse_legacy_bat(preset_path)
-        if executable_path is None or all_args_tokens is None:
+        parse_result = _parse_legacy_bat(preset_path)
+        if not parse_result:
             return None
+        executable_path, all_args_tokens = parse_result
 
         # Split tokens into global and rule-specific args
-        first_rule_idx = -1
-        for i, arg in enumerate(all_args_tokens):
-            if arg.startswith('--filter-'):
-                first_rule_idx = i
-                break
-        
-        if first_rule_idx == -1: # No rules found, only global args
+        try:
+            first_rule_idx = next(i for i, arg in enumerate(all_args_tokens) if arg.startswith('--filter-'))
+        except StopIteration:
+             # No rules found, only global args
             return ParsedPreset(executable_path=executable_path, global_args=all_args_tokens)
 
         global_args = all_args_tokens[:first_rule_idx]
         rules_args = all_args_tokens[first_rule_idx:]
         
-        parsed_rules = []
+        parsed_rules: List[PresetRule] = []
         current_rule = PresetRule()
 
         for token in rules_args:
-            # A '--new' token finalizes the current rule and starts a fresh one
             if token == '--new':
                 if current_rule.prefix_args or current_rule.strategy_args:
                     parsed_rules.append(current_rule)
                 current_rule = PresetRule()
                 continue
 
-            # Assign token to the correct part of the current rule
-            if token.startswith('--filter-') or token.startswith('--hostlist') or token.startswith('--ipset'):
+            if token.startswith(("--filter-", "--hostlist", "--ipset")):
                 current_rule.prefix_args.append(token)
             else:
                 current_rule.strategy_args.append(token)
@@ -158,7 +186,6 @@ def parse_preset_file(preset_path: Path) -> ParsedPreset | None:
             if token.startswith('--dpi-desync='):
                 current_rule.desync_key = token.split('=', 1)[1]
         
-        # Add the last processed rule
         if current_rule.prefix_args or current_rule.strategy_args:
             parsed_rules.append(current_rule)
             
