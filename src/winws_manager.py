@@ -1,49 +1,66 @@
 import subprocess
 import threading
+from typing import List, Optional, Literal
 
 class WinWSManager:
     """
     Manages the lifecycle of a single winws.exe process.
-    This version uses a definitive, event-driven approach based on parsing
-    stdout and stderr to determine the process state (ready or crashed).
-    """
-    def __init__(self, winws_path, bin_dir):
-        self.winws_path = winws_path
-        self.bin_dir = bin_dir
-        self.process = None
-        self.stderr_lines = []
-        self._lock = threading.Condition()
-        self._outcome = None
 
-    def _read_stderr_and_store(self):
+    This class provides a robust way to start, stop, and monitor the winws.exe
+    process. It uses a thread-based, event-driven approach to determine the
+    process state (ready or crashed) by parsing stdout and stderr in real-time.
+    This avoids simple time-based waits and provides a more definitive status.
+    """
+    def __init__(self, winws_path: str, bin_dir: str):
+        self.winws_path: str = winws_path
+        self.bin_dir: str = bin_dir
+        self.process: Optional[subprocess.Popen] = None
+        self.stderr_lines: List[str] = []
+        
+        self._lock = threading.Condition()
+        self._outcome: Optional[Literal['ready', 'crashed']] = None
+
+    def _read_stream(self, stream, outcome_on_output: Literal['ready', 'crashed'], success_keyword: Optional[str] = None):
         """
-        Dedicated function to read stderr and append lines for later retrieval.
-        This runs in a separate thread.
+        Generic function to read a stream (stdout/stderr) and set the outcome.
         """
         try:
-            for line_bytes in iter(self.process.stderr.readline, b''):
+            for line_bytes in iter(stream.readline, b''):
                 line = line_bytes.decode('utf-8', errors='replace')
-                self.stderr_lines.append(line)
-                
-                if line.strip():
+                if stream == self.process.stderr:
+                    self.stderr_lines.append(line)
+
+                # If a keyword is provided, we need it to declare success.
+                # If no keyword, any output triggers the outcome.
+                if (success_keyword and success_keyword in line) or \
+                   (not success_keyword and line.strip()):
                     with self._lock:
                         if self._outcome is None:
-                            self._outcome = 'crashed'
+                            self._outcome = outcome_on_output
                             self._lock.notify()
+                    # If we found what we were looking for, no need to read more from this stream
+                    if outcome_on_output == 'ready':
+                        return
         except (IOError, ValueError):
+            # Stream was closed, e.g., by process termination
             pass
 
-    def start(self, params: list[str]) -> bool:
+    def start(self, params: List[str], timeout: float = 5.0) -> bool:
         """
-        Starts the winws.exe process and waits for a definitive signal:
-        - The "ready" message on STDOUT (Success).
-        - Any message on STDERR (Failure).
-        - A timeout if neither signal is received (Failure).
-        Returns True on success, False otherwise.
-        """
-        self.stop() 
+        Starts the winws.exe process and waits for a definitive signal.
 
-        cmd = [str(self.winws_path)] + params
+        Args:
+            params: A list of command-line arguments for winws.exe.
+            timeout: The maximum time in seconds to wait for a ready/crash signal.
+
+        Returns:
+            True if the process starts successfully (i.e., "ready" signal received).
+            False if the process crashes, fails to start, or times out.
+        """
+        if self.process:
+            self.stop()
+
+        cmd = [self.winws_path] + params
         self.stderr_lines.clear()
         self._outcome = None
 
@@ -55,53 +72,63 @@ class WinWSManager:
                 creationflags=subprocess.CREATE_NO_WINDOW,
                 cwd=self.bin_dir
             )
-        except OSError as e:
+        except (OSError, FileNotFoundError) as e:
             self.stderr_lines.append(f"Failed to start process: {e}")
             self.process = None
             return False
         
-        stderr_monitor_thread = threading.Thread(target=self._read_stderr_and_store, daemon=True)
-        stderr_monitor_thread.start()
-
-        def _monitor_stdout():
-            try:
-                for line_bytes in iter(self.process.stdout.readline, b''):
-                    line = line_bytes.decode('utf-8', errors='replace')
-                    if "windivert initialized. capture is started." in line:
-                        with self._lock:
-                            if self._outcome is None:
-                                self._outcome = 'ready'
-                                self._lock.notify()
-                        return
-            except (IOError, ValueError):
-                pass
+        # Monitor stdout for the "ready" signal
+        stdout_thread = threading.Thread(
+            target=self._read_stream,
+            args=(self.process.stdout, 'ready', "windivert initialized. capture is started."),
+            daemon=True
+        )
         
-        stdout_monitor_thread = threading.Thread(target=_monitor_stdout, daemon=True)
-        stdout_monitor_thread.start()
+        # Monitor stderr for any output, which indicates a crash
+        stderr_thread = threading.Thread(
+            target=self._read_stream,
+            args=(self.process.stderr, 'crashed'),
+            daemon=True
+        )
+        
+        stdout_thread.start()
+        stderr_thread.start()
 
         with self._lock:
             if self._outcome is None:
-                self._lock.wait(timeout=5.0)
+                self._lock.wait(timeout=timeout)
 
         if self._outcome == 'ready':
             return True
         else:
+            # Ensure process is stopped and threads are cleaned up on failure
             self.stop()
-            stderr_monitor_thread.join(timeout=0.5) 
+            # Give threads a moment to finish after stop() is called
+            stdout_thread.join(timeout=0.5)
+            stderr_thread.join(timeout=0.5)
             return False
 
     def stop(self):
-        """Stops the winws.exe process if it's running."""
-        if self.process:
+        """
+        Stops the winws.exe process forcefully if it is running.
+        """
+        if not self.process:
+            return
+            
+        try:
+            self.process.terminate()
             try:
-                self.process.terminate()
                 self.process.wait(timeout=2)
             except subprocess.TimeoutExpired:
                 self.process.kill()
-            except Exception:
-                pass
+                self.process.wait(timeout=2)
+        except (ProcessLookupError, OSError):
+            pass
+        except Exception as e:
+            self.stderr_lines.append(f"Error during process stop: {e}")
+        finally:
             self.process = None
 
     def get_stderr(self) -> str:
-        """Returns the captured stderr output as a single string."""
+        """Returns all captured stderr output as a single string."""
         return "".join(self.stderr_lines)
