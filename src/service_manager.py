@@ -1,7 +1,6 @@
 import re
 import subprocess
 import ctypes
-from pathlib import Path
 from typing import List, Tuple, Optional
 
 from .config import BASE_DIR, SERVICE_NAME
