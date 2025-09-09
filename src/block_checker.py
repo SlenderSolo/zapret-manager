@@ -15,21 +15,23 @@ from .winws_manager import WinWSManager
 class TokenBucket:
     def __init__(self, capacity: int, refill_rate: float):
         self.capacity = capacity
-        self.tokens = capacity
-        self.refill_rate = refill_rate
+        self.tokens = float(capacity)
+        self.refill_rate = float(refill_rate)
         self.last_refill = time.monotonic()
-        self.lock = threading.Lock()
+        self.condition = threading.Condition()
 
     def _refill(self):
         now = time.monotonic()
         elapsed = now - self.last_refill
-        tokens_to_add = elapsed * self.refill_rate
-        if tokens_to_add > 0:
-            self.tokens = min(self.capacity, self.tokens + tokens_to_add)
-            self.last_refill = now
+        if elapsed > 0:
+            tokens_to_add = elapsed * self.refill_rate
+            if tokens_to_add > 0:
+                self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+                self.last_refill = now
+                self.condition.notify_all()
 
     def acquire(self, tokens: int = 1) -> bool:
-        with self.lock:
+        with self.condition:
             self._refill()
             if self.tokens >= tokens:
                 self.tokens -= tokens
@@ -37,15 +39,14 @@ class TokenBucket:
             return False
 
     def wait_for_token(self, tokens: int = 1):
-        while not self.acquire(tokens):
-            with self.lock:
+        with self.condition:
+            while self.tokens < tokens:
                 self._refill()
-                required = tokens - self.tokens
-                if required > 0:
-                    wait_time = required / self.refill_rate
-                else:
-                    wait_time = 1 / self.refill_rate
-            time.sleep(wait_time)
+                if self.tokens < tokens:
+                    required = tokens - self.tokens
+                    wait_time = max(0, required / self.refill_rate)
+                    self.condition.wait(timeout=wait_time)
+            self.tokens -= tokens
 
 BIN_DIR = BASE_DIR / "bin"
 WINWS_PATH = BIN_DIR / "winws.exe"
