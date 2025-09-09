@@ -82,11 +82,12 @@ def _extract_start_command(lines: List[str]) -> Optional[str]:
 def _substitute_variables(command: str, variables: dict[str, str], script_dir: Path) -> str:
     """Substitutes %VAR% and %~dp0 placeholders in the command string."""
     def replacer(match):
+        if match.group(0).lower() == '%~dp0':
+            return str(script_dir) + sep
         var_name = match.group(1).upper()
         return variables.get(var_name, match.group(0))
-    
-    substituted_cmd = re.sub(r'%(\w+)%', replacer, command, flags=re.IGNORECASE)
-    substituted_cmd = substituted_cmd.replace("%~dp0", str(script_dir) + sep)
+
+    substituted_cmd = re.sub(r'%~dp0|%(\w+)%', replacer, command, flags=re.IGNORECASE)
     return substituted_cmd
 
 def _tokenize_command_args(args_string: str) -> List[str]:
