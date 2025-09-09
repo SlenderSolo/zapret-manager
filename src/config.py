@@ -7,6 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 REDIRECT_AS_SUCCESS = True
 ONLY_BLOCKED_DOMAINS = False
 CURL_TIMEOUT = 1.5
+CURL_MAX_WORKERS = 10
 USER_AGENT = "Mozilla"
 DEFAULT_CHECKS = {
     'http': True,
@@ -14,6 +15,10 @@ DEFAULT_CHECKS = {
     'https_tls13': True,
     'http3': True
 }
+
+# --- Rate Limiter Settings ---
+TOKEN_BUCKET_CAPACITY = 10
+TOKEN_BUCKET_REFILL_RATE = 10.0
 
 # --- Service Manager Settings ---
 SERVICE_NAME = "winws"

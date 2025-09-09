@@ -1,14 +1,52 @@
 import subprocess
 import time
 import socket
+import threading
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional, Tuple, Callable
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 
 from .config import *
 from . import ui
 from .utils import is_process_running, running_winws
 from .winws_manager import WinWSManager
+
+class TokenBucket:
+    def __init__(self, capacity: int, refill_rate: float):
+        self.capacity = capacity
+        self.tokens = capacity
+        self.refill_rate = refill_rate
+        self.last_refill = time.monotonic()
+        self.lock = threading.Lock()
+
+    def _refill(self):
+        now = time.monotonic()
+        elapsed = now - self.last_refill
+        tokens_to_add = elapsed * self.refill_rate
+        if tokens_to_add > 0:
+            self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+            self.last_refill = now
+
+    def acquire(self, tokens: int = 1) -> bool:
+        with self.lock:
+            self._refill()
+            if self.tokens >= tokens:
+                self.tokens -= tokens
+                return True
+            return False
+
+    def wait_for_token(self, tokens: int = 1):
+        while not self.acquire(tokens):
+            with self.lock:
+                self._refill()
+                required = tokens - self.tokens
+                if required > 0:
+                    wait_time = required / self.refill_rate
+                else:
+                    wait_time = 1 / self.refill_rate
+            time.sleep(wait_time)
 
 BIN_DIR = BASE_DIR / "bin"
 WINWS_PATH = BIN_DIR / "winws.exe"
@@ -21,6 +59,7 @@ class CurlTestResult:
     return_code: int
     output: str
     time_taken: float = -1.0
+    domain: str = ""
 
 @dataclass
 class StrategyTestResult:
@@ -54,6 +93,7 @@ class BlockChecker:
         self.initial_accessibility: Dict[str, Dict[str, bool]] = {}
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         self.strategies_by_test: Dict[str, List[List[str]]] = {}
+        self.rate_limiter = TokenBucket(TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE)
 
     # --- Setup and Configuration ---
     def _check_prerequisites(self):
@@ -119,10 +159,11 @@ class BlockChecker:
 
     # --- Test Execution ---
     def _perform_curl_test(self, domain: str, port: int, tls_version: Optional[str] = None, http3_only: bool = False) -> CurlTestResult:
+        self.rate_limiter.wait_for_token()
         try:
             ip = socket.gethostbyname(domain)
         except socket.gaierror:
-            return CurlTestResult(success=False, return_code=6, output=f"Could not resolve host '{domain}'")
+            return CurlTestResult(success=False, return_code=6, output=f"Could not resolve host '{domain}'", domain=domain)
 
         protocol = "https" if port == 443 else "http"
         url = f"{protocol}://{domain}"
@@ -144,21 +185,21 @@ class BlockChecker:
                 # Check for suspicious redirects
                 http_status_line = output.splitlines()[0] if output else ""
                 if not REDIRECT_AS_SUCCESS and " 30" in http_status_line and domain not in output.lower():
-                    return CurlTestResult(success=False, return_code=254, output="Suspicious redirection")
-                return CurlTestResult(success=True, return_code=0, output="Success", time_taken=end_time - start_time)
+                    return CurlTestResult(success=False, return_code=254, output="Suspicious redirection", domain=domain)
+                return CurlTestResult(success=True, return_code=0, output="Success", time_taken=end_time - start_time, domain=domain)
             
-            return CurlTestResult(success=False, return_code=result.returncode, output=output)
+            return CurlTestResult(success=False, return_code=result.returncode, output=output, domain=domain)
         except subprocess.TimeoutExpired:
-            return CurlTestResult(success=False, return_code=28, output="Operation timed out")
+            return CurlTestResult(success=False, return_code=28, output="Operation timed out", domain=domain)
 
-    def _run_repeated_test(self, test_func: Callable[..., CurlTestResult], repeats: int, *args, **kwargs) -> CurlTestResult:
+    def _run_repeated_test(self, domain: str, test_func: Callable[..., CurlTestResult], repeats: int) -> CurlTestResult:
         if repeats == 1:
-            return test_func(*args, **kwargs)
+            return test_func(domain=domain)
         
         fastest_time = float('inf')
-        last_result = CurlTestResult(success=False, return_code=-1, output="Test did not run")
+        last_result = CurlTestResult(success=False, return_code=-1, output="Test did not run", domain=domain)
         for _ in range(repeats):
-            result = test_func(*args, **kwargs)
+            result = test_func(domain=domain)
             if not result.success: return result
             if result.time_taken < fastest_time: fastest_time = result.time_taken
             last_result = result
@@ -190,12 +231,18 @@ class BlockChecker:
 
         try:
             with running_winws(self.winws_manager, winws_command):
-                for domain in domains_to_test:
-                    result = self._run_repeated_test(self._perform_curl_test, self.repeats, domain, **test_params)
-                    if not result.success:
-                        output = f"Failed on '{domain}': {result.output}" if len(domains_to_test) > 1 else result.output
-                        return StrategyTestResult(success=False, curl_output=output)
-                    total_time += result.time_taken
+                
+                test_func = partial(self._perform_curl_test, **test_params)
+                
+                with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
+                    repeated_test_partial = partial(self._run_repeated_test, test_func=test_func, repeats=self.repeats)
+                    results = executor.map(repeated_test_partial, domains_to_test)
+                    for result in results:
+                        if not result.success:
+                            output = f"Failed on '{result.domain}': {result.output}" if len(domains_to_test) > 1 else result.output
+                            return StrategyTestResult(success=False, curl_output=output)
+                        total_time += result.time_taken
+
         except RuntimeError as e:
             return StrategyTestResult(success=False, curl_output=str(e), winws_stderr=self.winws_manager.get_stderr())
 
@@ -205,11 +252,17 @@ class BlockChecker:
     def _check_initial_accessibility(self, test_key: str, test_params: dict):
         self.initial_accessibility[test_key] = {}
         ui.print_info("- Checking initial accessibility without DPI bypass...")
-        for domain in self.domains:
-            result = self._run_repeated_test(self._perform_curl_test, 1, domain, **test_params)
-            self.initial_accessibility[test_key][domain] = result.success
-            status = f" {ui.Fore.GREEN}ACCESSIBLE{ui.Style.RESET_ALL}" if result.success else f" {ui.Fore.RED}BLOCKED{ui.Style.RESET_ALL}"
-            print(f"  - {domain}: {status}")
+
+        with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
+            test_func = partial(self._perform_curl_test, **test_params)
+            repeated_test_partial = partial(self._run_repeated_test, test_func=test_func, repeats=1)
+            results = executor.map(repeated_test_partial, self.domains)
+
+            for result in results:
+                self.initial_accessibility[test_key][result.domain] = result.success
+                status = f" {ui.Fore.GREEN}ACCESSIBLE{ui.Style.RESET_ALL}" if result.success else f" {ui.Fore.RED}BLOCKED{ui.Style.RESET_ALL}"
+                print(f"  - {result.domain}: {status}")
+
         return all(self.initial_accessibility[test_key].values())
 
     def _run_strategies_for_test(self, test_key: str, test_params: dict):
