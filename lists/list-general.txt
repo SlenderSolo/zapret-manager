@@ -1,6 +1,6 @@
 cloudflare-ech.com
 discord.app
-gateway.discord.gg
+discord.gg
 images-ext-1.discordapp.net
 cdn.discordapp.com
 media.discordapp.net
@@ -21,3 +21,4 @@ rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
+
