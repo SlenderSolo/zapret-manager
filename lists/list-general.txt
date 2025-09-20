@@ -14,11 +14,11 @@ rutor.info
 rutracker.org
 static.rutracker.cc
 soundcloud.com
-soundcloud.cloud
 sndcdn.com
+media-streaming.soundcloud.cloud
+scdn.co
 www.metacritic.com
 rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
-
