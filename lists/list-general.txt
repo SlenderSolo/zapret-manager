@@ -1,4 +1,7 @@
 cloudflare-ech.com
+imagedelivery.net
+updates.discord.com
+discord.com
 discord.app
 discord.gg
 images-ext-1.discordapp.net
@@ -10,6 +13,7 @@ ffzap.com
 betterttv.net
 7tv.app
 7tv.io
+www.speedtest.net
 rutor.info
 rutracker.org
 static.rutracker.cc
