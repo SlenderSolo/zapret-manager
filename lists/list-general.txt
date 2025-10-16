@@ -14,6 +14,7 @@ betterttv.net
 7tv.app
 7tv.io
 www.speedtest.net
+downdetector.com
 rutor.info
 rutracker.org
 static.rutracker.cc
