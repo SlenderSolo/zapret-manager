@@ -15,6 +15,7 @@ betterttv.net
 7tv.io
 www.speedtest.net
 downdetector.com
+sponsor.ajay.app
 rutracker.org
 static.rutracker.cc
 soundcloud.com
