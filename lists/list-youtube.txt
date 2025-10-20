@@ -1,5 +1,6 @@
 googlevideo.com
 i.ytimg.com
+i1.ytimg.com
 yt3.ggpht.com
 yt4.ggpht.com
 youtube.com
