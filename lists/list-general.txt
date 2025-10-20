@@ -20,8 +20,6 @@ rutracker.org
 static.rutracker.cc
 soundcloud.com
 sndcdn.com
-media-streaming.soundcloud.cloud
-scdn.co
 www.metacritic.com
 rezka.ag
 medium.com
