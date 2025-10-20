@@ -20,8 +20,10 @@ rutracker.org
 static.rutracker.cc
 soundcloud.com
 sndcdn.com
+spotify.com
 www.metacritic.com
 rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
+
