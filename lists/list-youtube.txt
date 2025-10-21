@@ -13,3 +13,4 @@ youtube-ui.l.google.com
 yt-video-upload.l.google.com
 wide-youtube.l.google.com
 youtu.be
+play.google.com
