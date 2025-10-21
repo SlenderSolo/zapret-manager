@@ -1,5 +1,6 @@
 cloudflare-ech.com
 imagedelivery.net
+play.google.com
 updates.discord.com
 discord.com
 discord.app
@@ -8,7 +9,7 @@ images-ext-1.discordapp.net
 cdn.discordapp.com
 media.discordapp.net
 stable.dl2.discordapp.net
-latency.discord.media
+discord.media
 ffzap.com
 betterttv.net
 7tv.app
@@ -26,4 +27,3 @@ rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
-
