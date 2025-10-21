@@ -1,6 +1,5 @@
 cloudflare-ech.com
 imagedelivery.net
-play.google.com
 updates.discord.com
 discord.com
 discord.app
