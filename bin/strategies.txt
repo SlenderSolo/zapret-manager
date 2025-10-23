@@ -901,9 +901,13 @@ https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata,multidisorder --dpi
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata,multidisorder --dpi-desync-fake-syndata="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-split-pos=midsld
 https : winws --wf-l3=ipv4 --wf-tcp=443 --dpi-desync=syndata,multidisorder --dpi-desync-fake-syndata="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-split-pos=1,midsld
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake
+http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-repeats=2
+http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-repeats=8
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-repeats=11
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-repeats=20
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=2
+http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=8
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=11
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=20
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=8
@@ -912,3 +916,4 @@ http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : winws --wf-l3=ipv4 --wf-udp=443 --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
+
