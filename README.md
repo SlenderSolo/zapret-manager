@@ -31,7 +31,7 @@
    
 4. Выполните от имени администратора [**`tool_enable_timestamps_and_ECN.cmd`**](./tool_enable_timestamps_and_ECN.cmd)
 
-5. Включите DNS over HTTPS [Гайд](https://www.youtube.com/watch?v=4LglZNfGzcM&t=9s)
+5. Включите DNS over HTTPS Гайд [Win11](https://www.youtube.com/watch?v=4LglZNfGzcM&t=9s) [Win10](https://internet-lab.ru/win10_doh)
 
 6. Запустите любой пресет стратегий
 
