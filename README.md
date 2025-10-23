@@ -31,11 +31,11 @@
    
 4. Выполните от имени администратора [**`tool_enable_timestamps_and_ECN.cmd`**](./tool_enable_timestamps_and_ECN.cmd)
 
-5. Включите DNS over HTTPS Гайд [Win11](https://www.youtube.com/watch?v=4LglZNfGzcM&t=9s) [Win10](https://internet-lab.ru/win10_doh)
+5. Включите DNS over HTTPS (DoH) Гайд [Win11](https://www.youtube.com/watch?v=4LglZNfGzcM&t=9s) [Win10](https://internet-lab.ru/win10_doh) [Тест DoH](https://one.one.one.one/help/)
 
-6. Запустите любой пресет стратегий
+7. Запустите любой пресет стратегий
 
-7. Для настройки автозапуска или подбора стратегий запустите [**`main.py`**](./main.py)
+8. Для настройки автозапуска или подбора стратегий запустите [**`main.py`**](./main.py)
 
 ## Краткие описания файлов
 
