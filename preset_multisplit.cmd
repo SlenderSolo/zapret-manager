@@ -6,8 +6,8 @@ start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 --wf-udp=4
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.discord_media.txt" ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.stun.txt" ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.quic_initial_ietf.txt" ^
---filter-tcp=80 --hostlist="%LISTS%list-youtube.txt" --dpi-desync=fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --new ^
---filter-tcp=80 --hostlist="%LISTS%list-general.txt" --dpi-desync=fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --new ^
+--filter-tcp=80 --hostlist="%LISTS%list-youtube.txt" --dpi-desync=hostfakesplit --dpi-desync-fooling=badseq --dpi-desync-hostfakesplit-mod=altorder=1 --new ^
+--filter-tcp=80 --hostlist="%LISTS%list-general.txt" --dpi-desync=hostfakesplit --dpi-desync-fooling=badseq --dpi-desync-hostfakesplit-mod=altorder=1 --new ^
 --filter-tcp=443 --hostlist="%LISTS%list-youtube.txt" --dpi-desync=fake,multisplit --dpi-desync-fooling=ts --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls=0x00000000 --new ^
 --filter-tcp=443 --hostlist="%LISTS%list-general.txt" --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=0 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=ya.ru --new ^
 --filter-tcp=443 --ipset="%LISTS%ipset-cloud.txt" --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=0 --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=ya.ru --new ^
