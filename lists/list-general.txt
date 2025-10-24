@@ -27,5 +27,6 @@ hetzner.com
 www.speedtest.net
 downdetector.com
 sponsor.ajay.app
-commega.nz
+mega.nz
 mega.co.nz
+commega.nz
