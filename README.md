@@ -1,9 +1,10 @@
 <div align="center">
   
-#  <a href="https://github.com/SlenderSolo/zapret-manager">zapret-manager</a> <img src="https://cdn-icons-png.flaticon.com/128/5968/5968756.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/128/1384/1384060.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/512/5968/5968819.png" height=28 />
-
-Альтернативы https://github.com/bol-van/zapret-win-bundle https://github.com/Flowseal/zapret-discord-youtube
+#  <a href="https://github.com/SlenderSolo/zapret-manager">zapret-manager</a> <img src="https://cdn-icons-png.flaticon.com/128/5968/5968756.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/128/1384/1384060.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/512/5968/5968819.png" height=28 /> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1982px-Spotify_icon.svg.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/512/145/145809.png" height=28 />
+Альтернативы https://github.com/bol-van/zapret-win-bundle https://github.com/Flowseal/zapret-discord-youtube 
 </div>
+
+Управление и создание сервиса (автозапуска) для Zapret, авто подбор стратегий для пресетов, оригинальные пресеты стратегий, быстрый многопоточный blockchecker на python, который можно настроить в [**`config.py`**](src/config.py) и добавить свои стратегии для теста в [**`strategies.txt`**](bin/strategies.txt)
 
 > [!CAUTION]
 >
