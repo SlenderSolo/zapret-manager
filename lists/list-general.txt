@@ -13,9 +13,6 @@ ffzap.com
 betterttv.net
 7tv.app
 7tv.io
-www.speedtest.net
-downdetector.com
-sponsor.ajay.app
 rutracker.org
 static.rutracker.cc
 soundcloud.com
@@ -27,4 +24,8 @@ rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
-
+www.speedtest.net
+downdetector.com
+sponsor.ajay.app
+commega.nz
+mega.co.nz
