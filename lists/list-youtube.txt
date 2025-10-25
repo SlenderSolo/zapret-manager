@@ -3,6 +3,7 @@ i.ytimg.com
 i1.ytimg.com
 yt3.ggpht.com
 yt4.ggpht.com
+yt3.googleusercontent.com
 youtube.com
 youtubei.googleapis.com
 youtubeembeddedplayer.googleapis.com
