@@ -1,3 +1,5 @@
+import re
+import os
 import subprocess
 import time
 import socket
@@ -167,9 +169,10 @@ class BlockChecker:
 
         protocol = "https" if port == 443 else "http"
         url = f"{protocol}://{domain}"
+        
         cmd = [
-            str(CURL_PATH), '-sS', '-I', '-A', USER_AGENT, '--max-time', str(CURL_TIMEOUT),
-            '--connect-to', f"{domain}:{port}:{ip}:{port}", url
+            str(CURL_PATH), '-sS', '-D', '-', '-o', os.devnull, '-A', USER_AGENT,
+            '--max-time', str(CURL_TIMEOUT), '--connect-to', f"{domain}:{port}:{ip}:{port}", url
         ]
         if tls_version == "1.2": cmd.extend(['--tlsv1.2', '--tls-max', '1.2'])
         elif tls_version == "1.3": cmd.append('--tlsv1.3')
@@ -177,18 +180,42 @@ class BlockChecker:
 
         try:
             start_time = time.perf_counter()
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
+            result = subprocess.run(cmd, capture_output=True, text=True, encoding='latin-1', timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
             end_time = time.perf_counter()
-            output = (result.stdout + result.stderr).strip()
-
-            if result.returncode == 0:
-                # Check for suspicious redirects
-                http_status_line = output.splitlines()[0] if output else ""
-                if not REDIRECT_AS_SUCCESS and " 30" in http_status_line and domain not in output.lower():
-                    return CurlTestResult(success=False, return_code=254, output="Suspicious redirection", domain=domain)
-                return CurlTestResult(success=True, return_code=0, output="Success", time_taken=end_time - start_time, domain=domain)
+            headers_output = result.stdout.strip()
+            stderr_output = result.stderr.strip()
+            if result.returncode != 0:
+                return CurlTestResult(success=False, return_code=result.returncode, output=stderr_output or f"cURL error {result.returncode}", domain=domain)
             
-            return CurlTestResult(success=False, return_code=result.returncode, output=output, domain=domain)
+            header_lines = headers_output.splitlines()
+            if not header_lines:
+                return CurlTestResult(success=False, return_code=254, output="Empty response from server", domain=domain)
+
+            status_line = header_lines[0]
+            match = re.search(r'HTTP/[\d\.]+\s+(\d+)', status_line)
+            if not match:
+                return CurlTestResult(success=False, return_code=254, output="Invalid HTTP status line", domain=domain)
+            
+            status_code = int(match.group(1))
+            if status_code == 400:
+                return CurlTestResult(success=False, return_code=254, output="HTTP 400: Bad Request. Likely server receives fakes.", domain=domain)
+
+            if 300 <= status_code < 400:
+                location_header = None
+                for line in header_lines:
+                    if line.lower().startswith('location:'):
+                        location_header = line.split(':', 1)[1].strip()
+                        break
+
+                is_suspicious = True
+                if location_header:
+                    if location_header.lower().startswith(('http://', 'https://')) and domain in location_header:
+                         is_suspicious = False
+                if is_suspicious:
+                    return CurlTestResult(success=False, return_code=254, output=f"Suspicious redirection to: {location_header}", domain=domain)
+
+            return CurlTestResult(success=True, return_code=0, output="Success", time_taken=end_time - start_time, domain=domain)
+
         except subprocess.TimeoutExpired:
             return CurlTestResult(success=False, return_code=28, output="Operation timed out", domain=domain)
 
