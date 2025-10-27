@@ -2,7 +2,6 @@ import re
 import os
 import subprocess
 import time
-import socket
 import threading
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Callable
@@ -11,57 +10,14 @@ from functools import partial
 
 from .config import *
 from . import ui
-from .utils import is_process_running, running_winws
+from .network_utils import DNSCache, CurlRunner, CurlTestResult
+from .utils import is_process_running, running_winws, TokenBucket
 from .winws_manager import WinWSManager
-
-class TokenBucket:
-    def __init__(self, capacity: int, refill_rate: float):
-        self.capacity = capacity
-        self.tokens = float(capacity)
-        self.refill_rate = float(refill_rate)
-        self.last_refill = time.monotonic()
-        self.condition = threading.Condition()
-
-    def _refill(self):
-        now = time.monotonic()
-        elapsed = now - self.last_refill
-        if elapsed > 0:
-            tokens_to_add = elapsed * self.refill_rate
-            if tokens_to_add > 0:
-                self.tokens = min(self.capacity, self.tokens + tokens_to_add)
-                self.last_refill = now
-                self.condition.notify_all()
-
-    def acquire(self, tokens: int = 1) -> bool:
-        with self.condition:
-            self._refill()
-            if self.tokens >= tokens:
-                self.tokens -= tokens
-                return True
-            return False
-
-    def wait_for_token(self, tokens: int = 1):
-        with self.condition:
-            while self.tokens < tokens:
-                self._refill()
-                if self.tokens < tokens:
-                    required = tokens - self.tokens
-                    wait_time = max(0, required / self.refill_rate)
-                    self.condition.wait(timeout=wait_time)
-            self.tokens -= tokens
 
 BIN_DIR = BASE_DIR / "bin"
 WINWS_PATH = BIN_DIR / "winws.exe"
 CURL_PATH = BIN_DIR / "curl.exe"
 STRATEGIES_PATH = BIN_DIR / "strategies.txt"
-
-@dataclass
-class CurlTestResult:
-    success: bool
-    return_code: int
-    output: str
-    time_taken: float = -1.0
-    domain: str = ""
 
 @dataclass
 class StrategyTestResult:
@@ -95,7 +51,11 @@ class BlockChecker:
         self.initial_accessibility: Dict[str, Dict[str, bool]] = {}
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         self.strategies_by_test: Dict[str, List[List[str]]] = {}
+        
+        # Initialize network utilities
+        self.dns_cache = DNSCache(ttl=DNS_CACHE_TTL)
         self.rate_limiter = TokenBucket(TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE)
+        self.curl_runner = CurlRunner(self.dns_cache, self.rate_limiter)
 
     # --- Setup and Configuration ---
     def _check_prerequisites(self):
@@ -160,65 +120,6 @@ class BlockChecker:
             ui.print_info(f"Loaded {len(strategies)} strategies for {title}.")
 
     # --- Test Execution ---
-    def _perform_curl_test(self, domain: str, port: int, tls_version: Optional[str] = None, http3_only: bool = False) -> CurlTestResult:
-        self.rate_limiter.wait_for_token()
-        try:
-            ip = socket.gethostbyname(domain)
-        except socket.gaierror:
-            return CurlTestResult(success=False, return_code=6, output=f"Could not resolve host '{domain}'", domain=domain)
-
-        protocol = "https" if port == 443 else "http"
-        url = f"{protocol}://{domain}"
-        
-        cmd = [
-            str(CURL_PATH), '-sS', '-D', '-', '-o', os.devnull, '-A', USER_AGENT,
-            '--max-time', str(CURL_TIMEOUT), '--connect-to', f"{domain}:{port}:{ip}:{port}", url
-        ]
-        if tls_version == "1.2": cmd.extend(['--tlsv1.2', '--tls-max', '1.2'])
-        elif tls_version == "1.3": cmd.append('--tlsv1.3')
-        if http3_only: cmd.append('--http3-only')
-
-        try:
-            start_time = time.perf_counter()
-            result = subprocess.run(cmd, capture_output=True, text=True, encoding='latin-1', timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
-            end_time = time.perf_counter()
-            headers_output = result.stdout.strip()
-            stderr_output = result.stderr.strip()
-            if result.returncode != 0:
-                return CurlTestResult(success=False, return_code=result.returncode, output=stderr_output or f"cURL error {result.returncode}", domain=domain)
-            
-            header_lines = headers_output.splitlines()
-            if not header_lines:
-                return CurlTestResult(success=False, return_code=254, output="Empty response from server", domain=domain)
-
-            status_line = header_lines[0]
-            match = re.search(r'HTTP/[\d\.]+\s+(\d+)', status_line)
-            if not match:
-                return CurlTestResult(success=False, return_code=254, output="Invalid HTTP status line", domain=domain)
-            
-            status_code = int(match.group(1))
-            if status_code == 400:
-                return CurlTestResult(success=False, return_code=254, output="HTTP 400: Bad Request. Likely server receives fakes.", domain=domain)
-
-            if 300 <= status_code < 400:
-                location_header = None
-                for line in header_lines:
-                    if line.lower().startswith('location:'):
-                        location_header = line.split(':', 1)[1].strip()
-                        break
-
-                is_suspicious = True
-                if location_header:
-                    if location_header.lower().startswith(('http://', 'https://')) and domain in location_header:
-                         is_suspicious = False
-                if is_suspicious:
-                    return CurlTestResult(success=False, return_code=254, output=f"Suspicious redirection to: {location_header}", domain=domain)
-
-            return CurlTestResult(success=True, return_code=0, output="Success", time_taken=end_time - start_time, domain=domain)
-
-        except subprocess.TimeoutExpired:
-            return CurlTestResult(success=False, return_code=28, output="Operation timed out", domain=domain)
-
     def _run_repeated_test(self, domain: str, test_func: Callable[..., CurlTestResult], repeats: int) -> CurlTestResult:
         if repeats == 1:
             return test_func(domain=domain)
@@ -259,7 +160,7 @@ class BlockChecker:
         try:
             with running_winws(self.winws_manager, winws_command):
                 
-                test_func = partial(self._perform_curl_test, **test_params)
+                test_func = partial(self.curl_runner.perform_test, **test_params)
                 
                 with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
                     repeated_test_partial = partial(self._run_repeated_test, test_func=test_func, repeats=self.repeats)
@@ -281,7 +182,7 @@ class BlockChecker:
         ui.print_info("- Checking initial accessibility without DPI bypass...")
 
         with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
-            test_func = partial(self._perform_curl_test, **test_params)
+            test_func = partial(self.curl_runner.perform_test, **test_params)
             repeated_test_partial = partial(self._run_repeated_test, test_func=test_func, repeats=1)
             results = executor.map(repeated_test_partial, self.domains)
 
@@ -359,6 +260,12 @@ class BlockChecker:
         console_output = summary_content.replace("# ", ui.Style.BRIGHT + ui.Fore.GREEN)
         console_output = console_output.replace("strategies", f"strategies{ui.Style.RESET_ALL}")
         print(console_output)
+
+        stats = self.dns_cache.get_stats()
+        total_lookups = stats['hits'] + stats['misses']
+        hit_rate = (stats['hits'] / total_lookups * 100) if total_lookups > 0 else 0
+        if total_lookups > 0:
+            ui.print_info(f"DNS Cache Stats: {stats['hits']} hits, {stats['misses']} misses ({hit_rate:.1f}% hit rate)")
 
         result_file_path = BASE_DIR / "result.txt"
         try:

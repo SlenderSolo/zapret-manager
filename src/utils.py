@@ -2,6 +2,8 @@ import ctypes
 import os
 import subprocess
 import sys
+import time
+import threading
 from contextlib import contextmanager
 
 def enable_ansi_support():
@@ -64,3 +66,33 @@ def running_winws(manager, params):
         yield manager
     finally:
         manager.stop()
+
+class TokenBucket:
+    """A simple token bucket implementation for rate limiting."""
+    def __init__(self, capacity: int, refill_rate: float):
+        self.capacity = capacity
+        self.tokens = float(capacity)
+        self.refill_rate = float(refill_rate)
+        self.last_refill = time.monotonic()
+        self.condition = threading.Condition()
+
+    def _refill(self):
+        now = time.monotonic()
+        elapsed = now - self.last_refill
+        if elapsed > 0:
+            tokens_to_add = elapsed * self.refill_rate
+            if tokens_to_add > 0:
+                self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+                self.last_refill = now
+                self.condition.notify_all()
+
+    def wait_for_token(self, tokens: int = 1):
+        """Wait until a token is available and then consume it."""
+        with self.condition:
+            while self.tokens < tokens:
+                self._refill()
+                if self.tokens < tokens:
+                    required = tokens - self.tokens
+                    wait_time = max(0, required / self.refill_rate)
+                    self.condition.wait(timeout=wait_time)
+            self.tokens -= tokens
