@@ -1,19 +1,14 @@
 import os
-import sys
 import signal
 import traceback
-from pathlib import Path
 
-# This allows importing from sibling directories
-sys.path.append(str(Path(__file__).resolve().parent))
-
-from src.block_checker import BlockChecker, BlockCheckError
+from src.blockcheck.blockchecker import BlockChecker, BlockCheckError
 from src.service_manager import create_service, delete_service, get_service_status
-from src.preset_adjuster import adjust_preset
+from src.preset_optimizer import optimize_preset
 from src import ui
 from src.utils import run_as_admin, enable_ansi_support
 
-def run_block_checker(mode='domain'):
+def run_blockchecker(mode='domain'):
     """Wrapper function to run the BlockChecker."""
     ui.print_header("Running Block Checker")
     checker = BlockChecker()
@@ -58,9 +53,9 @@ def main_menu():
         if choice == '1': create_service()
         elif choice == '2': delete_service()
         elif choice == '3': get_service_status()
-        elif choice == '4': adjust_preset()
-        elif choice == '5': run_block_checker(mode='domain')
-        elif choice == '6': run_block_checker(mode='ipset')
+        elif choice == '4': optimize_preset()
+        elif choice == '5': run_blockchecker(mode='domain')
+        elif choice == '6': run_blockchecker(mode='ipset')
         elif choice == '0': break
         else:
             ui.print_warn("Invalid option. Please try again.")
