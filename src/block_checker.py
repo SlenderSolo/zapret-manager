@@ -1,4 +1,3 @@
-import re
 import os
 import subprocess
 import time
@@ -13,11 +12,14 @@ from . import ui
 from .network_utils import DNSCache, CurlRunner, CurlTestResult
 from .utils import is_process_running, running_winws, TokenBucket
 from .winws_manager import WinWSManager
+from .strategy import Strategy, StrategyManager
 
 BIN_DIR = BASE_DIR / "bin"
 WINWS_PATH = BIN_DIR / "winws.exe"
 CURL_PATH = BIN_DIR / "curl.exe"
 STRATEGIES_PATH = BIN_DIR / "strategies.txt"
+LISTS_DIR = BASE_DIR / "lists"
+
 
 @dataclass
 class StrategyTestResult:
@@ -50,8 +52,10 @@ class BlockChecker:
         self.reports: Dict[str, List[ReportEntry]] = {}
         self.initial_accessibility: Dict[str, Dict[str, bool]] = {}
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
-        self.strategies_by_test: Dict[str, List[List[str]]] = {}
-        
+        self.strategy_manager = StrategyManager(STRATEGIES_PATH)
+        self.test_mode: str = 'domain'  # 'domain' or 'ipset'
+        self.ipset_path: Optional[Path] = None
+
         # Initialize network utilities
         self.dns_cache = DNSCache(ttl=DNS_CACHE_TTL)
         self.rate_limiter = TokenBucket(TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE)
@@ -81,11 +85,33 @@ class BlockChecker:
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise BlockCheckError(f"Failed to check curl capabilities: {e}")
 
+    def _get_ipsets(self) -> List[Path]:
+        if not LISTS_DIR.exists():
+            return []
+        return sorted([f for f in LISTS_DIR.glob('ipset*.txt')])
+
     def ask_params(self):
         ui.print_header("Blockcheck Configuration")
-        default_domains = "rutracker.org"
-        domains_input = input(f"Enter domain(s) to test, separated by spaces (default: {default_domains}): ")
-        self.domains = domains_input.split() if domains_input else [default_domains]
+
+        if self.test_mode == 'domain':
+            default_domains = "rutracker.org"
+            domains_input = input(f"Enter domain(s) to test, separated by spaces (default: {default_domains}): ")
+            self.domains = domains_input.split() if domains_input else [default_domains]
+        elif self.test_mode == 'ipset':
+            ipsets = self._get_ipsets()
+            if not ipsets:
+                raise BlockCheckError("No ipset files found in the 'lists' directory.")
+            
+            ipset_filenames = [os.path.basename(p) for p in ipsets]
+            selected_ipset_filename = ui.ask_choice("Select IPSet to test:", ipset_filenames)
+            if selected_ipset_filename:
+                self.ipset_path = LISTS_DIR / selected_ipset_filename
+                default_domains = "stryker.com"
+                domains_input = input(f"Enter domain(s) to test, separated by spaces (default: {default_domains}): ")
+                self.domains = domains_input.split() if domains_input else [default_domains]
+            else:
+                raise BlockCheckError("No IPSet selected.")
+
         repeats_input = input("How many times to repeat each test (default: 1): ")
         self.repeats = int(repeats_input) if repeats_input.isdigit() and int(repeats_input) > 0 else 1
         
@@ -96,28 +122,13 @@ class BlockChecker:
             else:
                 self.checks_to_run[key] = ui.ask_yes_no(f"Check {config['title']}?", default_yes=DEFAULT_CHECKS.get(key, True))
 
-    def _load_strategies_from_file(self):
-        ui.print_header("Loading strategies from file")
-        self.strategies_by_test = {key: [] for key in self.checks_to_run if self.checks_to_run[key]}
-        strategy_map = {'https': ['https_tls12', 'https_tls13']}
-
-        try:
-            with STRATEGIES_PATH.open('r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if not line or ' : ' not in line: continue
-                    test_name_raw, params_raw = line.split(' : ', 1)
-                    params_list = params_raw.split()[1:] # Skip the 'winws' part
-                    
-                    for key in strategy_map.get(test_name_raw.strip(), [test_name_raw.strip()]):
-                        if self.checks_to_run.get(key):
-                            self.strategies_by_test.setdefault(key, []).append(params_list)
-        except FileNotFoundError:
-            raise BlockCheckError(f"Strategy file not found at: {STRATEGIES_PATH}")
-        
-        for test_name, strategies in self.strategies_by_test.items():
-            title = self.CHECKS_CONFIG.get(test_name, {}).get('title', test_name.upper())
-            ui.print_info(f"Loaded {len(strategies)} strategies for {title}.")
+    def _load_strategies(self):
+        ui.print_header("Loading strategies")
+        self.strategy_manager.load_strategies()
+        for key, config in self.CHECKS_CONFIG.items():
+            if self.checks_to_run.get(key):
+                strategies = self.strategy_manager.get_strategies_for_test(key)
+                ui.print_info(f"Loaded {len(strategies)} strategies for {config['title']}.")
 
     # --- Test Execution ---
     def _run_repeated_test(self, domain: str, test_func: Callable[..., CurlTestResult], repeats: int) -> CurlTestResult:
@@ -135,26 +146,11 @@ class BlockChecker:
         last_result.time_taken = fastest_time
         return last_result
 
-    def _process_strategy_template(self, template: List[str], domains: List[str]) -> List[str]:
-        final_params = []
-        
-        for param in template:
-            if "%~dp0" in param and "=" in param:
-                key, value = param.split('=', 1)
-                relative_path = value.strip('"').replace("%~dp0", "").lstrip("\/")
-                full_path = BASE_DIR / relative_path
-                full_path_str = str(full_path)
-                if ' ' in full_path_str:
-                    final_params.append(f'{key}="{full_path_str}"')
-                else:
-                    final_params.append(f'{key}={full_path_str}')
-            else:
-                final_params.append(param)
-        final_params.append(f"--hostlist-domains={','.join(domains)}")
-        return final_params
-
-    def _test_one_strategy(self, domains_to_test: List[str], template: List[str], test_params: dict) -> StrategyTestResult:
-        winws_command = self._process_strategy_template(template, self.domains)
+    def _test_one_strategy(self, domains_to_test: List[str], strategy: Strategy, test_params: dict) -> StrategyTestResult:
+        winws_command = strategy.build_command(
+            domains=self.domains,
+            ipset_path=self.ipset_path if self.test_mode == 'ipset' else None
+        )
         total_time = 0
 
         try:
@@ -200,18 +196,20 @@ class BlockChecker:
             ui.print_info(f"Domains to unblock: {ui.Style.BRIGHT}{', '.join(domains_to_test) or 'None'}{ui.Style.RESET_ALL}")
         if not domains_to_test: return
 
-        strategy_templates = self.strategies_by_test.get(test_key, [])
-        ui.print_info(f"\n- Starting tests with {len(strategy_templates)} loaded strategies...")
-        for i, template in enumerate(strategy_templates):
-            short_name = ' '.join(p for p in template if not p.startswith('--wf-'))
-            print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{i+1}/{len(strategy_templates)}]{ui.Style.RESET_ALL} Testing: {short_name}")
+        strategies = self.strategy_manager.get_strategies_for_test(test_key)
+        ui.print_info(f"\n- Starting tests with {len(strategies)} loaded strategies...")
+        for i, strategy in enumerate(strategies):
+            # We no longer need to process the template here, just build for logging
+            winws_command_for_log = strategy.build_command(domains_to_test, self.ipset_path if self.test_mode == 'ipset' else None)
+            full_command_str = ' '.join(winws_command_for_log)
+            print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{i+1}/{len(strategies)}]{ui.Style.RESET_ALL} Testing: {strategy.name}")
 
-            result = self._test_one_strategy(domains_to_test, template, test_params)
+            result = self._test_one_strategy(domains_to_test, strategy, test_params)
 
             if result.success:
                 time_label = "Avg Time" if len(domains_to_test) > 1 or self.repeats > 1 else "Time"
                 status_msg = f"{ui.Style.BRIGHT+ui.Fore.GREEN}SUCCESS ({time_label}: {result.avg_time:.3f}s){ui.Style.RESET_ALL}"
-                self._add_report(test_key, template, result.avg_time)
+                self._add_report(test_key, strategy, result.avg_time)
                 print(f"  Result: {status_msg}")
             else:
                 if result.winws_stderr:
@@ -224,20 +222,28 @@ class BlockChecker:
                     print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
 
     def _run_test_suite(self, test_key: str, test_config: dict):
-        ui.print_header(f"Testing {test_config['title'].upper()} for domains: {', '.join(self.domains)}")
-        if self._check_initial_accessibility(test_key, test_config['test_params']):
-            ui.print_info("All sites are initially accessible, skipping bypass tests for this protocol.")
-            return
+        if self.test_mode == 'domain':
+            ui.print_header(f"Testing {test_config['title'].upper()} for domains: {', '.join(self.domains)}")
+            if self._check_initial_accessibility(test_key, test_config['test_params']):
+                ui.print_info("All sites are initially accessible, skipping bypass tests for this protocol.")
+                return
+        else:
+            ui.print_header(f"Testing {test_config['title'].upper()} for ipset: {self.ipset_path.name}")
+        
         self._run_strategies_for_test(test_key, test_config['test_params'])
 
     # --- Reporting ---
-    def _add_report(self, test_key: str, strategy_template: List[str], time_taken: float):
+    def _add_report(self, test_key: str, strategy: Strategy, time_taken: float):
         if test_key not in self.reports: self.reports[test_key] = []
-        self.reports[test_key].append(ReportEntry(strategy=' '.join(strategy_template), time=time_taken))
+        self.reports[test_key].append(ReportEntry(strategy=strategy.name, time=time_taken))
 
     def _generate_summary(self) -> str:
-        summary_lines = [f"SUMMARY for {', '.join(self.domains)}", "=" * (8 + len(', '.join(self.domains))) + "\n"]
-        time_label = "Avg Time" if len(self.domains) > 1 or self.repeats > 1 else "Time"
+        if self.test_mode == 'domain':
+            summary_title = f"SUMMARY for {', '.join(self.domains)}"
+        else:
+            summary_title = f"SUMMARY for IPSet: {self.ipset_path.name}"
+        summary_lines = [summary_title, "=" * len(summary_title) + "\n"]
+        time_label = "Avg Time" if (self.test_mode == 'domain' and len(self.domains) > 1) or self.repeats > 1 else "Time"
 
         for key, config in self.CHECKS_CONFIG.items():
             results = sorted(self.reports.get(key, []), key=lambda r: r.time)
@@ -245,16 +251,22 @@ class BlockChecker:
             
             summary_lines.append(f"# Successful {config['title']} strategies (sorted by speed):")
             for res in results:
-                display_strategy = ' '.join(p for p in res.strategy.split() if not p.startswith('--wf-'))
+                display_strategy = res.strategy
                 summary_lines.append(f"  ({time_label}: {res.time:.3f}s) {display_strategy}")
             summary_lines.append("")
         return "\n".join(summary_lines)
 
     def print_summary(self):
-        ui.print_header(f"SUMMARY for {', '.join(self.domains)}")
-        if not any(self.reports.values()):
-            ui.print_warn(f"No working strategies found for the given domains.")
-            return
+        if self.test_mode == 'domain':
+            ui.print_header(f"SUMMARY for {', '.join(self.domains)}")
+            if not any(self.reports.values()):
+                ui.print_warn(f"No working strategies found for the given domains.")
+                return
+        else:
+            ui.print_header(f"SUMMARY for IPSet: {self.ipset_path.name}")
+            if not any(self.reports.values()):
+                ui.print_warn(f"No working strategies found for the given ipset.")
+                return
 
         summary_content = self._generate_summary()
         console_output = summary_content.replace("# ", ui.Style.BRIGHT + ui.Fore.GREEN)
@@ -276,7 +288,7 @@ class BlockChecker:
 
     # --- Main Execution ---
     def run_all_tests(self):
-        self._load_strategies_from_file()
+        self._load_strategies()
         self.reports.clear()
         self.initial_accessibility.clear()
         for key, config in self.CHECKS_CONFIG.items():
