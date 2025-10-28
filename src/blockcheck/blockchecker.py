@@ -97,7 +97,7 @@ class BlockChecker:
             selected_ipset_filename = ui.ask_choice("Select IPSet to test:", ipset_filenames)
             if selected_ipset_filename:
                 self.ipset_path = LISTS_DIR / selected_ipset_filename
-                default_domains = "stryker.com"
+                default_domains = "www.stryker.com"
                 domains_input = input(f"Enter domain(s) to test, separated by spaces (default: {default_domains}): ")
                 self.domains = domains_input.split() if domains_input else [default_domains]
             else:
