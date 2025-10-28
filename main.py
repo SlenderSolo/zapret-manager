@@ -13,11 +13,12 @@ from src.preset_adjuster import adjust_preset
 from src import ui
 from src.utils import run_as_admin, enable_ansi_support
 
-def run_block_checker():
+def run_block_checker(mode='domain'):
     """Wrapper function to run the BlockChecker."""
     ui.print_header("Running Block Checker")
     checker = BlockChecker()
-    
+    checker.test_mode = mode # Set the mode on the checker instance
+
     def signal_handler(sig, frame):
         ui.print_info("\nCtrl+C detected. Terminating check...")
         checker.cleanup()
@@ -47,9 +48,10 @@ def main_menu():
         print("\n===== Zapret Manager =====")
         print("1. Create/Update Service")
         print("2. Delete Service")
-        print("3. Check Service Status")
-        print("4. Auto-adjust Preset")
-        print("5. Run Block Checker")
+        print("3. Service Status")
+        print("4. Optimize Preset")
+        print("5. Domain Block Check")
+        print("6. IP Block Check")
         print("0. Exit")
         choice = input("Select an option: ").strip()
 
@@ -57,7 +59,8 @@ def main_menu():
         elif choice == '2': delete_service()
         elif choice == '3': get_service_status()
         elif choice == '4': adjust_preset()
-        elif choice == '5': run_block_checker()
+        elif choice == '5': run_block_checker(mode='domain')
+        elif choice == '6': run_block_checker(mode='ipset')
         elif choice == '0': break
         else:
             ui.print_warn("Invalid option. Please try again.")
