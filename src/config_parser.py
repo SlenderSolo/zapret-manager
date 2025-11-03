@@ -91,21 +91,33 @@ def _substitute_variables(command: str, variables: dict[str, str], script_dir: P
     return substituted_cmd
 
 def _tokenize_command_args(args_string: str) -> List[str]:
-    """Splits a command string into tokens, respecting quotes."""
+    """
+    Splits a command string into tokens, respecting quotes.
+    Quotes are used for parsing but NOT included in the resulting tokens.
+    
+    Example:
+        Input:  '--dpi-desync-fake-tls="C:\\path with spaces\\file.bin"'
+        Output: ['--dpi-desync-fake-tls=C:\\path with spaces\\file.bin']
+    """
     tokens = []
     current_token = ""
     in_quotes = False
+    
     for char in args_string:
         if char == '"':
             in_quotes = not in_quotes
+            continue
+            
         if char == ' ' and not in_quotes:
             if current_token:
                 tokens.append(current_token)
             current_token = ""
         else:
             current_token += char
+    
     if current_token:
         tokens.append(current_token)
+    
     return tokens
 
 def _find_executable_and_args(tokens: List[str]) -> Optional[Tuple[Path, List[str]]]:

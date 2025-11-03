@@ -12,9 +12,11 @@ SERVICE_NAME = "winws"
 # --- BlockChecker Settings ---
 REDIRECT_AS_SUCCESS = True
 ONLY_BLOCKED_DOMAINS = False
-CURL_TIMEOUT = 1.5
+CURL_TIMEOUT = 1
 CURL_MAX_WORKERS = 10
 USER_AGENT = "Mozilla"
+DEFAULT_DOMAIN = "rutracker.org/forum/index.php"
+DEFAULT_IPSET_DOMAIN = "www.delta.com"
 DEFAULT_CHECKS = {
     'http': True,
     'https_tls12': False,
