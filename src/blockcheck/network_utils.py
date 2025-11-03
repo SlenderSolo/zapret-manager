@@ -5,14 +5,13 @@ import time
 import socket
 import threading
 from dataclasses import dataclass
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
 
-from ..config import BASE_DIR, USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH
+from ..config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH
 from ..utils import TokenBucket
 
 @dataclass
 class CurlTestResult:
-    """Represents the result of a single cURL test."""
     success: bool
     return_code: int
     output: str
@@ -21,12 +20,13 @@ class CurlTestResult:
 
 @dataclass
 class CacheEntry:
-    """Represents a single entry in the DNS cache."""
     ip_address: str
     expiry_time: float
 
+
 class DNSCache:
-    """A thread-safe, in-memory DNS cache with Time-To-Live (TTL) support."""
+    """Thread-safe DNS cache with TTL. Critical for performance."""
+    
     def __init__(self, ttl: int = 300):
         self.ttl = ttl
         self._cache: Dict[str, CacheEntry] = {}
@@ -35,103 +35,148 @@ class DNSCache:
         self.cache_misses = 0
 
     def resolve(self, domain: str) -> Optional[str]:
-        """Resolves a domain name to an IP address, using the cache if possible."""
+        base_domain = domain.split('/')[0]
+        
         with self._lock:
-            entry = self._cache.get(domain)
+            entry = self._cache.get(base_domain)
             if entry and time.monotonic() < entry.expiry_time:
                 self.cache_hits += 1
                 return entry.ip_address
 
-        # Cache miss or expired
         self.cache_misses += 1
-        ip_address = self._fetch_from_dns(domain)
-        if ip_address:
-            with self._lock:
-                self._cache[domain] = CacheEntry(
-                    ip_address=ip_address,
-                    expiry_time=time.monotonic() + self.ttl
-                )
-        return ip_address
-
-    def _fetch_from_dns(self, domain: str) -> Optional[str]:
-        """Performs the actual DNS lookup."""
         try:
-            return socket.gethostbyname(domain)
+            ip = socket.gethostbyname(base_domain)
+            with self._lock:
+                self._cache[base_domain] = CacheEntry(ip, time.monotonic() + self.ttl)
+            return ip
         except socket.gaierror:
             return None
 
     def get_stats(self) -> Dict[str, int]:
-        """Returns cache statistics."""
         with self._lock:
             return {'hits': self.cache_hits, 'misses': self.cache_misses}
 
+
+class HttpResponseValidator:
+    """
+    HTTP response validation - complex logic that can be reused.
+    Critical for correctly identifying blocks.
+    """
+    
+    @staticmethod
+    def validate(domain: str, headers: str) -> Optional[str]:
+        """
+        Checks HTTP response for signs of blocking.
+        Returns: None if OK, otherwise string with problem description
+        """
+        base_domain = domain.split('/')[0]
+        lines = headers.splitlines()
+        
+        if not lines:
+            return "Empty response from server"
+
+        # Parse status code
+        match = re.search(r'HTTP/[\d\.]+\s+(\d+)', lines[0])
+        if not match:
+            return "Invalid HTTP status line"
+        
+        status = int(match.group(1))
+        
+        # Check for HTTP 400 (often means server receives fake packets)
+        if status == 400:
+            return "HTTP 400: Bad Request. Server likely receives fakes."
+        
+        # Check for suspicious redirects (sign of DPI substitution)
+        if 300 <= status < 400:
+            location = next(
+                (l.split(':', 1)[1].strip() for l in lines if l.lower().startswith('location:')), 
+                None
+            )
+            if location:
+                same_domain = base_domain in location and location.lower().startswith(('http://', 'https://'))
+                relative = not location.lower().startswith(('http://', 'https://'))
+                
+                if not (same_domain or relative):
+                    return f"Suspicious redirect to: {location}"
+        
+        return None
+
+
 class CurlRunner:
-    """A wrapper for executing and parsing cURL commands."""
+    """Performs curl tests with DNS caching and rate limiting."""
+    
     def __init__(self, dns_cache: DNSCache, rate_limiter: TokenBucket):
         self.dns_cache = dns_cache
         self.rate_limiter = rate_limiter
+        self.validator = HttpResponseValidator()
 
-    def _build_command(self, domain: str, port: int, ip: str, tls_version: Optional[str], http3_only: bool) -> List[str]:
-        """Builds the cURL command list."""
+    @staticmethod
+    def _split_domain(domain: str) -> Tuple[str, str]:
+        """Splits domain/path into base_domain and path."""
+        parts = domain.split('/', 1)
+        return parts[0], ('/' + parts[1] if len(parts) > 1 else '')
+
+    def _build_cmd(self, domain: str, port: int, ip: str, 
+                   tls_version: Optional[str], http3_only: bool) -> List[str]:
+        """Builds curl command with necessary parameters."""
+        base_domain, path = self._split_domain(domain)
         protocol = "https" if port == 443 else "http"
-        url = f"{protocol}://{domain}"
         
         cmd = [
-            str(CURL_PATH), '-sS', '-D', '-', '-o', os.devnull, '-A', USER_AGENT,
-            '--max-time', str(CURL_TIMEOUT), '--connect-to', f"{domain}:{port}:{ip}:{port}", url
+            str(CURL_PATH), '-sS', '-D', '-', '-o', os.devnull, 
+            '-A', USER_AGENT, '--max-time', str(CURL_TIMEOUT),
+            '--connect-to', f"{base_domain}:{port}:{ip}:{port}",
+            f"{protocol}://{base_domain}{path}"
         ]
-        if tls_version == "1.2": cmd.extend(['--tlsv1.2', '--tls-max', '1.2'])
-        elif tls_version == "1.3": cmd.append('--tlsv1.3')
-        if http3_only: cmd.append('--http3-only')
+        
+        if tls_version == "1.2":
+            cmd.extend(['--tlsv1.2', '--tls-max', '1.2'])
+        elif tls_version == "1.3":
+            cmd.append('--tlsv1.3')
+        if http3_only:
+            cmd.append('--http3-only')
+        
         return cmd
 
-    def _parse_output(self, domain: str, result: subprocess.CompletedProcess) -> CurlTestResult:
-        """Parses the output of a cURL command."""
-        headers_output = result.stdout.strip()
-        stderr_output = result.stderr.strip()
-        
+    def _parse_result(self, domain: str, result: subprocess.CompletedProcess) -> CurlTestResult:
+        """Parses curl execution result."""
+        # Handle curl errors
         if result.returncode != 0:
-            return CurlTestResult(success=False, return_code=result.returncode, output=stderr_output or f"cURL error {result.returncode}", domain=domain)
+            err = result.stderr.strip() or f"cURL error {result.returncode}"
+            return CurlTestResult(False, result.returncode, err, domain=domain)
         
-        header_lines = headers_output.splitlines()
-        if not header_lines:
-            return CurlTestResult(success=False, return_code=254, output="Empty response from server", domain=domain)
-
-        status_line = header_lines[0]
-        match = re.search(r'HTTP/[\d\.]+\s+(\d+)', status_line)
-        if not match:
-            return CurlTestResult(success=False, return_code=254, output="Invalid HTTP status line", domain=domain)
+        # Validate HTTP response
+        error = self.validator.validate(domain, result.stdout.strip())
+        if error:
+            return CurlTestResult(False, 254, error, domain=domain)
         
-        status_code = int(match.group(1))
-        if status_code == 400:
-            return CurlTestResult(success=False, return_code=254, output="HTTP 400: Bad Request. Likely server receives fakes.", domain=domain)
+        return CurlTestResult(True, 0, "Success", domain=domain)
 
-        if 300 <= status_code < 400:
-            location_header = next((line.split(':', 1)[1].strip() for line in header_lines if line.lower().startswith('location:')), None)
-            is_suspicious = not (location_header and domain in location_header and location_header.lower().startswith(('http://', 'https://')))
-            if is_suspicious:
-                return CurlTestResult(success=False, return_code=254, output=f"Suspicious redirection to: {location_header}", domain=domain)
-        
-        return CurlTestResult(success=True, return_code=0, output="Success", domain=domain)
-
-    def perform_test(self, domain: str, port: int, tls_version: Optional[str] = None, http3_only: bool = False) -> CurlTestResult:
-        """Executes a cURL test against a domain."""
+    def perform_test(self, domain: str, port: int, 
+                    tls_version: Optional[str] = None, 
+                    http3_only: bool = False) -> CurlTestResult:
+        """Performs curl test with rate limiting and DNS caching."""
         self.rate_limiter.wait_for_token()
         
+        # Resolve domain through cache
         ip = self.dns_cache.resolve(domain)
         if not ip:
-            return CurlTestResult(success=False, return_code=6, output=f"Could not resolve host '{domain}'", domain=domain)
+            base = self._split_domain(domain)[0]
+            return CurlTestResult(False, 6, f"Could not resolve '{base}'", domain=domain)
 
-        cmd = self._build_command(domain, port, ip, tls_version, http3_only)
-
+        # Execute request
+        cmd = self._build_cmd(domain, port, ip, tls_version, http3_only)
+        
         try:
-            start_time = time.perf_counter()
-            result = subprocess.run(cmd, capture_output=True, text=True, encoding='latin-1', timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR)
-            end_time = time.perf_counter()
+            start = time.perf_counter()
+            result = subprocess.run(
+                cmd, capture_output=True, text=True, encoding='latin-1',
+                timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR
+            )
             
-            parsed_result = self._parse_output(domain, result)
-            parsed_result.time_taken = end_time - start_time
-            return parsed_result
-
+            parsed = self._parse_result(domain, result)
+            parsed.time_taken = time.perf_counter() - start
+            return parsed
+            
         except subprocess.TimeoutExpired:
-            return CurlTestResult(success=False, return_code=28, output="Operation timed out", domain=domain)
+            return CurlTestResult(False, 28, "Operation timed out", domain=domain)
