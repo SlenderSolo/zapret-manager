@@ -1,4 +1,5 @@
 cloudflare-ech.com
+encryptedsni.com
 imagedelivery.net
 updates.discord.com
 discord.com
