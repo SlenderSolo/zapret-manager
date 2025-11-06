@@ -10,7 +10,7 @@ LISTS_DIR = BASE_DIR / "lists"
 SERVICE_NAME = "winws"
 
 # --- BlockChecker Settings ---
-REDIRECT_AS_SUCCESS = True
+REDIRECT_AS_SUCCESS = False
 ONLY_BLOCKED_DOMAINS = False
 CURL_TIMEOUT = 1
 CURL_MAX_WORKERS = 10
