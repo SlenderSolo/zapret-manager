@@ -7,7 +7,7 @@ import threading
 from dataclasses import dataclass
 from typing import Dict, Optional, List, Tuple
 
-from ..config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH
+from ..config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
 from ..utils import TokenBucket
 
 @dataclass
@@ -64,12 +64,22 @@ class HttpResponseValidator:
     """
     
     @staticmethod
+    def _get_root_domain(domain: str) -> str:
+        """Extracts root domain from full domain (e.g., www.spotify.com -> spotify.com)"""
+        parts = domain.split('.')
+
+        if len(parts) >= 2:
+            return '.'.join(parts[-2:])
+        return domain
+    
+    @staticmethod
     def validate(domain: str, headers: str) -> Optional[str]:
         """
         Checks HTTP response for signs of blocking.
         Returns: None if OK, otherwise string with problem description
         """
         base_domain = domain.split('/')[0]
+        root_domain = HttpResponseValidator._get_root_domain(base_domain)
         lines = headers.splitlines()
         
         if not lines:
@@ -88,15 +98,21 @@ class HttpResponseValidator:
         
         # Check for suspicious redirects (sign of DPI substitution)
         if 300 <= status < 400:
+            if REDIRECT_AS_SUCCESS:
+                return None
+            
             location = next(
                 (l.split(':', 1)[1].strip() for l in lines if l.lower().startswith('location:')), 
                 None
             )
             if location:
-                same_domain = base_domain in location and location.lower().startswith(('http://', 'https://'))
                 relative = not location.lower().startswith(('http://', 'https://'))
+                if relative:
+                    return None
                 
-                if not (same_domain or relative):
+                same_root_domain = root_domain in location.lower()
+                
+                if not same_root_domain:
                     return f"Suspicious redirect to: {location}"
         
         return None
