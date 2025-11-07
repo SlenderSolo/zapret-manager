@@ -20,12 +20,13 @@ CURL_TIMEOUT = 1
 CURL_MAX_WORKERS = 10
 USER_AGENT = "Mozilla"
 DEFAULT_DOMAIN = "rutracker.org/forum/index.php"
+YOUTUBE_DOMAIN = "www.youtube.com/manifest.webmanifest"
 DEFAULT_IPSET_DOMAIN = "www.delta.com"
 DEFAULT_CHECKS = {
     'http': False,
     'https_tls12': False,
     'https_tls13': True,
-    'http3': True
+    'http3': False
 }
 
 # --- Rate Limiter Settings ---
