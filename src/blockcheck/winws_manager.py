@@ -19,6 +19,11 @@ class WinWSManager:
         
         self._lock = threading.Condition()
         self._outcome: Optional[Literal['ready', 'crashed']] = None
+        
+        # Track threads to ensure proper cleanup
+        self._stdout_thread: Optional[threading.Thread] = None
+        self._stderr_thread: Optional[threading.Thread] = None
+        self._stop_flag = threading.Event()
 
     def _read_stream(self, stream, outcome_on_output: Literal['ready', 'crashed'], success_keyword: Optional[str] = None):
         """
@@ -26,6 +31,9 @@ class WinWSManager:
         """
         try:
             for line_bytes in iter(stream.readline, b''):
+                if self._stop_flag.is_set():
+                    break
+                    
                 line = line_bytes.decode('utf-8', errors='replace')
                 if stream == self.process.stderr:
                     self.stderr_lines.append(line)
@@ -42,6 +50,28 @@ class WinWSManager:
                         return
         except (IOError, ValueError):
             pass
+
+    def _cleanup_threads(self, timeout: float = 2.0):
+        """
+        Properly join all monitoring threads.
+        This prevents thread leaks.
+        """
+        self._stop_flag.set()
+        
+        threads_to_join = []
+        if self._stdout_thread and self._stdout_thread.is_alive():
+            threads_to_join.append(('stdout', self._stdout_thread))
+        if self._stderr_thread and self._stderr_thread.is_alive():
+            threads_to_join.append(('stderr', self._stderr_thread))
+        
+        for name, thread in threads_to_join:
+            thread.join(timeout=timeout)
+            if thread.is_alive():
+                pass
+        
+        self._stdout_thread = None
+        self._stderr_thread = None
+        self._stop_flag.clear()
 
     def start(self, params: List[str], timeout: float = 5.0) -> bool:
         """
@@ -61,6 +91,7 @@ class WinWSManager:
         cmd = [self.winws_path] + params
         self.stderr_lines.clear()
         self._outcome = None
+        self._stop_flag.clear()
 
         try:
             self.process = subprocess.Popen(
@@ -76,21 +107,23 @@ class WinWSManager:
             return False
         
         # Monitor stdout for the "ready" signal
-        stdout_thread = threading.Thread(
+        self._stdout_thread = threading.Thread(
             target=self._read_stream,
             args=(self.process.stdout, 'ready', "windivert initialized. capture is started."),
-            daemon=True
+            daemon=False,
+            name="WinWS-stdout-monitor"
         )
         
         # Monitor stderr for any output, which indicates a crash
-        stderr_thread = threading.Thread(
+        self._stderr_thread = threading.Thread(
             target=self._read_stream,
             args=(self.process.stderr, 'crashed'),
-            daemon=True
+            daemon=False,
+            name="WinWS-stderr-monitor"
         )
         
-        stdout_thread.start()
-        stderr_thread.start()
+        self._stdout_thread.start()
+        self._stderr_thread.start()
 
         with self._lock:
             if self._outcome is None:
@@ -100,9 +133,6 @@ class WinWSManager:
             return True
         else:
             self.stop()
-            # Give threads a moment to finish after stop() is called
-            stdout_thread.join(timeout=0.5)
-            stderr_thread.join(timeout=0.5)
             return False
 
     def stop(self):
@@ -110,6 +140,7 @@ class WinWSManager:
         Stops the winws.exe process forcefully if it is running.
         """
         if not self.process:
+            self._cleanup_threads(timeout=0.5)
             return
             
         try:
@@ -125,6 +156,7 @@ class WinWSManager:
             self.stderr_lines.append(f"Error during process stop: {e}")
         finally:
             self.process = None
+            self._cleanup_threads(timeout=1.0)
 
     def get_stderr(self) -> str:
         """Returns all captured stderr output as a single string."""
