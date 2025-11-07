@@ -100,8 +100,17 @@ def _optimize_rule(checker: BlockChecker, rule: PresetRule, index: int,
     """
     if not rule.test_type or not rule.desync_key:
         return None
-        
-    ui.print_header(f"Rule {index + 1}: Testing ({rule.test_type}, {rule.desync_key})")
+    
+    test_domain = config.DEFAULT_DOMAIN
+    for param in rule.prefix_args:
+        if 'youtube' in param.lower():
+            test_domain = config.YOUTUBE_DOMAIN
+            break
+    
+    checker.domains = [test_domain]
+    domain_label = " (YouTube)" if test_domain == config.YOUTUBE_DOMAIN else ""
+    ui.print_header(f"Rule {index + 1}: Testing ({rule.test_type}, {rule.desync_key}){domain_label}")
+    print(f"Test domain: {ui.Style.BRIGHT}{test_domain}{ui.Style.RESET_ALL}")
     print(f"Original: {' '.join(rule.strategy_args)}")
     
     # Test current strategy
