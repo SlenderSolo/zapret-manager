@@ -84,15 +84,23 @@ class TokenBucket:
             if tokens_to_add > 0:
                 self.tokens = min(self.capacity, self.tokens + tokens_to_add)
                 self.last_refill = now
-                self.condition.notify_all()
 
     def wait_for_token(self, tokens: int = 1):
-        """Wait until a token is available and then consume it."""
+        """
+        Wait until enough tokens are available and then consume them.
+        """
         with self.condition:
-            while self.tokens < tokens:
+            while True:
                 self._refill()
-                if self.tokens < tokens:
-                    required = tokens - self.tokens
-                    wait_time = max(0, required / self.refill_rate)
-                    self.condition.wait(timeout=wait_time)
-            self.tokens -= tokens
+                
+                # Check if we have enough tokens
+                if self.tokens >= tokens:
+                    self.tokens -= tokens
+                    return
+                
+                # Calculate wait time for required tokens
+                required = tokens - self.tokens
+                wait_time = max(0, required / self.refill_rate)
+                
+                # Wait for either timeout or notification from another thread
+                self.condition.wait(timeout=wait_time)
