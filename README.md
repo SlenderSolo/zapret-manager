@@ -3,7 +3,7 @@
 #  <a href="https://github.com/SlenderSolo/zapret-manager">zapret-manager</a> <img src="https://cdn-icons-png.flaticon.com/128/5968/5968756.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/128/1384/1384060.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/512/5968/5968819.png" height=28 /> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Spotify_icon.svg/1982px-Spotify_icon.svg.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/512/145/145809.png" height=28 />
 </div>
 
-Управление и создание сервиса (автозапуска) для Zapret, авто подбор стратегий для пресетов, оригинальные пресеты стратегий, быстрый многопоточный blockchecker на python с тестами блокировок по доменам или IP адресам, который можно настроить в [**`config.py`**](src/config.py) и добавить свои стратегии для теста в [**`strategies.txt`**](bin/strategies.txt)
+Управление и создание сервиса (автозапуска) для Zapret, авто подбор стратегий для пресетов, оригинальные пресеты стратегий, быстрый многопоточный blockchecker на python с тестами блокировок по доменам или IP адресам, который можно настроить в [**`config.py`**](./config.py) и добавить свои стратегии для теста в [**`strategies.txt`**](config/strategies.txt)
 
 > [!CAUTION]
 >
@@ -54,8 +54,10 @@
   - **`IP Block Check`** - проверка пула стратегий на работоспособность для блокировок по IP адресу, после провреки вы получите список стратегий
   которые с большой вероятностью будут работать. Рекомендую использовать стратегии с --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 
-- [**`config.py`**](src/config.py) - конфиг для blockchecker
+- [**`config.py`**](config.py) - конфиг для blockchecker
 
-- [**`strategies.txt`**](bin/strategies.txt) - список стратегий для тестов в blockchecker
+- [**`strategies.txt`**](config/strategies.txt) - список стратегий для тестов в blockchecker
+
+- [**`domain_presets.txt`**](config/domain_presets.txt) - пресеты доменов для тестов в blockchecker
 
 - [**`list-general.txt`**](lists/list-general.txt) - список доменов для разблокировки
