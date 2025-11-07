@@ -1,12 +1,16 @@
 from pathlib import Path
 
 # --- Paths and Constants ---
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 BIN_DIR = BASE_DIR / "bin"
+CONFIG_DIR = BASE_DIR / "config"
+LISTS_DIR = BASE_DIR / "lists"
+
 WINWS_PATH = BIN_DIR / "winws.exe"
 CURL_PATH = BIN_DIR / "curl.exe"
-STRATEGIES_PATH = BIN_DIR / "strategies.txt"
-LISTS_DIR = BASE_DIR / "lists"
+STRATEGIES_PATH = CONFIG_DIR / "strategies.txt"
+DOMAIN_PRESETS_PATH = CONFIG_DIR / "domain_presets.txt"
+
 SERVICE_NAME = "winws"
 
 # --- BlockChecker Settings ---
@@ -18,7 +22,7 @@ USER_AGENT = "Mozilla"
 DEFAULT_DOMAIN = "rutracker.org/forum/index.php"
 DEFAULT_IPSET_DOMAIN = "www.delta.com"
 DEFAULT_CHECKS = {
-    'http': True,
+    'http': False,
     'https_tls12': False,
     'https_tls13': True,
     'http3': True
@@ -29,4 +33,4 @@ TOKEN_BUCKET_CAPACITY = 10
 TOKEN_BUCKET_REFILL_RATE = 10.0
 
 # --- DNS Cache Settings ---
-DNS_CACHE_TTL = 300 # 5 min
+DNS_CACHE_TTL = 300  # 5 min

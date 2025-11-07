@@ -3,7 +3,7 @@ import subprocess
 import ctypes
 from typing import List, Tuple, Optional
 
-from .config import BASE_DIR, SERVICE_NAME
+from config import BASE_DIR, SERVICE_NAME
 from . import ui
 from .config_parser import parse_preset_file
 

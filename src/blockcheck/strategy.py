@@ -2,7 +2,7 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import List, Dict, Optional
 
-from ..config import BASE_DIR
+from config import BASE_DIR
 
 @dataclass
 class Strategy:

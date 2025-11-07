@@ -6,12 +6,13 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from pathlib import Path
 
-from ..config import *
+from config import *
 from .. import ui
 from .network_utils import DNSCache, CurlRunner, CurlTestResult
 from ..utils import is_process_running, running_winws, TokenBucket
 from .winws_manager import WinWSManager
 from .strategy import Strategy, StrategyManager
+from .domain_preset_parser import DomainPresetParser
 
 @dataclass
 class StrategyTestResult:
@@ -119,6 +120,7 @@ class BlockChecker:
         # Managers
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         self.strategy_manager = StrategyManager(STRATEGIES_PATH)
+        self.preset_parser = DomainPresetParser(DOMAIN_PRESETS_PATH)
         
         # Network utilities
         self.dns_cache = DNSCache(ttl=DNS_CACHE_TTL)
@@ -163,9 +165,9 @@ class BlockChecker:
 
         # Domain/IPSet selection
         if self.test_mode == 'domain':
-            inp = input(f"Enter domain(s) to test, separated by spaces (default: {DEFAULT_DOMAIN}): ")
-            self.domains = inp.split() if inp else [DEFAULT_DOMAIN]
+            self._select_domain_preset('domain')
         elif self.test_mode == 'ipset':
+            # First select IPSet file (existing logic)
             ipsets = sorted([f for f in LISTS_DIR.glob('ipset*.txt')]) if LISTS_DIR.exists() else []
             if not ipsets:
                 raise BlockCheckError("No ipset files found in the 'lists' directory.")
@@ -175,8 +177,8 @@ class BlockChecker:
                 raise BlockCheckError("No IPSet selected.")
 
             self.ipset_path = LISTS_DIR / selected
-            inp = input(f"Enter domain(s) to test, separated by spaces (default: {DEFAULT_IPSET_DOMAIN}): ")
-            self.domains = inp.split() if inp else [DEFAULT_IPSET_DOMAIN]
+            # Then select domain preset
+            self._select_domain_preset('ipset')
 
         # Repeat count
         repeats_input = input("How many times to repeat each test (default: 1): ")
@@ -189,9 +191,32 @@ class BlockChecker:
                 ui.print_warn(f"{config['title']} not supported by your curl version, skipping.")
             else:
                 self.checks_to_run[key] = ui.ask_yes_no(
-                    f"Check {config['title']}?", 
+                    f"Check {config['title']}?",
                     default_yes=DEFAULT_CHECKS.get(key, True)
                 )
+
+    def _select_domain_preset(self, mode: str):
+        """Selects a domain preset for the given mode."""
+        presets = self.preset_parser.get_presets_for_mode(mode)
+        preset_names = [preset.name for preset in presets]
+
+        selected_name = ui.ask_choice("Select domain preset:", preset_names)
+        if not selected_name:
+            raise BlockCheckError("No preset selected.")
+
+        selected_preset = self.preset_parser.get_preset_by_name(mode, selected_name)
+        if not selected_preset:
+            raise BlockCheckError(f"Preset '{selected_name}' not found.")
+
+        if selected_preset.name == "Custom":
+            # Fall back to manual input
+            default_domain = DEFAULT_DOMAIN if mode == 'domain' else DEFAULT_IPSET_DOMAIN
+            inp = input(f"Enter domain(s) to test, separated by spaces (default: {default_domain}): ")
+            self.domains = inp.split() if inp else [default_domain]
+        else:
+            # Use preset domains
+            self.domains = selected_preset.domains
+            ui.print_info(f"Using preset '{selected_preset.name}' with domains: {', '.join(self.domains)}")
 
     def _load_strategies(self):
         ui.print_header("Loading strategies")

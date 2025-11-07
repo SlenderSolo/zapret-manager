@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
 from . import ui
-from .config import BASE_DIR
+from config import BASE_DIR
 
 @dataclass
 class PresetRule:

@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Dict, Optional, List, Tuple
 from dataclasses import dataclass
 
-from . import ui, config
+from . import ui
+import config
 from .blockcheck.blockchecker import BlockChecker
 from .blockcheck.strategy import Strategy
 from .config_parser import parse_preset_file, PresetRule

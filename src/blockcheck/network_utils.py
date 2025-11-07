@@ -7,7 +7,7 @@ import threading
 from dataclasses import dataclass
 from typing import Dict, Optional, List, Tuple
 
-from ..config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
+from config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
 from ..utils import TokenBucket
 
 @dataclass
