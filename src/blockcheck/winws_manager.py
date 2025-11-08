@@ -1,103 +1,68 @@
+import asyncio
 import subprocess
-import threading
 from typing import List, Optional, Literal
 
-class WinWSManager:
-    """
-    Manages the lifecycle of a single winws.exe process.
-
-    This class provides a robust way to start, stop, and monitor the winws.exe
-    process. It uses a thread-based, event-driven approach to determine the
-    process state (ready or crashed) by parsing stdout and stderr in real-time.
-    This avoids simple time-based waits and provides a more definitive status.
-    """
+class _AsyncWinWSManager:
+    """Internal async implementation of WinWS manager."""
+    
     def __init__(self, winws_path: str, bin_dir: str):
         self.winws_path: str = winws_path
         self.bin_dir: str = bin_dir
-        self.process: Optional[subprocess.Popen] = None
+        self.process: Optional[asyncio.subprocess.Process] = None
         self.stderr_lines: List[str] = []
         
-        self._lock = threading.Condition()
         self._outcome: Optional[Literal['ready', 'crashed']] = None
-        
-        # Track threads to ensure proper cleanup
-        self._stdout_thread: Optional[threading.Thread] = None
-        self._stderr_thread: Optional[threading.Thread] = None
-        self._stop_flag = threading.Event()
+        self._outcome_event = asyncio.Event()
+        self._stdout_task: Optional[asyncio.Task] = None
+        self._stderr_task: Optional[asyncio.Task] = None
 
-    def _read_stream(self, stream, outcome_on_output: Literal['ready', 'crashed'], success_keyword: Optional[str] = None):
-        """
-        Generic function to read a stream (stdout/stderr) and set the outcome.
-        """
+    async def _read_stream(
+        self, 
+        stream: asyncio.StreamReader, 
+        outcome_on_output: Literal['ready', 'crashed'], 
+        success_keyword: Optional[str] = None
+    ):
+        """Asynchronously reads a stream and sets the outcome."""
         try:
-            for line_bytes in iter(stream.readline, b''):
-                if self._stop_flag.is_set():
+            while True:
+                line_bytes = await stream.readline()
+                if not line_bytes:
                     break
                     
                 line = line_bytes.decode('utf-8', errors='replace')
-                if stream == self.process.stderr:
+                
+                if outcome_on_output == 'crashed':
                     self.stderr_lines.append(line)
 
-                # If a keyword is provided, we need it to declare success.
-                # If no keyword, any output triggers the outcome.
-                if (success_keyword and success_keyword in line) or \
-                   (not success_keyword and line.strip()):
-                    with self._lock:
-                        if self._outcome is None:
-                            self._outcome = outcome_on_output
-                            self._lock.notify()
+                should_trigger = (
+                    (success_keyword and success_keyword in line) or 
+                    (not success_keyword and line.strip())
+                )
+                
+                if should_trigger and self._outcome is None:
+                    self._outcome = outcome_on_output
+                    self._outcome_event.set()
                     if outcome_on_output == 'ready':
                         return
-        except (IOError, ValueError):
+                        
+        except (asyncio.CancelledError, Exception):
             pass
 
-    def _cleanup_threads(self, timeout: float = 2.0):
-        """
-        Properly join all monitoring threads.
-        This prevents thread leaks.
-        """
-        self._stop_flag.set()
-        
-        threads_to_join = []
-        if self._stdout_thread and self._stdout_thread.is_alive():
-            threads_to_join.append(('stdout', self._stdout_thread))
-        if self._stderr_thread and self._stderr_thread.is_alive():
-            threads_to_join.append(('stderr', self._stderr_thread))
-        
-        for name, thread in threads_to_join:
-            thread.join(timeout=timeout)
-            if thread.is_alive():
-                pass
-        
-        self._stdout_thread = None
-        self._stderr_thread = None
-        self._stop_flag.clear()
-
-    def start(self, params: List[str], timeout: float = 5.0) -> bool:
-        """
-        Starts the winws.exe process and waits for a definitive signal.
-
-        Args:
-            params: A list of command-line arguments for winws.exe.
-            timeout: The maximum time in seconds to wait for a ready/crash signal.
-
-        Returns:
-            True if the process starts successfully (i.e., "ready" signal received).
-            False if the process crashes, fails to start, or times out.
-        """
+    async def start(self, params: List[str], timeout: float = 5.0) -> bool:
+        """Starts winws.exe and waits for ready signal."""
         if self.process:
-            self.stop()
+            await self.stop()
 
         cmd = [self.winws_path] + params
         self.stderr_lines.clear()
         self._outcome = None
-        self._stop_flag.clear()
+        self._outcome_event.clear()
 
         try:
-            self.process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+            self.process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
                 creationflags=subprocess.CREATE_NO_WINDOW,
                 cwd=self.bin_dir
             )
@@ -106,58 +71,103 @@ class WinWSManager:
             self.process = None
             return False
         
-        # Monitor stdout for the "ready" signal
-        self._stdout_thread = threading.Thread(
-            target=self._read_stream,
-            args=(self.process.stdout, 'ready', "windivert initialized. capture is started."),
-            daemon=False,
-            name="WinWS-stdout-monitor"
+        self._stdout_task = asyncio.create_task(
+            self._read_stream(
+                self.process.stdout, 
+                'ready', 
+                "windivert initialized. capture is started."
+            )
         )
         
-        # Monitor stderr for any output, which indicates a crash
-        self._stderr_thread = threading.Thread(
-            target=self._read_stream,
-            args=(self.process.stderr, 'crashed'),
-            daemon=False,
-            name="WinWS-stderr-monitor"
+        self._stderr_task = asyncio.create_task(
+            self._read_stream(self.process.stderr, 'crashed')
         )
-        
-        self._stdout_thread.start()
-        self._stderr_thread.start()
 
-        with self._lock:
-            if self._outcome is None:
-                self._lock.wait(timeout=timeout)
+        try:
+            await asyncio.wait_for(self._outcome_event.wait(), timeout=timeout)
+        except asyncio.TimeoutError:
+            pass
 
         if self._outcome == 'ready':
             return True
         else:
-            self.stop()
+            await self.stop()
             return False
 
-    def stop(self):
-        """
-        Stops the winws.exe process forcefully if it is running.
-        """
+    async def stop(self):
+        """Stops the winws.exe process and cleans up resources."""
+        if self._stdout_task and not self._stdout_task.done():
+            self._stdout_task.cancel()
+            try:
+                await asyncio.wait_for(self._stdout_task, timeout=0.5)
+            except (asyncio.TimeoutError, asyncio.CancelledError):
+                pass
+                
+        if self._stderr_task and not self._stderr_task.done():
+            self._stderr_task.cancel()
+            try:
+                await asyncio.wait_for(self._stderr_task, timeout=0.5)
+            except (asyncio.TimeoutError, asyncio.CancelledError):
+                pass
+        
+        self._stdout_task = None
+        self._stderr_task = None
+        
         if not self.process:
-            self._cleanup_threads(timeout=0.5)
             return
             
         try:
             self.process.terminate()
             try:
-                self.process.wait(timeout=2)
-            except subprocess.TimeoutExpired:
+                await asyncio.wait_for(self.process.wait(), timeout=2.0)
+            except asyncio.TimeoutError:
                 self.process.kill()
-                self.process.wait(timeout=2)
-        except (ProcessLookupError, OSError):
-            pass
-        except Exception as e:
-            self.stderr_lines.append(f"Error during process stop: {e}")
+                await asyncio.wait_for(self.process.wait(), timeout=2.0)
+        except (ProcessLookupError, Exception) as e:
+            if not isinstance(e, ProcessLookupError):
+                self.stderr_lines.append(f"Error during process stop: {e}")
         finally:
             self.process = None
-            self._cleanup_threads(timeout=1.0)
 
     def get_stderr(self) -> str:
-        """Returns all captured stderr output as a single string."""
+        """Returns all captured stderr output."""
         return "".join(self.stderr_lines)
+
+
+class WinWSManager:
+    """Synchronous wrapper around async WinWS manager."""
+
+    def __init__(self, winws_path: str, bin_dir: str):
+        self._async_manager = _AsyncWinWSManager(winws_path, bin_dir)
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
+    
+    def _ensure_loop(self) -> asyncio.AbstractEventLoop:
+        """Ensures we have a running event loop."""
+        try:
+            asyncio.get_running_loop()
+            # We're inside an async context, can't use run_until_complete
+            raise RuntimeError("WinWSManager sync methods cannot be called from async context")
+        except RuntimeError:
+            # No running loop - create one for sync operations
+            if self._loop is None or self._loop.is_closed():
+                self._loop = asyncio.new_event_loop()
+            return self._loop
+    
+    def start(self, params: List[str], timeout: float = 5.0) -> bool:
+        """
+        Starts the winws.exe process (synchronous interface).
+        
+        Returns:
+            True if process started successfully, False otherwise.
+        """
+        loop = self._ensure_loop()
+        return loop.run_until_complete(self._async_manager.start(params, timeout))
+    
+    def stop(self):
+        """Stops the winws.exe process (synchronous interface)."""
+        loop = self._ensure_loop()
+        loop.run_until_complete(self._async_manager.stop())
+    
+    def get_stderr(self) -> str:
+        """Returns all captured stderr output."""
+        return self._async_manager.get_stderr()
