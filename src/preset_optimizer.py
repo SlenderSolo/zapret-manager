@@ -1,46 +1,42 @@
 from pathlib import Path
 from typing import Dict, Optional, List, Tuple
-from dataclasses import dataclass
 
-from . import ui
+from src import ui
 import config
 from .blockcheck.blockchecker import BlockChecker
 from .blockcheck.strategy import Strategy
 from .config_parser import parse_preset_file, PresetRule
 
-@dataclass
-class OptimizationResult:
-    changed: bool
-    strategy_params: List[str]
-    avg_time: float = -1.0
-
 
 def _initialize_checker(test_domain: str = None) -> BlockChecker:
-    """Initializes and configures BlockChecker for optimization."""
+    """Initializes BlockChecker for optimization."""
     if test_domain is None:
         test_domain = config.DEFAULT_DOMAIN
-        
+    
     ui.print_info("Initializing checker...")
     checker = BlockChecker()
-    checker._check_prerequisites()
-    checker._check_curl_capabilities()
-    checker.domains = [test_domain]
-    checker.repeats = 1
-    checker.checks_to_run = {'http': True, 'https_tls13': True, 'http3': True}
-    checker._load_strategies()
+    checker.check_prerequisites()
+    checker.check_curl_capabilities()
+    
+    # Configure for single domain test
+    checker.config.domains = [test_domain]
+    checker.config.repeats = 1
+    checker.config.checks_to_run = {'http': True, 'https_tls13': True, 'http3': True}
+    
+    checker.load_strategies()
     return checker
 
 
-def _test_rule_strategy(checker: BlockChecker, rule: PresetRule, protocol: str) -> Tuple[bool, float, str]:
+def _test_rule_strategy(checker: BlockChecker, rule: PresetRule, 
+                       protocol: str, domain: str, test_config: dict) -> Tuple[bool, float, str]:
     """
-    Tests current rule strategy using BlockChecker infrastructure.
+    Tests current rule strategy.
     Returns: (success, avg_time, error_message)
     """
     temp_strategy = Strategy(protocol, rule.strategy_args)
-    test_config = checker.CHECKS_CONFIG[rule.test_type]
     
     result = checker.strategy_tester.test_strategy(
-        domains=checker.domains,
+        domains=[domain],
         strategy=temp_strategy,
         test_params=test_config['test_params'],
         repeats=1
@@ -50,7 +46,8 @@ def _test_rule_strategy(checker: BlockChecker, rule: PresetRule, protocol: str) 
     return result.success, result.avg_time, error_msg
 
 
-def _find_best_alternative(checker: BlockChecker, rule: PresetRule) -> Optional[Tuple[List[str], float]]:
+def _find_best_alternative(checker: BlockChecker, rule: PresetRule, 
+                          domain: str, test_config: dict) -> Optional[Tuple[List[str], float]]:
     """Finds best working alternative strategy for failed rule."""
     # Get candidates with same desync method
     candidates = [
@@ -61,10 +58,9 @@ def _find_best_alternative(checker: BlockChecker, rule: PresetRule) -> Optional[
     if not candidates:
         ui.print_warn(f"No alternatives found for --dpi-desync={rule.desync_key}")
         return None
-
+    
     ui.print_header(f"Testing {len(candidates)} alternatives")
     
-    test_config = checker.CHECKS_CONFIG[rule.test_type]
     best_time, best_params = float('inf'), None
     
     for j, strategy in enumerate(candidates, 1):
@@ -72,7 +68,7 @@ def _find_best_alternative(checker: BlockChecker, rule: PresetRule) -> Optional[
         print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{j}/{len(candidates)}]{ui.Style.RESET_ALL} {short_name}")
         
         result = checker.strategy_tester.test_strategy(
-            domains=checker.domains,
+            domains=[domain],
             strategy=strategy,
             test_params=test_config['test_params'],
             repeats=1
@@ -87,7 +83,7 @@ def _find_best_alternative(checker: BlockChecker, rule: PresetRule) -> Optional[
                               if not p.startswith(('--wf-', '--hostlist-domains'))]
         else:
             print(f"  {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
-
+    
     if best_params:
         return (best_params, best_time)
     return None
@@ -101,13 +97,14 @@ def _optimize_rule(checker: BlockChecker, rule: PresetRule, index: int,
     if not rule.test_type or not rule.desync_key:
         return None
     
+    # Determine test domain
     test_domain = config.DEFAULT_DOMAIN
     for param in rule.prefix_args:
         if 'youtube' in param.lower():
             test_domain = config.YOUTUBE_DOMAIN
             break
     
-    checker.domains = [test_domain]
+    checker.config.domains = [test_domain]
     domain_label = " (YouTube)" if test_domain == config.YOUTUBE_DOMAIN else ""
     ui.print_header(f"Rule {index + 1}: Testing ({rule.test_type}, {rule.desync_key}){domain_label}")
     print(f"Test domain: {ui.Style.BRIGHT}{test_domain}{ui.Style.RESET_ALL}")
@@ -115,19 +112,23 @@ def _optimize_rule(checker: BlockChecker, rule: PresetRule, index: int,
     
     # Test current strategy
     protocol = protocol_map.get(rule.test_type, 'https')
-    success, avg_time, error_msg = _test_rule_strategy(checker, rule, protocol)
-
+    test_config = checker.config.CHECKS_CONFIG[rule.test_type]
+    
+    success, avg_time, error_msg = _test_rule_strategy(
+        checker, rule, protocol, test_domain, test_config
+    )
+    
     if success:
         ui.print_ok(f"  Result: SUCCESS (Time: {avg_time:.3f}s)")
         return None
-
+    
     # Current strategy failed - find alternative
     print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
     if error_msg:
         print(f"    {ui.Fore.YELLOW}{error_msg.strip()}{ui.Style.RESET_ALL}")
-
+    
     ui.print_info("\nSearching for alternatives...")
-    alternative = _find_best_alternative(checker, rule)
+    alternative = _find_best_alternative(checker, rule, test_domain, test_config)
     
     if alternative:
         best_params, best_time = alternative
@@ -142,7 +143,7 @@ def _patch_preset_file(original_path: Path, parsed, optimized: Dict[int, List[st
     """Patches preset file by replacing optimized strategies."""
     if not optimized:
         return
-        
+    
     new_path = original_path.with_name(f"{original_path.stem}_optimized{original_path.suffix}")
     
     try:
@@ -182,12 +183,12 @@ def optimize_preset():
     except OSError as e:
         ui.print_err(f"Scan failed: {e}")
         return
-
+    
     selected = ui.ask_choice("Select preset to optimize:", files)
     if not selected:
         ui.print_info("Cancelled.")
         return
-
+    
     # Parse preset
     preset_path = config.BASE_DIR / selected
     parsed = parse_preset_file(preset_path)
@@ -195,9 +196,9 @@ def optimize_preset():
     if not parsed or not parsed.rules:
         ui.print_err("Failed to parse preset or no testable rules found.")
         return
-
+    
     ui.print_ok(f"Parsed {len(parsed.rules)} rules from {ui.Style.BRIGHT}{selected}{ui.Style.NORMAL}")
-
+    
     # Run optimization
     checker = None
     try:
@@ -210,13 +211,13 @@ def optimize_preset():
             new_params = _optimize_rule(checker, rule, i, protocol_map)
             if new_params:
                 optimized[i] = new_params
-
+        
         # Save results
         if not optimized:
             ui.print_ok("\nAll strategies working. No optimization needed.")
         else:
             _patch_preset_file(preset_path, parsed, optimized)
-
+    
     except Exception as e:
         ui.print_err(f"Optimization error: {e}")
         import traceback
