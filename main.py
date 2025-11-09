@@ -8,23 +8,24 @@ from src.preset_optimizer import optimize_preset
 from src import ui
 from src.utils import run_as_admin, enable_ansi_support
 
+
 def run_blockchecker(mode='domain'):
     """Wrapper function to run the BlockChecker."""
     ui.print_header("Running Block Checker")
+    
     checker = BlockChecker()
-    checker.test_mode = mode # Set the mode on the checker instance
-
+    
     def signal_handler(sig, frame):
         ui.print_info("\nCtrl+C detected. Terminating check...")
         checker.cleanup()
     
     original_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, signal_handler)
-
+    
     try:
-        checker._check_prerequisites()
-        checker._check_curl_capabilities()
-        checker.ask_params()
+        checker.check_prerequisites()
+        checker.check_curl_capabilities()
+        checker.configure_test(test_mode=mode)
         checker.run_all_tests()
     except BlockCheckError as e:
         ui.print_err(str(e))
@@ -36,9 +37,11 @@ def run_blockchecker(mode='domain'):
         checker.cleanup()
         signal.signal(signal.SIGINT, original_handler)
 
+
 def main_menu():
     """Displays the main menu and handles user input."""
     if os.name == 'nt': os.system('cls')
+    
     while True:
         print("\n===== Zapret Manager =====")
         print("1. Create/Update Service")
@@ -49,7 +52,7 @@ def main_menu():
         print("6. IP Block Check")
         print("0. Exit")
         choice = input("Select an option: ").strip()
-
+        
         if choice == '1': create_service()
         elif choice == '2': delete_service()
         elif choice == '3': get_service_status()
@@ -64,9 +67,9 @@ def main_menu():
         input("Press Enter to continue...")
         if os.name == 'nt': os.system('cls')
 
+
 if __name__ == "__main__":
     enable_ansi_support()
     run_as_admin() 
     main_menu()
     print("\nExiting program.")
-    
