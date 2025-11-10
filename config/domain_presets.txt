@@ -16,12 +16,11 @@ Youtube
 www.youtube.com/manifest.webmanifest
 i.ytimg.com
 rr2---sn-q4fl6ndl.googlevideo.com
-rr2---sn-0opjvg0-8vbl.googlevideo.com
+rr1---sn-0opjvg0-8vbl.googlevideo.com
 rr1---sn-ug5onuxaxjvh-p3ul.googlevideo.com
 rr2---sn-4g5edn6r.googlevideo.com
 rr10---sn-gvnuxaxjvh-304z.googlevideo.com
 rr14---sn-n8v7kn7r.googlevideo.com
-rr16---sn-axq7sn76.googlevideo.com
 rr1---sn-8ph2xajvh-5xge.googlevideo.com
 rr1---sn-gvnuxaxjvh-5gie.googlevideo.com
 
