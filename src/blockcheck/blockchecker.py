@@ -1,7 +1,7 @@
 import subprocess
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import partial
 from pathlib import Path
 
@@ -117,25 +117,6 @@ class StrategyTester:
         self.curl_runner = curl_runner
         self.winws_manager = winws_manager
     
-    def run_repeated_test(self, domain: str, test_func, repeats: int):
-        """Runs test multiple times, returns fastest successful result."""
-        if repeats == 1:
-            return test_func(domain=domain)
-        
-        fastest = float('inf')
-        last_result = None
-        
-        for _ in range(repeats):
-            result = test_func(domain=domain)
-            if not result.success:
-                return result
-            if result.time_taken < fastest:
-                fastest = result.time_taken
-            last_result = result
-        
-        last_result.time_taken = fastest
-        return last_result
-    
     def test_strategy(self, domains: List[str], strategy: Strategy, 
                      test_params: dict, repeats: int, 
                      ipset_path: Optional[Path] = None) -> StrategyTestResult:
@@ -150,27 +131,39 @@ class StrategyTester:
     
     def _test_with_command(self, domains: List[str], winws_cmd: List[str],
                           test_params: dict, repeats: int) -> StrategyTestResult:
-        """Core testing logic with WinWS."""
+        """Core testing logic with WinWS and Fail-Fast approach."""
         total_time = 0
+        total_tests = len(domains) * repeats
         
         try:
             with running_winws(self.winws_manager, winws_cmd):
                 test_func = partial(self.curl_runner.perform_test, **test_params)
                 
-                with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
-                    repeated_test = partial(self.run_repeated_test, test_func=test_func, repeats=repeats)
-                    
-                    for result in executor.map(repeated_test, domains):
-                        if not result.success:
-                            output = (f"Failed on '{result.domain}': {result.output}" 
-                                    if len(domains) > 1 else result.output)
-                            return StrategyTestResult(False, curl_output=output)
-                        total_time += result.time_taken
+                # Fail-Fast: stop at first failure
+                for repeat_idx in range(repeats):
+                    with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
+                        # Submit all domains for this repeat
+                        futures = {executor.submit(test_func, domain=d): d for d in domains}
                         
+                        for future in as_completed(futures):
+                            result = future.result()
+                            
+                            if not result.success:
+                                # Cancel remaining tasks
+                                for f in futures:
+                                    f.cancel()
+                                
+                                output = (f"Failed on '{result.domain}': {result.output}" 
+                                        if len(domains) > 1 else result.output)
+                                return StrategyTestResult(False, curl_output=output)
+                            
+                            total_time += result.time_taken
+                
         except RuntimeError as e:
-            return StrategyTestResult(False, curl_output=str(e), winws_stderr=self.winws_manager.get_stderr())
+            return StrategyTestResult(False, curl_output=str(e), 
+                                    winws_stderr=self.winws_manager.get_stderr())
         
-        avg_time = total_time / len(domains) if domains else 0
+        avg_time = total_time / total_tests if total_tests > 0 else 0
         return StrategyTestResult(True, avg_time=avg_time)
 
 
