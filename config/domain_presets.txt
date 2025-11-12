@@ -37,7 +37,6 @@ stable.dl2.discordapp.net
 # ====================
 
 Base
-www.delta.com 
-www.equalture.com 
-www.oxatis.com 
-www.swisssense.nl
+www.delta.com/favicon.ico
+www.ferrari.com/static/assets/fonts/Ferrari-SansRegular.woff2
+qr.rehau.com/user/login
