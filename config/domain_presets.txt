@@ -38,5 +38,6 @@ stable.dl2.discordapp.net
 
 Base
 www.delta.com/favicon.ico
-www.ferrari.com/static/assets/fonts/Ferrari-SansRegular.woff2
+www.illy.com/en-ww
 qr.rehau.com/user/login
+
