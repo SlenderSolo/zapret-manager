@@ -37,7 +37,6 @@ stable.dl2.discordapp.net
 # ====================
 
 Base
-www.delta.com/favicon.ico
-www.illy.com/en-ww
+www.delta.com
+www.boeing.com
 qr.rehau.com/user/login
-
