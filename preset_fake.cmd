@@ -12,9 +12,9 @@ start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.quic_initial_ietf.txt" ^
 --filter-tcp=80 %LST_YT% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
 --filter-tcp=80 %LST_GEN% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %LST_YT% --dpi-desync=fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fakedsplit-mod=altorder=1 %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %LST_GEN% --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %IP_ALL% --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %LST_YT% --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %LST_GEN% --ip-id=zero --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %IP_ALL% --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_YT% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_GEN% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=discord,stun --dpi-desync=fake --dpi-desync-repeats=6
