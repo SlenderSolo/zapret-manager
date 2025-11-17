@@ -1,5 +1,7 @@
 steamstatic.com
 steampowered.com
+steamcommunity.com
+steamusercontent.com
 pusher.com
 live-video.net
 ttvnw.net
