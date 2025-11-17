@@ -185,7 +185,10 @@ def _parse_arguments_structure(args: List[str]) -> Tuple[List[str], List[PresetR
         
         if '=' in token and ':' in token:
             key, value = token.split('=', 1)
-            token = f'{key}="{value}"'
+            if value.startswith('@'):
+                token = f'{key}=@"{value[1:]}"'
+            else:
+                token = f'{key}="{value}"'
         
         if token.startswith(('--filter-', '--wf-', '--hostlist', '--ipset')):
             current_rule.prefix_args.append(token)
