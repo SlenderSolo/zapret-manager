@@ -27,28 +27,13 @@ def _initialize_checker(test_domain: str = None) -> BlockChecker:
     return checker
 
 
-def _sanitize_args_for_subprocess(args: List[str]) -> List[str]:
-    """Removes explicit quotes around values (e.g. key="val")"""
-    cleaned = []
-    for arg in args:
-        if '=' in arg:
-            key, val = arg.split('=', 1)
-            if val.startswith('"') and val.endswith('"'):
-                val = val[1:-1]
-            cleaned.append(f"{key}={val}")
-        else:
-            cleaned.append(arg)
-    return cleaned
-
-
 def _test_rule_strategy(checker: BlockChecker, rule: PresetRule, 
                        protocol: str, domain: str, test_config: dict) -> Tuple[bool, float, str]:
     """
     Tests current rule strategy.
     Returns: (success, avg_time, error_message)
     """
-    # Sanitize arguments (remove quotes added by config_parser) before passing to subprocess
-    clean_args = _sanitize_args_for_subprocess(rule.strategy_args)
+    clean_args = [arg.replace('"', '') for arg in rule.strategy_args]
     temp_strategy = Strategy(protocol, clean_args)
     
     result = checker.strategy_tester.test_strategy(
