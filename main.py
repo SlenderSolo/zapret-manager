@@ -3,9 +3,9 @@ import signal
 import traceback
 
 from src.blockcheck.blockchecker import BlockChecker, BlockCheckError
-from src.service_manager import create_service, delete_service, get_service_status
 from src.preset_optimizer import optimize_preset
 from src import ui
+from src.cli_service import create_service, delete_service, get_service_status 
 from src.utils import run_as_admin, enable_ansi_support
 
 
