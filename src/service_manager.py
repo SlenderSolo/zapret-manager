@@ -58,7 +58,7 @@ def _wait_deletion(service_name: str, timeout: float = 5.0) -> bool:
         ret, _, _ = _run_sc(["query", service_name], quiet=True)
         if ret != 0:
             return True
-        time.sleep(0.25)
+        time.sleep(0.1)
     return False
 
 
