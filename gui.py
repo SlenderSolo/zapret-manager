@@ -46,9 +46,13 @@ QComboBox QAbstractItemView {
     border: 1px solid #444;
     selection-background-color: #60CDFF;
     selection-color: black;
-    padding: 10px;
     outline: none;
     font-size: 24px;
+}
+
+QComboBox QAbstractItemView::item {
+    padding: 10px; 
+    min-height: 40px;
 }
 """
 
@@ -143,10 +147,10 @@ class MainWindow(QWidget):
 
         self.combo_presets = QComboBox()
         self.combo_presets.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.combo_presets.setFixedWidth(320)
         self.refresh_presets()
         self.combo_presets.activated.connect(self.on_preset_selected)
-        layout.addWidget(self.combo_presets)
-
+        layout.addWidget(self.combo_presets, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addStretch()
         self.sync_status()
 
