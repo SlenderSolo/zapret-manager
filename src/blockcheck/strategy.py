@@ -38,7 +38,7 @@ class Strategy:
             if "%~dp0" in param and "=" in param:
                 key, value = param.split('=', 1)
                 full_path = str(BASE_DIR / value.strip('"').replace("%~dp0", ""))
-                command.append(f'{key}="{full_path}"' if ' ' in full_path else f'{key}={full_path}')
+                command.append(f'{key}={full_path}')
             else:
                 command.append(param)
                 
