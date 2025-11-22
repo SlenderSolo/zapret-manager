@@ -1,77 +1,87 @@
 import sys
-import ctypes
-from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtProperty
+from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtProperty, QSize, QTimer
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QFont
 from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, 
-                             QCheckBox, QMessageBox, QComboBox)
+                             QCheckBox, QMessageBox, QComboBox, QSizePolicy)
 
 from src.service_manager import install, uninstall, status, list_presets
 from src.utils import run_as_admin
 
-COLOR_BG_OFF = QColor("#3A3A3A")
-COLOR_BORDER_OFF = QColor("#888888")
-COLOR_CIRCLE_OFF = QColor("#CCCCCC")
-COLOR_BG_ON = QColor("#60CDFF")
-COLOR_CIRCLE_ON = QColor("#000000")
 
-STYLESHEET = """
-QWidget {
-    background-color: #1E1E1E;
-    color: white;
-    font-family: "Segoe UI", Arial;
-}
+# ============================================================================
+# Theme
+# ============================================================================
 
-QComboBox {
-    background-color: #2D2D2D;
-    border: 1px solid #444;
-    border-radius: 12px;
-    padding: 15px 20px;
-    font-size: 24px;
-    font-weight: bold;
-    min-height: 50px;
-}
-
-QComboBox::drop-down {
-    border: 0px;
-    width: 50px;
-}
-
-QComboBox:hover {
-    border: 1px solid #60CDFF;
-    background-color: #333;
-}
-
-QComboBox QAbstractItemView {
-    background-color: #2D2D2D;
-    border: 1px solid #444;
-    selection-background-color: #60CDFF;
-    selection-color: black;
-    outline: none;
-    font-size: 24px;
-    show-decoration-selected: 1;
-}
-
-QComboBox QAbstractItemView::item {
-    padding: 10px; 
-    min-height: 40px;
-}
-"""
-
-
-class BigToggle(QCheckBox):
-    """Large animated toggle switch (160x84)."""
+class Theme:
+    """Application colors."""
+    BG_PRIMARY = "#1E1E1E"
+    BG_SECONDARY = "#2D2D2D"
+    BG_HOVER = "#333333"
+    ACCENT = "#60CDFF"
     
-    def __init__(self, parent=None):
+    STATUS_RUNNING = "#60CDFF"
+    STATUS_STOPPED = "#999"
+    STATUS_BUSY = "#E0E0E0"
+    
+    @staticmethod
+    def stylesheet() -> str:
+        return f"""
+            QWidget {{
+                background-color: {Theme.BG_PRIMARY};
+                color: white;
+                font-family: "Segoe UI", Arial;
+            }}
+            QComboBox {{
+                background-color: {Theme.BG_SECONDARY};
+                border: 1px solid #444;
+                border-radius: 0.5em;
+                padding: 0.5em 1em;
+                font-size: 12pt;
+                font-weight: bold;
+                min-height: 1.5em;
+            }}
+            QComboBox::drop-down {{ border: 0px; width: 2em; }}
+            QComboBox:hover {{
+                border: 1px solid {Theme.ACCENT};
+                background-color: {Theme.BG_HOVER};
+            }}
+            QComboBox QAbstractItemView {{
+                background-color: {Theme.BG_SECONDARY};
+                border: 1px solid #444;
+                selection-background-color: {Theme.ACCENT};
+                selection-color: black;
+                outline: none;
+                font-size: 12pt;
+            }}
+            QComboBox QAbstractItemView::item {{ padding: 0.5em; min-height: 1.5em; }}
+        """
+
+
+# ============================================================================
+# Toggle Switch
+# ============================================================================
+
+class AnimatedToggle(QCheckBox):
+    """Animated toggle switch."""
+    
+    def __init__(self, width: int, height: int, parent=None):
         super().__init__(parent)
-        self.setFixedSize(160, 84) 
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._width = width
+        self._height = height
         self._position = 0.0
+        
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        
         self.animation = QPropertyAnimation(self, b"position")
         self.animation.setDuration(300)
         self.animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
 
+    def sizeHint(self):
+        return QSize(self._width, self._height)
+
     @pyqtProperty(float)
-    def position(self): 
+    def position(self):
         return self._position
 
     @position.setter
@@ -79,200 +89,217 @@ class BigToggle(QCheckBox):
         self._position = pos
         self.update()
 
-    def paintEvent(self, e):
+    def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = self.rect()
-        w, h = rect.width(), rect.height()
+        
+        w, h = self.width(), self.height()
         radius = h / 2
-        margin = 8 
+        margin = max(4, h // 10)
         circle_size = h - (margin * 2)
-
-        if self.isChecked() or self._position > 0.5:
-            p.setBrush(QBrush(COLOR_BG_ON))
+        on = self.isChecked()
+        
+        # Background
+        if on:
+            p.setBrush(QBrush(QColor(Theme.ACCENT)))
             p.setPen(Qt.PenStyle.NoPen)
             p.drawRoundedRect(0, 0, w, h, radius, radius)
         else:
             p.setBrush(QBrush(Qt.BrushStyle.NoBrush))
-            pen = QPen(COLOR_BORDER_OFF)
-            pen.setWidth(4)
-            p.setPen(pen)
+            p.setPen(QPen(QColor("#888"), max(2, h // 20)))
             p.drawRoundedRect(2, 2, w-4, h-4, radius-2, radius-2)
 
-        if self.isChecked() or self._position > 0.5:
-             p.setBrush(QBrush(COLOR_CIRCLE_ON))
-        else:
-             p.setBrush(QBrush(COLOR_CIRCLE_OFF))
-        
+        # Circle
+        p.setBrush(QBrush(QColor("#000" if on else "#CCC")))
         p.setPen(Qt.PenStyle.NoPen)
-        x_off = margin
-        x_on = w - margin - circle_size
-        current_x = x_off + (x_on - x_off) * self._position
-        p.drawEllipse(int(current_x), margin, int(circle_size), int(circle_size))
+        x_pos = margin + (w - margin * 2 - circle_size) * self._position
+        p.drawEllipse(int(x_pos), margin, circle_size, circle_size)
 
-    def hitButton(self, pos): 
+    def hitButton(self, pos):
         return self.contentsRect().contains(pos)
 
 
+# ============================================================================
+# Main Window
+# ============================================================================
+
 class MainWindow(QWidget):
+    """Main application window."""
+    
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Zapret Control")
-        self.resize(500, 600)
-        self.setStyleSheet(STYLESHEET)
+        self._busy = False
+        
+        # Calculate dimensions from font
+        base = self.fontMetrics().height()
+        self._d = {
+            'win': base * 25, 'margin': base, 'space': int(base * 1.5),
+            'status_font': int(base * 3), 'preset_font': int(base * 1.1),
+            'combo_w': base * 15, 'toggle_w': base * 8, 'toggle_h': base * 4,
+        }
+        
+        self._setup_window()
+        self._setup_ui()
+        self._load_state()
 
+    def _setup_window(self):
+        self.setWindowTitle("Zapret Control")
+        self.setFont(QFont("Segoe UI", 8))
+        self.setFixedSize(self._d['win'], self._d['win'])
+        self.setStyleSheet(Theme.stylesheet())
+
+    def _setup_ui(self):
         layout = QVBoxLayout()
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter) 
-        layout.setContentsMargins(40, 60, 40, 40)
-        layout.setSpacing(30)
+        layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
+        layout.setContentsMargins(self._d['margin'], self._d['margin'] * 2, 
+                                 self._d['margin'], self._d['margin'])
+        layout.setSpacing(self._d['space'])
         self.setLayout(layout)
 
-        self.label_status = QLabel("CHECKING...")
-        font_status = QFont("Segoe UI", 36, QFont.Weight.Bold)
-        self.label_status.setFont(font_status)
-        self.label_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.label_status)
+        # Status
+        self.status_label = QLabel("CHECKING")
+        font = QFont("Segoe UI", -1, QFont.Weight.Bold)
+        font.setPixelSize(self._d['status_font'])
+        self.status_label.setFont(font)
+        self.status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.status_label)
+        layout.addSpacing(self._d['space'] // 3)
 
-        layout.addSpacing(10)
-
-        self.toggle = BigToggle()
-        self.toggle.clicked.connect(self.on_toggle_click)
+        # Toggle
+        self.toggle = AnimatedToggle(self._d['toggle_w'], self._d['toggle_h'])
+        self.toggle.clicked.connect(self._handle_toggle)
         layout.addWidget(self.toggle, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addSpacing(self._d['space'])
 
-        layout.addSpacing(30)
-
-        lbl_preset = QLabel("ACTIVE PRESET")
-        lbl_preset.setStyleSheet("color: #888; font-size: 22px; font-weight: bold; letter-spacing: 1px;")
-        lbl_preset.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(lbl_preset)
-
-        self.combo_presets = QComboBox()
-        self.combo_presets.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.combo_presets.setFixedWidth(320)
+        # Preset label
+        label = QLabel("ACTIVE PRESET")
+        font = QFont("Segoe UI", -1, QFont.Weight.Bold)
+        font.setPixelSize(self._d['preset_font'])
+        label.setFont(font)
+        label.setStyleSheet("color: #888; letter-spacing: 0.1em;")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(label)
         
-        view = self.combo_presets.view()
-        view.setUniformItemSizes(True)
-        view.setLayoutMode(view.LayoutMode.Batched)
+        # Preset combo
+        self.preset_combo = QComboBox()
+        self.preset_combo.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.preset_combo.setFixedWidth(self._d['combo_w'])
+        self.preset_combo.activated.connect(self._handle_preset_change)
         
-        self.refresh_presets()
-        self.combo_presets.activated.connect(self.on_preset_selected)
-        layout.addWidget(self.combo_presets, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.preset_combo, alignment=Qt.AlignmentFlag.AlignCenter)
+        
         layout.addStretch()
-        self.sync_status()
 
-    def refresh_presets(self):
-        self.combo_presets.clear()
+    def _load_state(self):
+        self._refresh_presets()
+        self._sync_with_service()
+
+    def _refresh_presets(self):
+        self.preset_combo.clear()
         presets = list_presets()
         
-        if not presets:
-            self.combo_presets.addItem("No presets found!")
-            self.combo_presets.setEnabled(False)
+        if presets:
+            # addItems быстрее чем addItem в цикле
+            self.preset_combo.addItems(presets)
         else:
-            self.combo_presets.addItems(presets)
-            self.combo_presets.setEnabled(True)
+            self.preset_combo.addItem("No presets found!")
+            self.preset_combo.setEnabled(False)
 
-    def sync_status(self):
+    def _sync_with_service(self):
         info = status()
+        running = (info.status == "RUNNING")
         
-        is_running = (info.status == "RUNNING")
+        # Update status
+        self.status_label.setText("RUNNING" if running else "NOT INSTALLED")
+        color = Theme.STATUS_RUNNING if running else Theme.STATUS_STOPPED
+        self.status_label.setStyleSheet(f"color: {color};")
         
-        self.label_status.setText(info.status)
-        if is_running:
-            self.label_status.setStyleSheet("color: #60CDFF;")
-        else:
-            self.label_status.setStyleSheet("color: #999;")
-
+        # Update toggle
         self.toggle.blockSignals(True)
-        self.toggle.setChecked(is_running)
-        self.toggle.position = 1.0 if is_running else 0.0
+        self.toggle.setChecked(running)
+        self.toggle.position = 1.0 if running else 0.0
         self.toggle.blockSignals(False)
-
-        self.combo_presets.blockSignals(True)
         
-        if is_running:
-            preset_name = info.preset
-            
-            index = self.combo_presets.findText(preset_name, Qt.MatchFlag.MatchExactly)
-            
-            if index < 0:
-                for i in range(self.combo_presets.count()):
-                    item_text = self.combo_presets.itemText(i)
-                    if preset_name.lower().startswith(item_text.lower()):
-                         index = i
-                         break
+        # Update preset
+        if running and info.preset != "Unknown":
+            self._select_preset(info.preset)
 
-            if index >= 0:
-                self.combo_presets.setCurrentIndex(index)
-            else:
-                self.combo_presets.addItem(preset_name)
-                self.combo_presets.setCurrentIndex(self.combo_presets.count() - 1)
-            
-        self.combo_presets.blockSignals(False)
+    def _select_preset(self, name: str):
+        self.preset_combo.blockSignals(True)
+        
+        # Find exact match (service returns clean preset name)
+        idx = self.preset_combo.findText(name, Qt.MatchFlag.MatchExactly)
+        
+        # If not found, add it (handles case when preset file was deleted)
+        if idx < 0:
+            self.preset_combo.addItem(name)
+            idx = self.preset_combo.count() - 1
+        
+        self.preset_combo.setCurrentIndex(idx)
+        self.preset_combo.blockSignals(False)
 
-    def on_toggle_click(self):
+    def _handle_toggle(self):
+        if self._busy:
+            return
+        
         if self.toggle.isChecked():
-            self.install_and_start()
+            self._install()
         else:
-            self.stop_and_delete()
+            self._uninstall()
 
-    def on_preset_selected(self, index):
-        if self.toggle.isChecked():
-            self.install_and_start()
+    def _handle_preset_change(self, index):
+        if self._busy or not self.toggle.isChecked():
+            return
+        self._install()
 
-    def stop_and_delete(self):
-        self.label_status.setText("STOPPING...")
-        self.label_status.setStyleSheet("color: #E0E0E0;")
-        self.toggle.setEnabled(False)
-        QApplication.processEvents()
+    def _set_busy(self, busy: bool, text: str = None):
+        self._busy = busy
+        self.toggle.setEnabled(not busy)
+        if text:
+            self.status_label.setText(text)
+            self.status_label.setStyleSheet(f"color: {Theme.STATUS_BUSY};")
+            QApplication.processEvents()
 
+    def _uninstall(self):
+        self._set_busy(True, "UNINSTALLING")
         uninstall()
-        
-        self.sync_status()
-        self.toggle.setEnabled(True)
+        self._sync_with_service()
+        self._set_busy(False)
 
-    def install_and_start(self):
-        selected_file = self.combo_presets.currentText()
+    def _install(self):
+        preset = self.preset_combo.currentText()
         
-        if not selected_file or "No presets" in selected_file:
+        if not preset or "No presets" in preset:
             QMessageBox.warning(self, "Warning", "Select a preset first.")
-            self.sync_status()
+            self._sync_with_service()
             return
 
-        self.label_status.setText("STARTING...")
-        self.label_status.setStyleSheet("color: #E0E0E0;")
-        self.toggle.setEnabled(False)
-        QApplication.processEvents()
-
-        success, error = install(selected_file)
+        self._set_busy(True, "INSTALLING")
+        success, error = install(preset)
         
         if not success:
-            QMessageBox.critical(self, "Error", f"Operation failed:\n\n{error}")
-            self.sync_status()
-        else:
-            self.sync_status()
+            QMessageBox.critical(self, "Error", f"Failed:\n\n{error}")
         
-        self.toggle.setEnabled(True)
+        self._sync_with_service()
+        self._set_busy(False)
 
 
-if __name__ == "__main__":
+# ============================================================================
+# Entry Point
+# ============================================================================
+
+def main():
     run_as_admin()
     
-    if hasattr(Qt.ApplicationAttribute, 'AA_EnableHighDpiScaling'):
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt.ApplicationAttribute, 'AA_UseHighDpiPixmaps'):
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-    if hasattr(QApplication, 'setHighDpiScaleFactorRoundingPolicy'):
-        QApplication.setHighDpiScaleFactorRoundingPolicy(
-            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
-        )
+    QApplication.setHighDpiScaleFactorRoundingPolicy(
+        Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+    )
 
     app = QApplication(sys.argv)
-    if sys.platform == 'win32':
-        try: 
-            ctypes.windll.shcore.SetProcessDpiAwareness(1)
-        except: 
-            pass
-
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
