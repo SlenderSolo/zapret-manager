@@ -117,9 +117,10 @@ class TestReporter:
             return
         
         summary = self.generate_summary(test_title, checks_config, multiple_domains, repeats)
+        console_body = summary.split('\n\n', 1)[1]
         
         # Colorized console output
-        console = summary.replace("# ", Style.BRIGHT + Fore.GREEN).replace("strategies", f"strategies{Style.RESET_ALL}")
+        console = "\n" + console_body.replace("# ", Style.BRIGHT + Fore.GREEN).replace("strategies", f"strategies{Style.RESET_ALL}")
         print(console)
         
         # DNS stats
