@@ -12,7 +12,7 @@ start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.quic_initial_ietf.txt" ^
 --filter-tcp=80 %LST_YT% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
 --filter-tcp=80 %LST_GEN% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %LST_YT% --dpi-desync=multisplit --dpi-desync-split-pos=10,midsld --dpi-desync-split-seqovl=1 %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %LST_YT% --dpi-desync=multisplit --dpi-desync-split-pos=10,sniext+1 --dpi-desync-split-seqovl=1 %IP_EXC% %LST_EXC% --new ^
 --filter-tcp=443 %LST_GEN% --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-tcp=443 %IP_ALL% --ip-id=zero --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_YT% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
