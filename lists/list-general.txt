@@ -1,5 +1,6 @@
 cloudflare-ech.com
 encryptedsni.com
+cloudflareclient.com
 imagedelivery.net
 updates.discord.com
 discord.com
@@ -31,3 +32,4 @@ sponsor.ajay.app
 mega.nz
 mega.co.nz
 commega.nz
+
