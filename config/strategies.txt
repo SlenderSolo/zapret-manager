@@ -97,7 +97,7 @@ https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,sniext+1,host+1,midsld-2,midsld,midsld+2,endhost-1
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=2,5,105,host+5,sld-1,endsld-5,endsld
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=7,sld+1 --dpi-desync-fake-tls=0x0F0F0F0F --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com --dpi-desync-fooling=badseq --dpi-desync-autottl 2:2-12
-https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld,endhost-1 --dpi-desync-repeats=2 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld,endhost-1 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com
 https : --dpi-desync=fake --dpi-desync-ttl=1
 https : --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000
 https : --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -580,4 +580,5 @@ http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=24
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
+
 
