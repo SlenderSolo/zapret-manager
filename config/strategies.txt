@@ -563,17 +563,21 @@ https : --dpi-desync=syndata,multidisorder --dpi-desync-fake-syndata="%~dp0bin\t
 https : --dpi-desync=syndata,multidisorder --dpi-desync-fake-syndata="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-split-pos=1,midsld
 http3 : --dpi-desync=fake
 http3 : --dpi-desync=fake --dpi-desync-repeats=2
+http3 : --dpi-desync=fake --dpi-desync-repeats=4
 http3 : --dpi-desync=fake --dpi-desync-repeats=8
 http3 : --dpi-desync=fake --dpi-desync-repeats=11
 http3 : --dpi-desync=fake --dpi-desync-repeats=20
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=2
+http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=4
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=8
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=11
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=20
+http3 : --dpi-desync=fake --dpi-desync-cutoff=d3 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=8
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=16
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=24
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
+
