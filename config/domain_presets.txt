@@ -24,6 +24,11 @@ rr14---sn-n8v7kn7r.googlevideo.com
 rr1---sn-8ph2xajvh-5xge.googlevideo.com
 rr1---sn-gvnuxaxjvh-5gie.googlevideo.com
 
+Youtube QUIC
+www.youtube.com/manifest.webmanifest
+i.ytimg.com
+youtubei.googleapis.com
+
 Discord
 updates.discord.com
 cdn.discordapp.com 
@@ -40,3 +45,4 @@ Base
 www.delta.com
 www.boeing.com
 qr.rehau.com/user/login
+
