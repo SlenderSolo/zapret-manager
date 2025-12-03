@@ -23,7 +23,6 @@ class Style:
     RESET_ALL = '\033[0m'
 
 
-# Color Printing
 def print_info(msg): print(f"{Fore.CYAN}{msg}{Style.RESET_ALL}")
 def print_ok(msg): print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 def print_warn(msg): print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
@@ -119,18 +118,15 @@ class TestReporter:
         summary = self.generate_summary(test_title, checks_config, multiple_domains, repeats)
         console_body = summary.split('\n\n', 1)[1]
         
-        # Colorized console output
         console = "\n" + console_body.replace("# ", Style.BRIGHT + Fore.GREEN).replace("strategies", f"strategies{Style.RESET_ALL}")
         print(console)
         
-        # DNS stats
         if dns_stats:
             total = dns_stats['hits'] + dns_stats['misses']
             if total > 0:
                 hit_rate = dns_stats['hits'] / total * 100
                 print_info(f"DNS Cache Stats: {dns_stats['hits']} hits, {dns_stats['misses']} misses ({hit_rate:.1f}% hit rate)")
         
-        # Save to file
         if save_path:
             try:
                 save_path.write_text(summary, encoding='utf-8')
