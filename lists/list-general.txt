@@ -32,4 +32,6 @@ sponsor.ajay.app
 mega.nz
 mega.co.nz
 commega.nz
-
+roblox.com
+rbxcdn.com
+js.rbxcdn.com
