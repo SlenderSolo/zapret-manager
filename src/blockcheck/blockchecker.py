@@ -8,7 +8,7 @@ from pathlib import Path
 from config import *
 from src import ui
 from .network_utils import DNSCache, CurlRunner
-from src.utils import is_process_running, running_winws, TokenBucket
+from src.utils import is_process_running, running_winws, TokenBucket, kill_process
 from .winws_manager import WinWSManager
 from .strategy import Strategy, StrategyManager
 from .domain_preset_parser import DomainPresetParser
@@ -202,16 +202,21 @@ class BlockChecker:
     # === Setup ===
     
     def check_prerequisites(self):
-        """Validates required files and binaries."""
-        ui.print_header("Checking prerequisites")
-        for path in [WINWS_PATH, CURL_PATH, STRATEGIES_PATH]:
-            if not path.exists():
-                raise BlockCheckError(f"Required file not found: '{path}'.")
-        ui.print_ok("All required binaries and strategy file found.")
-        
-        if is_process_running('winws') or is_process_running('goodbyedpi'):
-            ui.print_warn("A DPI bypass process is already running, which may interfere with results.")
-            input("Press Enter to continue anyway...")
+            """Validates required files and binaries."""
+            ui.print_header("Checking prerequisites")
+
+            for path in [WINWS_PATH, CURL_PATH, STRATEGIES_PATH]:
+                if not path.exists():
+                    raise BlockCheckError(f"Required file not found: '{path}'.")
+            ui.print_ok("All required binaries and strategy file found.")
+
+            if is_process_running('winws'):
+                ui.print_warn("Active Zapret process detected.")
+                if ui.ask_yes_no("Terminate it before starting?", default_yes=True):
+                    if kill_process('winws'):
+                        ui.print_ok("Zapret terminated.")
+                    else:
+                        ui.print_err("Failed to terminate 'winws'. Please close it manually.")
     
     def check_curl_capabilities(self):
         """Detects curl capabilities."""
@@ -253,7 +258,6 @@ class BlockChecker:
     def check_accessibility(self, test_key: str, test_params: dict) -> bool:
         """Checks initial domain accessibility without DPI bypass."""
         ui.print_info("- Checking initial accessibility without DPI bypass...")
-        
         self.initial_accessibility[test_key] = {}
         
         with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
