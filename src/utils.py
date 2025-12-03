@@ -54,6 +54,20 @@ def is_process_running(process_name: str) -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
+def kill_process(process_name: str) -> bool:
+    """Terminates a process by name using taskkill."""
+    try:
+        result = subprocess.run(
+            ['taskkill', '/F', '/IM', f'{process_name}.exe', '/T'],
+            capture_output=True,
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+        return result.returncode == 0 or "not found" in result.stderr.lower()
+    except Exception as e:
+        print(f"Error killing process {process_name}: {e}")
+        return False
+
 @contextmanager
 def running_winws(manager, params):
     """
