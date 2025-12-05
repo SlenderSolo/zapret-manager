@@ -113,14 +113,12 @@ https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls=0x00000000
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake --dpi-desync-fooling=datanoack
 https : --dpi-desync=fake --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000
@@ -137,7 +135,6 @@ https : --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00
 https : --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake  --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=1
 https : --dpi-desync=fakedsplit --dpi-desync-ttl=1 --dpi-desync-split-pos=midsld
@@ -212,9 +209,6 @@ https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-sp
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -233,9 +227,6 @@ https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-ba
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -284,9 +275,6 @@ https : --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-sp
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -310,8 +298,6 @@ https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-sp
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1
@@ -324,8 +310,6 @@ https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-ba
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=datanoack --dpi-desync-split-pos=1
@@ -358,8 +342,6 @@ https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-sp
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls=0x1603 --dpi-desync-fake-tls=!+2 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin" --dpi-desync-fake-tcp-mod=seq
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,fakedsplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=hostfakesplit --dpi-desync-ttl=1
@@ -454,9 +436,6 @@ https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -475,9 +454,6 @@ https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -526,9 +502,6 @@ https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
-https : --ip-id=seqgroup --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
 https : --ip-id=zero --dpi-desync=fake,multidisorder --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1,midsld --dpi-desync-fake-tls="%~dp0bin\tls_clienthello_www_google_com.bin"
@@ -573,12 +546,17 @@ http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_goog
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=8
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=11
 http3 : --dpi-desync=fake --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin" --dpi-desync-repeats=20
+http3 : --dpi-desync=fake --dpi-desync-cutoff=d2 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
 http3 : --dpi-desync=fake --dpi-desync-cutoff=d3 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=d4 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=d5 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=n2 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=n3 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=n4 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
+http3 : --dpi-desync=fake --dpi-desync-cutoff=n5 --dpi-desync-fake-quic="%~dp0bin\quic_initial_www_google_com.bin"
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=8
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=16
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=24
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
-
-
