@@ -27,7 +27,6 @@ rr1---sn-gvnuxaxjvh-5gie.googlevideo.com
 Youtube QUIC
 www.youtube.com/manifest.webmanifest
 i.ytimg.com
-youtubei.googleapis.com
 
 Discord
 updates.discord.com
@@ -45,4 +44,5 @@ Base
 www.delta.com
 www.boeing.com
 qr.rehau.com/user/login
+
 
