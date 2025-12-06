@@ -29,7 +29,12 @@ hetzner.com
 www.speedtest.net
 downdetector.com
 sponsor.ajay.app
+ublockorigin.pages.dev
 mega.nz
 mega.co.nz
 commega.nz
-
+modrinth.com
+minecraftforge.net
+forgecdn.net
+roblox.com
+rbxcdn.com
