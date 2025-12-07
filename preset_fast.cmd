@@ -1,6 +1,6 @@
 set BIN=%~dp0bin\
 set LST_YT=--hostlist="%~dp0lists\list-youtube.txt"
-set LST_GEN=--hostlist="%~dp0lists\list-general.txt"
+set LST_GEN=--hostlist-auto="%~dp0lists\list-general.txt"
 set IP_ALL=--ipset="%~dp0lists\ipset-all.txt"
 set IP_EXC=--ipset-exclude="%~dp0lists\ipset-exclude.txt"
 set LST_EXC=--hostlist-exclude="%~dp0lists\list-exclude.txt"
@@ -10,11 +10,10 @@ start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.discord_media.txt" ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.stun.txt" ^
 --wf-raw-part=@"%~dp0windivert.filter\windivert_part.quic_initial_ietf.txt" ^
---filter-tcp=80 %LST_YT% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
 --filter-tcp=80 %LST_GEN% --dpi-desync=fake --dpi-desync-fooling=md5sig %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %LST_YT% --dpi-desync=multisplit --dpi-desync-split-pos=10,sniext+1 --dpi-desync-split-seqovl=1 %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %LST_GEN% --dpi-desync=fake,multisplit --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-split-pos=midsld --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
---filter-tcp=443 %IP_ALL% --ip-id=zero --dpi-desync=fake --dpi-desync-fooling=md5sig --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
---filter-l7=quic %LST_YT% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %LST_YT% --dpi-desync=multisplit --dpi-desync-split-pos=10,sniext+4 --dpi-desync-split-seqovl=1 %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %LST_GEN% --dpi-desync=fake,fakedsplit --dpi-desync-fooling=badseq --dpi-desync-split-pos=1 --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
+--filter-tcp=443 %IP_ALL% --dpi-desync=fake --dpi-desync-fooling=badseq --dpi-desync-badseq-increment=2 --dpi-desync-fake-tls="%BIN%tls_clienthello_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
+--filter-l7=quic %LST_YT% --dpi-desync=fake --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_GEN% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=discord,stun --dpi-desync=fake --dpi-desync-repeats=6
