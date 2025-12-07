@@ -1,6 +1,6 @@
 set BIN=%~dp0bin\
 set LST_YT=--hostlist="%~dp0lists\list-youtube.txt"
-set LST_GEN=--hostlist-auto="%~dp0lists\list-general.txt"
+set LST_GEN=--hostlist="%~dp0lists\list-general.txt"
 set IP_ALL=--ipset="%~dp0lists\ipset-all.txt"
 set IP_EXC=--ipset-exclude="%~dp0lists\ipset-exclude.txt"
 set LST_EXC=--hostlist-exclude="%~dp0lists\list-exclude.txt"
