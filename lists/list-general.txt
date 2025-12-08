@@ -4,13 +4,11 @@ cloudflareclient.com
 imagedelivery.net
 updates.discord.com
 discord.com
-discord.app
-discord.gg
-images-ext-1.discordapp.net
+gateway.discord.gg
 cdn.discordapp.com
 media.discordapp.net
+images-ext-1.discordapp.net
 stable.dl2.discordapp.net
-discord.media
 ffzap.com
 betterttv.net
 7tv.app
