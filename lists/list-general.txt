@@ -31,6 +31,8 @@ ublockorigin.pages.dev
 mega.nz
 mega.co.nz
 commega.nz
+pathofexile.com
+poecdn.com
 modrinth.com
 minecraftforge.net
 forgecdn.net
