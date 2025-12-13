@@ -10,6 +10,8 @@ from typing import Dict, Optional, List, Tuple
 from config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
 from ..utils import TokenBucket
 
+TIME_MARKER = "::TIME::"
+
 @dataclass
 class CurlTestResult:
     success: bool
@@ -36,7 +38,7 @@ class DNSCache:
         self.cache_misses = 0
 
     def resolve(self, domain: str) -> Optional[str]:
-        base_domain = domain.split('/')[0]
+        base_domain = domain.partition('/')[0].lower()
         current_time = time.monotonic()
         
         with self._lock:
@@ -81,26 +83,45 @@ class DNSCache:
 
 
 class HttpResponseValidator:
-    """HTTP response validation - complex logic that can be reused."""
+    """HTTP response validation logic."""
+    
+    _STATUS_RE = re.compile(r'HTTP/[\d\.]+\s+(\d+)')
+    _LOCATION_RE = re.compile(r'^location:\s*(.+)', re.IGNORECASE | re.MULTILINE)
     
     @staticmethod
     def _get_root_domain(domain: str) -> str:
+        """Extracts root domain (last two parts)."""
         parts = domain.split('.')
-        if len(parts) >= 2:
-            return '.'.join(parts[-2:])
-        return domain
+        return '.'.join(parts[-2:]) if len(parts) >= 2 else domain
+    
+    @staticmethod
+    def _check_redirect(domain: str, headers: str) -> Optional[str]:
+        """Validates redirect location if present."""
+        match = HttpResponseValidator._LOCATION_RE.search(headers)
+        if not match:
+            return None
+        
+        location = match.group(1).strip().lower()
+        
+        if not location.startswith(('http://', 'https://')):
+            return None
+        
+        # Check if redirect stays within root domain
+        base_domain = domain.partition('/')[0]
+        root_domain = HttpResponseValidator._get_root_domain(base_domain)
+        
+        if root_domain not in location:
+            return f"Suspicious redirect to: {location}"
+        
+        return None
     
     @staticmethod
     def validate(domain: str, headers: str) -> Optional[str]:
-        """Returns None if OK, otherwise string with problem description."""
-        base_domain = domain.split('/')[0]
-        root_domain = HttpResponseValidator._get_root_domain(base_domain)
-        lines = headers.splitlines()
-        
-        if not lines:
+        """Validates HTTP response headers."""
+        if not headers:
             return "Empty response from server"
-
-        match = re.search(r'HTTP/[\d\.]+\s+(\d+)', lines[0])
+        
+        match = HttpResponseValidator._STATUS_RE.search(headers)
         if not match:
             return "Invalid HTTP status line"
         
@@ -112,26 +133,13 @@ class HttpResponseValidator:
         if 300 <= status < 400:
             if REDIRECT_AS_SUCCESS:
                 return None
-            
-            location = next(
-                (l.split(':', 1)[1].strip() for l in lines if l.lower().startswith('location:')), 
-                None
-            )
-            if location:
-                relative = not location.lower().startswith(('http://', 'https://'))
-                if relative:
-                    return None
-                
-                same_root_domain = root_domain in location.lower()
-                
-                if not same_root_domain:
-                    return f"Suspicious redirect to: {location}"
+            return HttpResponseValidator._check_redirect(domain, headers)
         
         return None
 
 
 class CurlRunner:
-    """Performs curl tests with DNS caching and rate limiting."""
+    """Performs curl tests with DNS caching, rate limiting and precise timing."""
     
     def __init__(self, dns_cache: DNSCache, rate_limiter: TokenBucket):
         self.dns_cache = dns_cache
@@ -140,8 +148,8 @@ class CurlRunner:
 
     @staticmethod
     def _split_domain(domain: str) -> Tuple[str, str]:
-        parts = domain.split('/', 1)
-        return parts[0], ('/' + parts[1] if len(parts) > 1 else '')
+        host, _, path = domain.partition('/')
+        return host, ('/' + path if path else '')
 
     def _build_cmd(self, domain: str, port: int, ip: str, 
                    tls_version: Optional[str], http3_only: bool) -> List[str]:
@@ -150,6 +158,7 @@ class CurlRunner:
         
         cmd = [
             str(CURL_PATH), '-sS', '-D', '-', '-o', os.devnull, 
+            '-w', f"{TIME_MARKER}%{{time_total}}",
             '-A', USER_AGENT, '--max-time', str(CURL_TIMEOUT),
             '--connect-to', f"{base_domain}:{port}:{ip}:{port}",
             f"{protocol}://{base_domain}{path}"
@@ -164,16 +173,29 @@ class CurlRunner:
         
         return cmd
 
-    def _parse_result(self, domain: str, result: subprocess.CompletedProcess) -> CurlTestResult:
+    def _parse_result(self, domain: str, result: subprocess.CompletedProcess, fallback_time: float) -> CurlTestResult:
         if result.returncode != 0:
             err = result.stderr.strip() or f"cURL error {result.returncode}"
             return CurlTestResult(False, result.returncode, err, domain=domain)
         
-        error = self.validator.validate(domain, result.stdout.strip())
+        full_output = result.stdout.strip()
+        headers, sep, time_str = full_output.rpartition(TIME_MARKER)
+        
+        if sep:
+            headers = headers.strip()
+            try:
+                curl_time = float(time_str.replace(',', '.'))
+            except ValueError:
+                curl_time = fallback_time
+        else:
+            headers = time_str
+            curl_time = fallback_time
+        
+        error = self.validator.validate(domain, headers)
         if error:
             return CurlTestResult(False, 254, error, domain=domain)
         
-        return CurlTestResult(True, 0, "Success", domain=domain)
+        return CurlTestResult(True, 0, "Success", time_taken=curl_time, domain=domain)
 
     def perform_test(self, domain: str, port: int, 
                     tls_version: Optional[str] = None, 
@@ -188,15 +210,16 @@ class CurlRunner:
         cmd = self._build_cmd(domain, port, ip, tls_version, http3_only)
         
         try:
-            start = time.perf_counter()
+            start_fallback = time.perf_counter()
+            
             result = subprocess.run(
                 cmd, capture_output=True, text=True, encoding='latin-1',
                 timeout=CURL_TIMEOUT + 2, creationflags=subprocess.CREATE_NO_WINDOW, cwd=BIN_DIR
             )
             
-            parsed = self._parse_result(domain, result)
-            parsed.time_taken = time.perf_counter() - start
-            return parsed
+            fallback_time = time.perf_counter() - start_fallback
+            
+            return self._parse_result(domain, result, fallback_time)
             
         except subprocess.TimeoutExpired:
             return CurlTestResult(False, 28, "Operation timed out", domain=domain)
