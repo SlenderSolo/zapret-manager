@@ -1,6 +1,21 @@
 import subprocess
 import threading
 from typing import List, Optional
+from contextlib import contextmanager
+
+
+@contextmanager
+def running_winws(manager: 'WinWSManager', params: List[str]):
+    """
+    A context manager to safely start and stop a WinWSManager process.
+    Raises RuntimeError if the process fails to start.
+    """
+    if not manager.start(params):
+        raise RuntimeError(f"Failed to start winws: {manager.get_stderr()}")
+    try:
+        yield manager
+    finally:
+        manager.stop()
 
 
 class WinWSManager:

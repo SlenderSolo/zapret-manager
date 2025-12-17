@@ -8,8 +8,8 @@ from pathlib import Path
 from config import *
 from src import ui
 from .network_utils import DNSCache, CurlRunner
-from src.utils import is_process_running, running_winws, TokenBucket, kill_process
-from .winws_manager import WinWSManager
+from src.utils import is_process_running, TokenBucket, kill_process
+from .winws_manager import WinWSManager, running_winws
 from .strategy import Strategy, StrategyManager
 from .domain_preset_parser import DomainPresetParser
 

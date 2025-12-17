@@ -4,7 +4,6 @@ import subprocess
 import sys
 import time
 import threading
-from contextlib import contextmanager
 
 def enable_ansi_support():
     """Enables ANSI escape code support in the Windows console."""
@@ -68,19 +67,6 @@ def kill_process(process_name: str) -> bool:
         print(f"Error killing process {process_name}: {e}")
         return False
 
-@contextmanager
-def running_winws(manager, params):
-    """
-    A context manager to safely start and stop a WinWSManager process.
-    Raises RuntimeError if the process fails to start.
-    """
-    if not manager.start(params):
-        raise RuntimeError(f"Failed to start winws: {manager.get_stderr()}")
-    try:
-        yield manager
-    finally:
-        manager.stop()
-
 class TokenBucket:
     """A simple token bucket implementation for rate limiting."""
     def __init__(self, capacity: int, refill_rate: float):
@@ -118,3 +104,4 @@ class TokenBucket:
                 
                 # Wait for either timeout or notification from another thread
                 self.condition.wait(timeout=wait_time)
+                
