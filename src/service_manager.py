@@ -1,6 +1,5 @@
 import re
 import subprocess
-import ctypes
 import time
 from typing import Tuple, Optional
 from pathlib import Path
@@ -29,21 +28,16 @@ class ServiceInfo:
 def _run_sc(args: list[str], quiet: bool = False) -> Tuple[int, str, str]:
     """Executes sc.exe command and returns (returncode, stdout, stderr)."""
     try:
-        encoding = f'cp{ctypes.windll.kernel32.GetOEMCP()}'
-    except Exception:
-        encoding = 'utf-8'
-
-    try:
         proc = subprocess.run(
             ["sc.exe"] + args,
             capture_output=True,
+            text=True,
+            encoding='oem', 
             shell=False,
             timeout=15,
             check=False
         )
-        stdout = proc.stdout.decode(encoding, errors='replace')
-        stderr = proc.stderr.decode(encoding, errors='replace')
-        return proc.returncode, stdout, stderr
+        return proc.returncode, proc.stdout, proc.stderr
 
     except subprocess.TimeoutExpired:
         return -1, "", "timeout"
@@ -207,3 +201,4 @@ def status() -> ServiceInfo:
     if not info.exists:
         info = get_info(LEGACY_SERVICE_NAME)
     return info
+    
