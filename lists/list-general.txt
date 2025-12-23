@@ -8,6 +8,7 @@ gateway.discord.gg
 cdn.discordapp.com
 media.discordapp.net
 images-ext-1.discordapp.net
+discord.media
 stable.dl2.discordapp.net
 ffzap.com
 betterttv.net
