@@ -2,6 +2,7 @@ cloudflare-ech.com
 encryptedsni.com
 cloudflareclient.com
 imagedelivery.net
+cdnjs.cloudflare.com
 updates.discord.com
 discord.com
 gateway.discord.gg
@@ -25,6 +26,7 @@ rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
+lumadock.com
 www.speedtest.net
 downdetector.com
 sponsor.ajay.app
