@@ -16,4 +16,4 @@ start "zapret: http,https,quic" /min "%BIN%winws.exe" --wf-tcp=80,443 ^
 --filter-tcp=443 %IP_ALL% --dpi-desync=fake,multisplit --dpi-desync-fooling=md5sig --dpi-desync-split-pos=1 --dpi-desync-fake-tls-mod=sni=www.google.com %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_YT% --dpi-desync=fake --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
 --filter-l7=quic %LST_GEN% --dpi-desync=fake --dpi-desync-repeats=11 --dpi-desync-fake-quic="%BIN%quic_initial_www_google_com.bin" %IP_EXC% %LST_EXC% --new ^
---filter-l7=discord,stun --dpi-desync=fake --dpi-desync-fake-discord=0x0F0F0F0F --dpi-desync-fake-stun=0x0F0F0F0F --dpi-desync-repeats=4
+--filter-l7=discord,stun --dpi-desync=fake --dpi-desync-fake-discord=0x0F0F0F0F --dpi-desync-fake-stun=0x0F0F0F0F --dpi-desync-repeats=6
