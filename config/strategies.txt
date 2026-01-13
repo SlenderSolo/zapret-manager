@@ -107,8 +107,14 @@ https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=midsld --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=md5sig --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=1 --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=midsld --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=badseq --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=1 --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=midsld --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=datanoack --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=1 --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
+https : --dpi-desync=multidisorder --dpi-desync-split-pos=midsld --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=multidisorder --dpi-desync-split-pos=1,midsld --dpi-desync-fooling=md5sig --dpi-desync-fake-tls=0x00000000 --dpi-desync-fake-tls=! --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=fake --dpi-desync-ttl=1
 https : --dpi-desync=fake --dpi-desync-ttl=1 --dpi-desync-fake-tls=0x00000000
@@ -535,4 +541,5 @@ http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=24
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=32
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=40
 http3 : --dpi-desync=ipfrag2 --dpi-desync-ipfrag-pos-udp=64
+
 
