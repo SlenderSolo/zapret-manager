@@ -70,38 +70,31 @@ def kill_process(process_name: str) -> bool:
 class TokenBucket:
     """A simple token bucket implementation for rate limiting."""
     def __init__(self, capacity: int, refill_rate: float):
-        self.capacity = capacity
-        self.tokens = float(capacity)
+        self.capacity = float(capacity)
+        self._tokens = float(capacity)
         self.refill_rate = float(refill_rate)
-        self.last_refill = time.monotonic()
-        self.condition = threading.Condition()
-
-    def _refill(self):
-        now = time.monotonic()
-        elapsed = now - self.last_refill
-        if elapsed > 0:
-            tokens_to_add = elapsed * self.refill_rate
-            if tokens_to_add > 0:
-                self.tokens = min(self.capacity, self.tokens + tokens_to_add)
-                self.last_refill = now
+        self.last_update = time.monotonic()
+        self._condition = threading.Condition()
 
     def wait_for_token(self, tokens: int = 1):
-        """
-        Wait until enough tokens are available and then consume them.
-        """
-        with self.condition:
+        """Blocks the calling thread until enough tokens are available."""
+        with self._condition:
             while True:
-                self._refill()
+                now = time.monotonic()
+                time_passed = now - self.last_update
+                self.last_update = now
                 
-                # Check if we have enough tokens
-                if self.tokens >= tokens:
-                    self.tokens -= tokens
+                # Refill tokens
+                self._tokens = min(self.capacity, self._tokens + (time_passed * self.refill_rate))
+                
+                if self._tokens >= tokens:
+                    self._tokens -= tokens
                     return
                 
-                # Calculate wait time for required tokens
-                required = tokens - self.tokens
-                wait_time = max(0, required / self.refill_rate)
+                # Calculate exact sleep time needed
+                deficit = tokens - self._tokens
+                wait_time = deficit / self.refill_rate
                 
-                # Wait for either timeout or notification from another thread
-                self.condition.wait(timeout=wait_time)
+                # Wait releases the lock and blocks this thread
+                self._condition.wait(timeout=wait_time)
                 
