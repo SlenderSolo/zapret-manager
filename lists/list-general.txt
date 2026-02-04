@@ -19,8 +19,6 @@ rutracker.org
 static.rutracker.cc
 soundcloud.com
 sndcdn.com
-spotify.com
-scdn.co
 www.metacritic.com
 rezka.ag
 medium.com
@@ -34,8 +32,6 @@ ublockorigin.pages.dev
 mega.nz
 mega.co.nz
 commega.nz
-pathofexile.com
-poecdn.com
 modrinth.com
 minecraftforge.net
 forgecdn.net
