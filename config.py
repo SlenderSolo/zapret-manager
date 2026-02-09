@@ -20,7 +20,7 @@ CURL_TIMEOUT = 1
 CURL_MAX_WORKERS = 10
 USER_AGENT = "Mozilla"
 DEFAULT_DOMAIN = "rutracker.org/forum/index.php"
-YOUTUBE_DOMAIN = "www.youtube.com/manifest.webmanifest"
+YOUTUBE_DOMAIN = "www.youtube.com"
 DEFAULT_IPSET_DOMAIN = "www.delta.com"
 DEFAULT_CHECKS = {
     'http': False,
