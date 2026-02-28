@@ -4,8 +4,7 @@
 [DOMAIN_BLOCKCHECK]
 # ====================
 
-Base (Rutracker + Discord)
-rutracker.org/forum/index.php
+Discord
 gateway.discord.gg
 updates.discord.com
 cdn.discordapp.com 
@@ -29,14 +28,6 @@ Youtube QUIC
 www.youtube.com
 i.ytimg.com
 redirector.googlevideo.com
-
-Discord
-gateway.discord.gg
-updates.discord.com
-cdn.discordapp.com 
-discord.com 
-media.discordapp.net 
-stable.dl2.discordapp.net 
 
 
 # ====================
