@@ -29,6 +29,7 @@ www.speedtest.net
 downdetector.com
 sponsor.ajay.app
 ublockorigin.pages.dev
+mega.io
 mega.nz
 mega.co.nz
 commega.nz
