@@ -34,17 +34,6 @@ class ParsedPreset:
         return " ".join(arg_parts)
 
 
-def _read_bat_file(path: Path) -> Optional[List[str]]:
-    """Reads a .bat file, trying common encodings."""
-    for enc in ['utf-8', 'cp866', 'cp1251']:
-        try:
-            with path.open("r", encoding=enc) as f:
-                return f.readlines()
-        except UnicodeDecodeError:
-            continue
-    return None
-
-
 def _extract_variables(lines: List[str], script_dir: Path) -> Dict[str, str]:
     """Extracts variables from 'set VAR=VALUE' lines."""
     variables = {}
@@ -215,13 +204,14 @@ def _parse_arguments_structure(args: List[str]) -> Tuple[List[str], List[PresetR
 
 
 def parse_preset_file(preset_path: Path) -> Optional[ParsedPreset]:
-    """Parses a .bat/.cmd preset file into a structured ParsedPreset object."""
+    """Parses a preset file into a structured ParsedPreset object."""
     try:
-        lines = _read_bat_file(preset_path)
-        if not lines:
-            ui.print_err(f"Failed to read {preset_path.name}")
-            return None
-        
+        lines = preset_path.read_text(encoding='utf-8').splitlines(keepends=True)
+    except OSError as e:
+        ui.print_err(f"Failed to read {preset_path.name}: {e}")
+        return None
+
+    try:
         variables = _extract_variables(lines, BASE_DIR)
         
         command = _find_winws_command(lines)
