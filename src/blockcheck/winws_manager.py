@@ -1,7 +1,7 @@
 import subprocess
 import threading
 from typing import List, Optional
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 
 
 @contextmanager
@@ -31,7 +31,7 @@ class WinWSManager:
         self._ready_event = threading.Event()
         self._crashed = False
         self._stderr_lines: List[str] = []
-        self._threads: List[threading.Thread] = []
+        self._threads: List[threading.Thread] =[]
 
     def _monitor_stdout(self, stream):
         """Scans stdout for success marker, exits immediately on detection."""
@@ -89,14 +89,10 @@ class WinWSManager:
         
         # Start monitoring threads
         stdout_thread = threading.Thread(
-            target=self._monitor_stdout,
-            args=(self.process.stdout,),
-            daemon=False
+            target=self._monitor_stdout, args=(self.process.stdout,), daemon=True
         )
         stderr_thread = threading.Thread(
-            target=self._monitor_stderr,
-            args=(self.process.stderr,),
-            daemon=False
+            target=self._monitor_stderr, args=(self.process.stderr,), daemon=True
         )
         
         stdout_thread.start()
@@ -128,6 +124,9 @@ class WinWSManager:
         except (ProcessLookupError, OSError):
             pass
         finally:
+            if self.process:
+                with suppress(Exception): self.process.stdout.close()
+                with suppress(Exception): self.process.stderr.close()
             self.process = None
         
         self._join_threads(timeout=0.5)
