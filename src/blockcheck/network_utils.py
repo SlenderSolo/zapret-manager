@@ -4,7 +4,7 @@ import subprocess
 import time
 import socket
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional, List, Tuple
 
 from config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
@@ -25,6 +25,12 @@ class CacheEntry:
     ip_address: str
     expiry_time: float
 
+@dataclass
+class InFlightRequest:
+    event: threading.Event = field(default_factory=threading.Event)
+    result: Optional[str] = None
+    is_failure: bool = False
+
 
 class DNSCache:
     """Thread-safe DNS cache with TTL and in-flight request deduplication."""
@@ -32,7 +38,7 @@ class DNSCache:
     def __init__(self, ttl: int = 300):
         self.ttl = ttl
         self._cache: Dict[str, CacheEntry] = {}
-        self._in_flight: Dict[str, threading.Event] = {}
+        self._in_flight: Dict[str, InFlightRequest] = {}
         self._lock = threading.Lock()
         self.cache_hits = 0
         self.cache_misses = 0
@@ -48,34 +54,34 @@ class DNSCache:
                 return entry.ip_address
             
             if base_domain in self._in_flight:
-                event = self._in_flight[base_domain]
+                in_flight = self._in_flight[base_domain]
                 self.cache_hits += 1
+                is_resolver = False
             else:
-                event = threading.Event()
-                self._in_flight[base_domain] = event
+                in_flight = InFlightRequest()
+                self._in_flight[base_domain] = in_flight
                 self.cache_misses += 1
-                event = None
+                is_resolver = True
         
-        if event:
-            event.wait()
-            with self._lock:
-                entry = self._cache.get(base_domain)
-                return entry.ip_address if entry else None
-        
-        try:
-            ip = socket.gethostbyname(base_domain)
-            success = True
-        except socket.gaierror:
-            ip = None
-            success = False
-        
-        with self._lock:
-            if success:
-                self._cache[base_domain] = CacheEntry(ip, time.monotonic() + self.ttl)
-            event = self._in_flight.pop(base_domain)
-        
-        event.set()
-        return ip
+        if is_resolver:
+            try:
+                ip = socket.gethostbyname(base_domain)
+                with self._lock:
+                    self._cache[base_domain] = CacheEntry(ip, time.monotonic() + self.ttl)
+                in_flight.result = ip
+                in_flight.is_failure = False
+            except socket.gaierror:
+                in_flight.result = None
+                in_flight.is_failure = True
+            finally:
+                with self._lock:
+                    self._in_flight.pop(base_domain, None)
+                in_flight.event.set()
+            return in_flight.result
+        else:
+            if not in_flight.event.wait(timeout=10.0):
+                return None
+            return in_flight.result
 
     def get_stats(self) -> Dict[str, int]:
         with self._lock:
