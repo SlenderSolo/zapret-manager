@@ -177,14 +177,15 @@ class BlockChecker:
     Orchestrates configuration, accessibility checks, strategy testing, and reporting.
     """
     
-    def __init__(self):
+    def __init__(self, test_mode: str = 'domain'):
         # Configuration
         self.config = TestConfiguration()
+        self.config.test_mode = test_mode
         self.curl_caps: Dict[str, bool] = {'tls1.3': False, 'http3': False}
         
         # Managers
         self.preset_parser = DomainPresetParser(DOMAIN_PRESETS_PATH)
-        self.strategy_manager = StrategyManager(STRATEGIES_PATH)
+        self.strategy_manager: Optional[StrategyManager] = None
         self.winws_manager = WinWSManager(str(WINWS_PATH), str(BIN_DIR))
         
         # Network infrastructure
@@ -202,21 +203,23 @@ class BlockChecker:
     # === Setup ===
     
     def check_prerequisites(self):
-            """Validates required files and binaries."""
-            ui.print_header("Checking prerequisites")
+        """Validates required files and binaries."""
+        ui.print_header("Checking prerequisites")
 
-            for path in [WINWS_PATH, CURL_PATH, STRATEGIES_PATH]:
-                if not path.exists():
-                    raise BlockCheckError(f"Required file not found: '{path}'.")
-            ui.print_ok("All required binaries and strategy file found.")
+        required_files = [WINWS_PATH, CURL_PATH, STRATEGIES_PATH, IP_STRATEGIES_PATH]
+        for path in required_files:
+            if not path.exists():
+                raise BlockCheckError(f"Required file not found: '{path}'.")
+            
+        ui.print_ok("All required binaries and strategy files found.")
 
-            if is_process_running('winws'):
-                ui.print_warn("Active Zapret process detected.")
-                if ui.ask_yes_no("Terminate it before starting?", default_yes=True):
-                    if kill_process('winws'):
-                        ui.print_ok("Zapret terminated.")
-                    else:
-                        ui.print_err("Failed to terminate 'winws'. Please close it manually.")
+        if is_process_running('winws'):
+            ui.print_warn("Active Zapret process detected.")
+            if ui.ask_yes_no("Terminate it before starting?", default_yes=True):
+                if kill_process('winws'):
+                    ui.print_ok("Zapret terminated.")
+                else:
+                    ui.print_err("Failed to terminate 'winws'. Please close it manually.")
     
     def check_curl_capabilities(self):
         """Detects curl capabilities."""
@@ -246,6 +249,15 @@ class BlockChecker:
     def load_strategies(self):
         """Loads DPI bypass strategies."""
         ui.print_header("Loading strategies")
+        
+        if self.config.test_mode == 'ipset':
+            strategies_path = IP_STRATEGIES_PATH
+            ui.print_info(f"Using IP strategies file: {strategies_path.name}")
+        else:
+            strategies_path = STRATEGIES_PATH
+            ui.print_info(f"Using domain strategies file: {strategies_path.name}")
+        
+        self.strategy_manager = StrategyManager(strategies_path)
         self.strategy_manager.load_strategies()
         
         for key in self.config.get_enabled_checks():

@@ -9,6 +9,7 @@ LISTS_DIR = BASE_DIR / "lists"
 WINWS_PATH = BIN_DIR / "winws.exe"
 CURL_PATH = BIN_DIR / "curl.exe"
 STRATEGIES_PATH = CONFIG_DIR / "strategies.txt"
+IP_STRATEGIES_PATH = CONFIG_DIR / "ip_strategies.txt"
 DOMAIN_PRESETS_PATH = CONFIG_DIR / "domain_presets.txt"
 
 SERVICE_NAME = "winws"

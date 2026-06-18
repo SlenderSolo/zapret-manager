@@ -13,7 +13,7 @@ def run_blockchecker(mode='domain'):
     """Wrapper function to run the BlockChecker."""
     ui.print_header("Running Block Checker")
     
-    checker = BlockChecker()
+    checker = BlockChecker(test_mode=mode)
     
     def signal_handler(sig, frame):
         ui.print_info("\nCtrl+C detected. Terminating check...")
