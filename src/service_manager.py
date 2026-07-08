@@ -5,8 +5,9 @@ from typing import Tuple, Optional
 from pathlib import Path
 from dataclasses import dataclass
 
-from config import BASE_DIR, SERVICE_NAME
+from config import BASE_DIR, SERVICE_NAME, WINWS_PATH
 from .config_parser import parse_preset_file
+from .utils import kill_process
 
 LEGACY_SERVICE_NAME = "zapret"
 
@@ -57,8 +58,9 @@ def _wait_deletion(service_name: str, timeout: float = 5.0) -> bool:
 
 
 def delete(service_name: str) -> None:
-    """Stops and deletes a service."""
+    """Kills the winws process and deletes a service."""
     _run_sc(["stop", service_name], quiet=True)
+    kill_process(WINWS_PATH.stem)
     ret, stdout, stderr = _run_sc(["delete", service_name], quiet=True)
     
     if ret == 0 or "1072" in stdout or "1072" in stderr:
