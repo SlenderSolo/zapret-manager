@@ -36,6 +36,4 @@ commega.nz
 modrinth.com
 minecraftforge.net
 forgecdn.net
-roblox.com
-rbxcdn.com
 klipy.com
