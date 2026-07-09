@@ -1,5 +1,4 @@
 import os
-import signal
 import traceback
 
 from src.blockcheck.blockchecker import BlockChecker, BlockCheckError
@@ -15,18 +14,13 @@ def run_blockchecker(mode='domain'):
     
     checker = BlockChecker(test_mode=mode)
     
-    def signal_handler(sig, frame):
-        ui.print_info("\nCtrl+C detected. Terminating check...")
-        checker.cleanup()
-    
-    original_handler = signal.getsignal(signal.SIGINT)
-    signal.signal(signal.SIGINT, signal_handler)
-    
     try:
         checker.check_prerequisites()
         checker.check_curl_capabilities()
         checker.configure_test(test_mode=mode)
         checker.run_all_tests()
+    except KeyboardInterrupt:
+        ui.print_info("\nBlockChecker stopped by user.")
     except BlockCheckError as e:
         ui.print_err(str(e))
         ui.print_info("BlockChecker stopped due to an error.")
@@ -35,7 +29,6 @@ def run_blockchecker(mode='domain'):
         traceback.print_exc()
     finally:
         checker.cleanup()
-        signal.signal(signal.SIGINT, original_handler)
 
 
 def main_menu():
@@ -73,3 +66,4 @@ if __name__ == "__main__":
     run_as_admin() 
     main_menu()
     print("\nExiting program.")
+    

@@ -355,8 +355,11 @@ class BlockChecker:
         self.reporter.clear()
         self.initial_accessibility.clear()
         
-        for test_key in self.config.get_enabled_checks():
-            self.run_test_suite(test_key)
+        try:
+            for test_key in self.config.get_enabled_checks():
+                self.run_test_suite(test_key)
+        except KeyboardInterrupt:
+            ui.print_warn("\nStopped by user. Showing results for completed tests...")
         
         # Generate report
         if self.config.test_mode == 'domain':
