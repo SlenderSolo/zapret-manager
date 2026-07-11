@@ -1,5 +1,8 @@
 import ctypes
+import csv
+import io
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -53,19 +56,44 @@ def is_process_running(process_name: str) -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def kill_process(process_name: str) -> bool:
-    """Terminates a process by name using taskkill."""
+def _get_pids_by_name(process_name: str) -> list[int]:
+    """Returns PIDs of all running processes matching process_name.exe."""
     try:
         result = subprocess.run(
-            ['taskkill', '/F', '/IM', f'{process_name}.exe', '/T'],
-            capture_output=True,
-            text=True,
-            creationflags=subprocess.CREATE_NO_WINDOW
+            ['tasklist', '/NH', '/FO', 'CSV', '/FI', f'IMAGENAME eq {process_name}.exe'],
+            capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW
         )
-        return result.returncode == 0 or "not found" in result.stderr.lower()
-    except Exception as e:
-        print(f"Error killing process {process_name}: {e}")
-        return False
+    except (OSError, FileNotFoundError):
+        return []
+
+    pids = []
+    for row in csv.reader(io.StringIO(result.stdout)):
+        if len(row) >= 2:
+            try:
+                pids.append(int(row[1]))
+            except ValueError:
+                continue
+    return pids
+
+
+def kill_process(process_name: str) -> bool:
+    """Terminates all processes matching process_name via tasklist + os.kill."""
+    pids = _get_pids_by_name(process_name)
+
+    if not pids:
+        return True
+
+    success = True
+    for pid in pids:
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            continue
+        except OSError as e:
+            print(f"Error killing process {process_name} (PID {pid}): {e}")
+            success = False
+
+    return success
 
 class TokenBucket:
     """A simple token bucket implementation for rate limiting."""
