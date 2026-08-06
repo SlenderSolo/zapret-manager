@@ -3,8 +3,6 @@
 #  <a href="https://github.com/SlenderSolo/zapret-manager">zapret-manager</a> <img src="https://cdn-icons-png.flaticon.com/128/5968/5968756.png" height=28 /> <img src="https://cdn-icons-png.flaticon.com/128/1384/1384060.png" height=28 /> <img src="https://icon.icepanel.io/Technology/svg/Cloudflare.svg" height=28 />
 </div>
 
-<img src="https://images2.imgbox.com/2a/25/vx6FcUof_o.png" />
-
 Управление и создание сервиса (автозапуска) для Zapret, авто подбор стратегий для пресетов, оригинальные пресеты стратегий, быстрый многопоточный blockcheck на python с тестами блокировок по доменам или IP адресам, который можно настроить в [**`config.py`**](./config.py), добавить свои стратегии для теста в [**`strategies.txt`**](config/strategies.txt) и добавить свои пресеты доменов в [**`domain_presets.txt`**](https://github.com/SlenderSolo/zapret-manager/blob/main/config/domain_presets.txt)
 
 > [!CAUTION]
