@@ -379,9 +379,7 @@ https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=datanoack --dpi-des
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=datanoack --dpi-desync-hostfakesplit-mod=altorder=1 --dpi-desync-hostfakesplit-midhost=midsld
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=datanoack --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=ts
-https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=ts --dpi-desync-hostfakesplit-mod=altorder=1
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=ts --dpi-desync-hostfakesplit-midhost=midsld
-https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=ts --dpi-desync-hostfakesplit-mod=altorder=1 --dpi-desync-hostfakesplit-midhost=midsld
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=ts --dpi-desync-fake-tls-mod=sni=www.google.com
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=md5sig
 https : --dpi-desync=fake,hostfakesplit --dpi-desync-fooling=md5sig --dpi-desync-hostfakesplit-mod=altorder=1
