@@ -24,7 +24,6 @@ rezka.ag
 medium.com
 digitalocean.com
 hetzner.com
-lumadock.com
 www.speedtest.net
 downdetector.com
 sponsor.ajay.app
@@ -37,3 +36,4 @@ modrinth.com
 minecraftforge.net
 forgecdn.net
 klipy.com
+zendesk.com

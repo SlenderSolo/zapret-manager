@@ -1,11 +1,10 @@
 googlevideo.com
-i.ytimg.com
-i1.ytimg.com
+youtubei.googleapis.com
+ytimg.com
 yt3.ggpht.com
 yt4.ggpht.com
 yt3.googleusercontent.com
 youtube.com
-youtubei.googleapis.com
 youtubeembeddedplayer.googleapis.com
 ytimg.l.google.com
 jnn-pa.googleapis.com
@@ -15,4 +14,6 @@ yt-video-upload.l.google.com
 wide-youtube.l.google.com
 youtu.be
 play.google.com
+fonts.googleapis.com
+www.gstatic.com
 workspace.google.com
