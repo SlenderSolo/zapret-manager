@@ -50,7 +50,7 @@ class WinwsManager:
             pass
 
     def _monitor_stderr(self, stream):
-        """Collects stderr output; first non-empty line signals crash."""
+        """Collects stderr output; first non-empty line or EOF before ready signals crash."""
         try:
             for line in iter(stream.readline, b""):
                 try:
@@ -61,6 +61,9 @@ class WinwsManager:
                         self._ready_event.set()
                 except Exception:
                     pass
+            if not self._ready_event.is_set():
+                self._crashed = True
+                self._ready_event.set()
         except IOError, ValueError:
             pass
 
@@ -106,6 +109,12 @@ class WinwsManager:
 
         if ready and not self._crashed:
             return True
+
+        if self.process and not any(line.strip() for line in list(self._stderr_lines)):
+            with suppress(subprocess.TimeoutExpired):
+                self.process.wait(timeout=0.2)
+            if self.process.returncode is not None:
+                self._stderr_lines.append(f"Process exited with code {self.process.returncode}\n")
 
         self.stop()
         return False
