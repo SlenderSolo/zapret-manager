@@ -113,26 +113,17 @@ class TokenBucket:
         self._tokens = float(capacity)
         self.refill_rate = float(refill_rate)
         self.last_update = time.monotonic()
-        self._condition = threading.Condition()
+        self._lock = threading.Lock()
 
     def wait_for_token(self, tokens: int = 1):
         """Blocks the calling thread until enough tokens are available."""
-        with self._condition:
-            while True:
-                now = time.monotonic()
-                time_passed = now - self.last_update
-                self.last_update = now
+        with self._lock:
+            now = time.monotonic()
+            self._tokens = min(self.capacity, self._tokens + (now - self.last_update) * self.refill_rate) - tokens
+            self.last_update = now
 
-                # Refill tokens
-                self._tokens = min(self.capacity, self._tokens + (time_passed * self.refill_rate))
+            if self._tokens >= 0:
+                return
+            wait_time = -self._tokens / self.refill_rate
 
-                if self._tokens >= tokens:
-                    self._tokens -= tokens
-                    return
-
-                # Calculate exact sleep time needed
-                deficit = tokens - self._tokens
-                wait_time = deficit / self.refill_rate
-
-                # Wait releases the lock and blocks this thread
-                self._condition.wait(timeout=wait_time)
+        time.sleep(wait_time)
