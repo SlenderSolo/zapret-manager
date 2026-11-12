@@ -3,121 +3,118 @@ from typing import Dict, Optional, List, Tuple
 
 from src import ui, service_manager
 import config
-from .blockcheck.blockchecker import BlockChecker
+from .blockcheck.blockchecker import BlockChecker, StrategyTestResult
 from .blockcheck.strategy import Strategy
+from .blockcheck.winws_manager import WinwsError
 from .config_parser import parse_preset_file, PresetRule
 
 
 def _initialize_checker(test_domain: str = None) -> BlockChecker:
     """Initializes BlockChecker for optimization."""
     test_domain = test_domain or config.DEFAULT_DOMAIN
-    
+
     ui.print_info("Initializing checker...")
     checker = BlockChecker()
     checker.check_prerequisites()
     checker.check_curl_capabilities()
-    
+
     # Configure for single domain test
     checker.config.domains = [test_domain]
     checker.config.repeats = 1
-    checker.config.checks_to_run = {'http': True, 'https_tls13': True, 'http3': True}
-    
+    checker.config.checks_to_run = {"http": True, "https_tls13": True, "http3": True}
+
     checker.load_strategies()
     return checker
 
 
-def _test_rule_strategy(checker: BlockChecker, rule: PresetRule, 
-                       protocol: str, domain: str, test_config: dict) -> Tuple[bool, float, str]:
+def _test_rule_strategy(
+    checker: BlockChecker, rule: PresetRule, protocol: str, domain: str, test_config: dict
+) -> StrategyTestResult:
     """Tests current rule strategy."""
-    clean_args = [arg.replace('"', '') for arg in rule.strategy_args]
+    clean_args = [arg.replace('"', "") for arg in rule.strategy_args]
     temp_strategy = Strategy(protocol, clean_args)
-    
-    result = checker.strategy_tester.test_strategy(
-        domains=[domain],
-        strategy=temp_strategy,
-        test_params=test_config['test_params'],
-        repeats=1
+
+    return checker.strategy_tester.test_strategy(
+        domains=[domain], strategy=temp_strategy, test_params=test_config["test_params"], repeats=1
     )
-    
-    error_msg = result.curl_output or result.winws_stderr
-    return result.success, result.avg_time, error_msg
 
 
-def _find_best_alternative(checker: BlockChecker, rule: PresetRule, 
-                          domain: str, test_config: dict) -> Optional[Tuple[List[str], float]]:
+def _find_best_alternative(
+    checker: BlockChecker, rule: PresetRule, domain: str, test_config: dict
+) -> Optional[Tuple[List[str], float]]:
     """Finds best working alternative strategy for failed rule."""
     candidates = [
-        s for s in checker.strategy_manager.get_strategies_for_test(rule.test_type)
-        if f'--dpi-desync={rule.desync_key}' in s.params
+        s
+        for s in checker.strategy_manager.get_strategies_for_test(rule.test_type)
+        if f"--dpi-desync={rule.desync_key}" in s.params
     ]
-    
+
     if not candidates:
         ui.print_warn(f"No alternatives found for --dpi-desync={rule.desync_key}")
         return None
-    
+
     ui.print_header(f"Testing {len(candidates)} alternatives")
-    
-    best_time, best_params = float('inf'), None
-    
+
+    best_time, best_params = float("inf"), None
+
     for j, strategy in enumerate(candidates, 1):
-        short_name = ' '.join(p for p in strategy.params if not p.startswith('--wf-'))
+        short_name = " ".join(p for p in strategy.params if not p.startswith("--wf-"))
         print(f"\n{ui.Style.BRIGHT + ui.Fore.BLUE}[{j}/{len(candidates)}]{ui.Style.RESET_ALL} {short_name}")
-        
-        result = checker.strategy_tester.test_strategy(
-            domains=[domain],
-            strategy=strategy,
-            test_params=test_config['test_params'],
-            repeats=1
-        )
-        
+
+        try:
+            result = checker.strategy_tester.test_strategy(
+                domains=[domain], strategy=strategy, test_params=test_config["test_params"], repeats=1
+            )
+        except WinwsError as e:
+            print(f"  {ui.Fore.RED}FAILED - {str(e).strip()}{ui.Style.RESET_ALL}")
+            continue
+
         if result.success:
             print(f"  {ui.Fore.GREEN}SUCCESS (Time: {result.avg_time:.3f}s){ui.Style.RESET_ALL}")
             if result.avg_time < best_time:
                 best_time = result.avg_time
-                best_params = [p for p in strategy.params 
-                              if not p.startswith(('--wf-', '--hostlist-domains'))]
+                best_params = [p for p in strategy.params if not p.startswith(("--wf-", "--hostlist-domains"))]
         else:
             print(f"  {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
-    
+
     return (best_params, best_time) if best_params else None
 
 
-def _optimize_rule(checker: BlockChecker, rule: PresetRule, index: int, 
-                   protocol_map: Dict[str, str]) -> Optional[List[str]]:
+def _optimize_rule(checker: BlockChecker, rule: PresetRule, index: int, protocol_map: Dict[str, str]) -> Optional[List[str]]:
     """Optimizes single rule. Returns new params or None."""
     if not rule.test_type or not rule.desync_key:
         return None
-    
+
     # Determine test domain
-    test_domain = config.YOUTUBE_DOMAIN if any('youtube' in p.lower() for p in rule.prefix_args) else config.DEFAULT_DOMAIN
-    
+    test_domain = config.YOUTUBE_DOMAIN if any("youtube" in p.lower() for p in rule.prefix_args) else config.DEFAULT_DOMAIN
+
     checker.config.domains = [test_domain]
     domain_label = " (YouTube)" if test_domain == config.YOUTUBE_DOMAIN else ""
-    
+
     ui.print_header(f"Rule {index + 1}: Testing ({rule.test_type}, {rule.desync_key}){domain_label}")
     print(f"Test domain: {ui.Style.BRIGHT}{test_domain}{ui.Style.RESET_ALL}")
     print(f"Original: {' '.join(rule.strategy_args)}")
-    
+
     # Test current strategy
-    protocol = protocol_map.get(rule.test_type, 'https')
+    protocol = protocol_map.get(rule.test_type, "https")
     test_config = checker.config.CHECKS_CONFIG[rule.test_type]
-    
-    success, avg_time, error_msg = _test_rule_strategy(
-        checker, rule, protocol, test_domain, test_config
-    )
-    
-    if success:
-        ui.print_ok(f"  Result: SUCCESS (Time: {avg_time:.3f}s)")
-        return None
-    
-    # Current strategy failed
-    print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
-    if error_msg:
-        print(f"    {ui.Fore.YELLOW}{error_msg.strip()}{ui.Style.RESET_ALL}")
-    
+
+    try:
+        result = _test_rule_strategy(checker, rule, protocol, test_domain, test_config)
+        if result.success:
+            ui.print_ok(f"  Result: SUCCESS (Time: {result.avg_time:.3f}s)")
+            return None
+
+        print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
+        if result.error_msg:
+            print(f"    {ui.Fore.YELLOW}{result.error_msg.strip()}{ui.Style.RESET_ALL}")
+    except WinwsError as e:
+        print(f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL}")
+        print(f"    {ui.Fore.RED}{str(e).strip()}{ui.Style.RESET_ALL}")
+
     ui.print_info("\nSearching for alternatives...")
     alternative = _find_best_alternative(checker, rule, test_domain, test_config)
-    
+
     if alternative:
         best_params, best_time = alternative
         ui.print_ok(f"\nBest: {' '.join(best_params)} (Time: {best_time:.3f}s)")
@@ -131,24 +128,24 @@ def _patch_preset_file(original_path: Path, parsed, optimized: Dict[int, List[st
     """Patches preset file by replacing optimized strategies."""
     if not optimized:
         return
-    
+
     new_path = original_path.with_name(f"{original_path.stem}_optimized{original_path.suffix}")
-    
+
     try:
         # pathlib read_text is cleaner and handles open/close
-        content = original_path.read_text(encoding='utf-8')
-        
+        content = original_path.read_text(encoding="utf-8")
+
         for rule_idx, new_params in optimized.items():
             if rule_idx < len(parsed.rules):
                 rule = parsed.rules[rule_idx]
-                old_strategy = ' '.join(rule.strategy_args)
-                new_strategy = ' '.join(new_params)
+                old_strategy = " ".join(rule.strategy_args)
+                new_strategy = " ".join(new_params)
                 if old_strategy != new_strategy:
                     content = content.replace(old_strategy, new_strategy)
-        
-        new_path.write_text(content, encoding='utf-8')
+
+        new_path.write_text(content, encoding="utf-8")
         ui.print_ok(f"\nOptimized preset saved: {new_path.name}")
-        
+
     except OSError as e:
         ui.print_err(f"File operation failed: {e}")
 
@@ -156,7 +153,7 @@ def _patch_preset_file(original_path: Path, parsed, optimized: Dict[int, List[st
 def optimize_preset():
     """Main entry point for preset optimization."""
     ui.print_header("Auto-optimize Preset")
-    
+
     presets = service_manager.list_presets()
     if not presets:
         ui.print_err(f"No configuration files found in {config.BASE_DIR}")
@@ -165,7 +162,7 @@ def optimize_preset():
     selected = ui.ask_choice("Select preset to optimize:", presets)
     if not selected:
         return
-    
+
     preset_path = service_manager.find_preset_file(selected)
     if not preset_path:
         ui.print_err(f"File not found for: {selected}")
@@ -175,25 +172,25 @@ def optimize_preset():
     if not parsed or not parsed.rules:
         ui.print_err("Failed to parse preset or no testable rules found.")
         return
-    
+
     ui.print_ok(f"Parsed {len(parsed.rules)} rules from {ui.Style.BRIGHT}{selected}{ui.Style.NORMAL}")
-    
+
     checker = None
     try:
         checker = _initialize_checker()
-        protocol_map = {'http': 'http', 'https_tls13': 'https', 'http3': 'http3'}
+        protocol_map = {"http": "http", "https_tls13": "https", "http3": "http3"}
         optimized = {}
-        
+
         for i, rule in enumerate(parsed.rules):
             new_params = _optimize_rule(checker, rule, i, protocol_map)
             if new_params:
                 optimized[i] = new_params
-        
+
         if not optimized:
             ui.print_ok("\nAll strategies working. No optimization needed.")
         else:
             _patch_preset_file(preset_path, parsed, optimized)
-            
+
     except KeyboardInterrupt:
         print("\nOptimization cancelled by user.")
     finally:

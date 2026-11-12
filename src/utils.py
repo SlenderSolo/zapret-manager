@@ -8,9 +8,10 @@ import sys
 import time
 import threading
 
+
 def enable_ansi_support():
     """Enables ANSI escape code support in the Windows console."""
-    if os.name == 'nt':
+    if os.name == "nt":
         try:
             kernel32 = ctypes.windll.kernel32
             handle = kernel32.GetStdHandle(-11)
@@ -18,15 +19,17 @@ def enable_ansi_support():
             if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
                 mode.value |= 0x0004
                 kernel32.SetConsoleMode(handle, mode)
-        except (AttributeError, ctypes.WinError):
+        except AttributeError, ctypes.WinError:
             pass
+
 
 def is_admin() -> bool:
     """Checks for administrator privileges."""
     try:
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
-    except AttributeError: 
+    except AttributeError:
         return False
+
 
 def run_as_admin():
     """Restarts the script with administrator privileges if required."""
@@ -37,7 +40,7 @@ def run_as_admin():
             script = os.path.abspath(sys.argv[0])
             params = " ".join([f'"{arg}"' for arg in sys.argv[1:]])
             ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, f'"{script}" {params}', None, 1)
-            sys.exit(0) 
+            sys.exit(0)
         except Exception as e:
             print(f"Failed to automatically elevate privileges: {e}")
             print("Please, re-run this script as an administrator.")
@@ -49,21 +52,27 @@ def is_process_running(process_name: str) -> bool:
     """Checks if a process is running by its name."""
     try:
         result = subprocess.run(
-            ['tasklist', '/NH', '/FI', f'IMAGENAME eq {process_name}.exe'],
-            capture_output=True, text=True, check=True, creationflags=subprocess.CREATE_NO_WINDOW
+            ["tasklist", "/NH", "/FI", f"IMAGENAME eq {process_name}.exe"],
+            capture_output=True,
+            text=True,
+            check=True,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
         return f"{process_name}.exe" in result.stdout
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except subprocess.CalledProcessError, FileNotFoundError:
         return False
+
 
 def _get_pids_by_name(process_name: str) -> list[int]:
     """Returns PIDs of all running processes matching process_name.exe."""
     try:
         result = subprocess.run(
-            ['tasklist', '/NH', '/FO', 'CSV', '/FI', f'IMAGENAME eq {process_name}.exe'],
-            capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW
+            ["tasklist", "/NH", "/FO", "CSV", "/FI", f"IMAGENAME eq {process_name}.exe"],
+            capture_output=True,
+            text=True,
+            creationflags=subprocess.CREATE_NO_WINDOW,
         )
-    except (OSError, FileNotFoundError):
+    except OSError, FileNotFoundError:
         return []
 
     pids = []
@@ -95,8 +104,10 @@ def kill_process(process_name: str) -> bool:
 
     return success
 
+
 class TokenBucket:
     """A simple token bucket implementation for rate limiting."""
+
     def __init__(self, capacity: int, refill_rate: float):
         self.capacity = float(capacity)
         self._tokens = float(capacity)
@@ -111,18 +122,17 @@ class TokenBucket:
                 now = time.monotonic()
                 time_passed = now - self.last_update
                 self.last_update = now
-                
+
                 # Refill tokens
                 self._tokens = min(self.capacity, self._tokens + (time_passed * self.refill_rate))
-                
+
                 if self._tokens >= tokens:
                     self._tokens -= tokens
                     return
-                
+
                 # Calculate exact sleep time needed
                 deficit = tokens - self._tokens
                 wait_time = deficit / self.refill_rate
-                
+
                 # Wait releases the lock and blocks this thread
                 self._condition.wait(timeout=wait_time)
-                
