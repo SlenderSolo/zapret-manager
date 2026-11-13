@@ -20,9 +20,7 @@ class BlockCheckError(Exception):
     pass
 
 
-# ============================================================================
-# Configuration
-# ============================================================================
+# --- Configuration ---
 
 
 @dataclass
@@ -99,9 +97,7 @@ class TestConfiguration:
         return [key for key, enabled in self.checks_to_run.items() if enabled]
 
 
-# ============================================================================
-# Strategy Testing
-# ============================================================================
+# --- Strategy Testing ---
 
 
 @dataclass
@@ -154,9 +150,7 @@ class StrategyTester:
         return StrategyTestResult(True, avg_time=avg_time)
 
 
-# ============================================================================
-# Main BlockChecker
-# ============================================================================
+# --- BlockChecker ---
 
 
 class BlockChecker:
@@ -188,7 +182,7 @@ class BlockChecker:
         # Accessibility tracking
         self.initial_accessibility: Dict[str, Dict[str, bool]] = {}
 
-    # === Setup ===
+    # --- Setup
 
     def check_prerequisites(self):
         """Validates required files and binaries."""
@@ -257,7 +251,7 @@ class BlockChecker:
             strategies = self.strategy_manager.get_strategies_for_test(key)
             ui.print_info(f"Loaded {len(strategies)} strategies for {config['title']}.")
 
-    # === Accessibility Checking ===
+    # --- Accessibility
 
     def check_accessibility(self, test_key: str, test_params: dict) -> bool:
         """Checks initial domain accessibility without DPI bypass."""
@@ -295,7 +289,7 @@ class BlockChecker:
 
         return blocked
 
-    # === Testing ===
+    # --- Testing
 
     def run_test_suite(self, test_key: str):
         """Runs complete test suite for one protocol."""
@@ -347,13 +341,14 @@ class BlockChecker:
                     f"  Result: {ui.Fore.RED}FAILED{ui.Style.RESET_ALL} - {ui.Fore.YELLOW}{result.error_msg.strip()}{ui.Style.RESET_ALL}"
                 )
 
-    # === Main Execution ===
+    # --- Execution
 
     def run_all_tests(self):
         """Executes all enabled tests and generates report."""
         self.load_strategies()
         self.reporter.clear()
         self.initial_accessibility.clear()
+        self.curl_runner.set_allowed_domains(self.config.domains)
 
         try:
             for test_key in self.config.get_enabled_checks():
