@@ -40,12 +40,11 @@ class WinwsManager:
         self._threads: List[threading.Thread] = []
 
     def _monitor_stdout(self, stream):
-        """Scans stdout for success marker, exits immediately on detection."""
+        """Scans stdout for success marker and drains remaining output."""
         try:
             for line in iter(stream.readline, b""):
-                if self._SUCCESS_MARKER in line:
+                if not self._ready_event.is_set() and self._SUCCESS_MARKER in line:
                     self._ready_event.set()
-                    return
         except IOError, ValueError:
             pass
 
