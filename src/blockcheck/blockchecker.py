@@ -1,4 +1,3 @@
-import subprocess
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -35,16 +34,16 @@ class TestConfiguration:
 
     CHECKS_CONFIG = {
         "http": {"title": "HTTP", "test_params": {"port": 80}},
-        "https_tls12": {"title": "HTTPS (TLS 1.2)", "capability": "tls1.3", "test_params": {"port": 443, "tls_version": "1.2"}},
-        "https_tls13": {"title": "HTTPS (TLS 1.3)", "capability": "tls1.3", "test_params": {"port": 443, "tls_version": "1.3"}},
-        "http3": {"title": "HTTP/3 (QUIC)", "capability": "http3", "test_params": {"port": 443, "http3_only": True}},
+        "https_tls12": {"title": "HTTPS (TLS 1.2)", "test_params": {"port": 443, "tls_version": "1.2"}},
+        "https_tls13": {"title": "HTTPS (TLS 1.3)", "test_params": {"port": 443, "tls_version": "1.3"}},
+        "http3": {"title": "HTTP/3 (QUIC)", "test_params": {"port": 443, "http3_only": True}},
     }
 
     def __post_init__(self):
         if not self.checks_to_run:
             self.checks_to_run = DEFAULT_CHECKS.copy()
 
-    def configure_from_user(self, curl_capabilities: Dict[str, bool], preset_parser: DomainPresetParser):
+    def configure_from_user(self, preset_parser: DomainPresetParser):
         """Interactive configuration."""
         ui.print_header("Blockcheck Configuration")
 
@@ -58,12 +57,10 @@ class TestConfiguration:
         self.repeats = int(repeats_input) if repeats_input.isdigit() and int(repeats_input) > 0 else 1
 
         for key, config in self.CHECKS_CONFIG.items():
-            required_cap = config.get("capability")
-            if required_cap and not curl_capabilities.get(required_cap):
-                self.checks_to_run[key] = False
-                ui.print_warn(f"{config['title']} not supported by your curl version, skipping.")
-            else:
-                self.checks_to_run[key] = ui.ask_yes_no(f"Check {config['title']}?", default_yes=DEFAULT_CHECKS.get(key, True))
+            self.checks_to_run[key] = ui.ask_yes_no(
+                f"Check {config['title']}?",
+                default_yes=DEFAULT_CHECKS.get(key, True),
+            )
 
     def _select_ipset_file(self):
         ipsets = sorted([f for f in LISTS_DIR.glob("ipset*.txt")]) if LISTS_DIR.exists() else []
@@ -163,7 +160,6 @@ class BlockChecker:
         # Configuration
         self.config = TestConfiguration()
         self.config.test_mode = test_mode
-        self.curl_caps: Dict[str, bool] = {"tls1.3": False, "http3": False}
 
         # Managers
         self.preset_parser = DomainPresetParser(DOMAIN_PRESETS_PATH)
@@ -203,34 +199,10 @@ class BlockChecker:
                 else:
                     ui.print_err("Failed to terminate 'winws'. Please close it manually.")
 
-    def check_curl_capabilities(self):
-        """Detects curl capabilities."""
-        ui.print_header("Checking curl capabilities")
-        try:
-            result = subprocess.run(
-                [CURL_PATH, "-V"],
-                capture_output=True,
-                text=True,
-                check=True,
-                creationflags=subprocess.CREATE_NO_WINDOW,
-                cwd=BIN_DIR,
-            )
-            version_output = result.stdout.lower()
-            self.curl_caps["tls1.3"] = "ssl" in version_output
-            self.curl_caps["http3"] = "http3" in version_output
-
-            for cap, supported in self.curl_caps.items():
-                color = ui.Fore.GREEN if supported else ui.Fore.RED
-                status = "Yes" if supported else "No"
-                label = "TLS 1.3" if cap == "tls1.3" else "HTTP/3"
-                print(f"{label}: {color}{status}{ui.Style.RESET_ALL}")
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise BlockCheckError(f"Failed to check curl capabilities: {e}")
-
     def configure_test(self, test_mode: str = "domain"):
         """Interactive test configuration."""
         self.config.test_mode = test_mode
-        self.config.configure_from_user(self.curl_caps, self.preset_parser)
+        self.config.configure_from_user(self.preset_parser)
 
     def load_strategies(self):
         """Loads DPI bypass strategies."""

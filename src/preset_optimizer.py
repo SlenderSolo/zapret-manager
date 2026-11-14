@@ -16,7 +16,6 @@ def _initialize_checker(test_domain: str = None) -> BlockChecker:
     ui.print_info("Initializing checker...")
     checker = BlockChecker()
     checker.check_prerequisites()
-    checker.check_curl_capabilities()
 
     # Configure for single domain test
     checker.config.domains = [test_domain]

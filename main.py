@@ -16,7 +16,6 @@ def run_blockchecker(mode='domain'):
     
     try:
         checker.check_prerequisites()
-        checker.check_curl_capabilities()
         checker.configure_test(test_mode=mode)
         checker.run_all_tests()
     except KeyboardInterrupt:
@@ -66,4 +65,3 @@ if __name__ == "__main__":
     run_as_admin() 
     main_menu()
     print("\nExiting program.")
-    
