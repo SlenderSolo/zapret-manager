@@ -30,8 +30,7 @@ def _test_rule_strategy(
     checker: BlockChecker, rule: PresetRule, protocol: str, domain: str, test_config: dict
 ) -> StrategyTestResult:
     """Tests current rule strategy."""
-    clean_args = [arg.replace('"', "") for arg in rule.strategy_args]
-    temp_strategy = Strategy(protocol, clean_args)
+    temp_strategy = Strategy(protocol, rule.strategy_args)
 
     return checker.strategy_tester.test_strategy(
         domains=[domain], strategy=temp_strategy, test_params=test_config["test_params"], repeats=1
