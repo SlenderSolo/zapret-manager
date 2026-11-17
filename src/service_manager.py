@@ -1,12 +1,12 @@
 import re
 import subprocess
 import time
-from typing import Tuple, Optional
-from pathlib import Path
 from dataclasses import dataclass
+from typing import Tuple
 
 from config import BASE_DIR, SERVICE_NAME, WINWS_PATH
-from .config_parser import parse_preset_file
+
+from . import config_parser, ui
 from .utils import kill_process
 
 LEGACY_SERVICE_NAME = "zapret"
@@ -24,47 +24,12 @@ class ServiceInfo:
     preset: str = "Unknown"
 
 
-def _run_sc(args: list[str]) -> Tuple[int, str, str]:
-    """Executes sc.exe command and returns (returncode, stdout, stderr)."""
-    try:
-        proc = subprocess.run(
-            ["sc.exe"] + args,
-            capture_output=True,
-            text=True,
-            encoding="oem",
-            shell=False,
-            timeout=15,
-            check=False,
-            creationflags=subprocess.CREATE_NO_WINDOW,
-        )
-        return proc.returncode, proc.stdout, proc.stderr
-
-    except subprocess.TimeoutExpired:
-        return -1, "", "timeout"
-    except (OSError, FileNotFoundError) as e:
-        return -1, "", str(e)
-
-
-def _wait_deletion(service_name: str, timeout: float = 2.5) -> bool:
-    """Polls until the service is deleted or the timeout expires."""
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        ret, _, _ = _run_sc(["query", service_name])
-        if ret != 0:
-            return True
-        time.sleep(0.02)
-    return False
-
-
-def delete(service_name: str) -> None:
-    """Stops and deletes a service, waiting for removal to finish; no-op if the service doesn't exist."""
-    ret, stdout, stderr = _run_sc(["stop", service_name])
-    if "1060" in stdout or "1060" in stderr:
-        return
-
-    ret, stdout, stderr = _run_sc(["delete", service_name])
-    if ret == 0 or "1072" in stdout or "1072" in stderr:
-        _wait_deletion(service_name)
+def uninstall() -> None:
+    """Stops and removes all Zapret services and kills any running winws process."""
+    for name in KNOWN_SERVICE_NAMES:
+        stop(name)
+        delete(name)
+    kill_process(WINWS_PATH.stem)
 
 
 def create(service_name: str, bin_path: str, display_name: str) -> Tuple[bool, str]:
@@ -84,6 +49,30 @@ def create(service_name: str, bin_path: str, display_name: str) -> Tuple[bool, s
         return False, f"Failed to start service: {start_stderr}"
 
     return True, ""
+
+
+def stop(service_name: str, timeout: float = 2.5) -> None:
+    """Stops a service, waiting for it to stop; no-op if not installed or already stopped."""
+    ret, _, _ = _run_sc(["stop", service_name])
+    if ret == 0:
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            q_ret, q_stdout, _ = _run_sc(["query", service_name])
+            if q_ret != 0 or re.search(r"\bSTOPPED\b", q_stdout, re.IGNORECASE):
+                return
+            time.sleep(0.05)
+
+
+def delete(service_name: str, timeout: float = 2.5) -> None:
+    """Deletes an already stopped service, waiting for removal to finish; no-op if the service doesn't exist."""
+    ret, _, _ = _run_sc(["delete", service_name])
+    if ret in (0, 1072):
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            q_ret, _, _ = _run_sc(["query", service_name])
+            if q_ret != 0:
+                return
+            time.sleep(0.05)
 
 
 def get_info(service_name: str) -> ServiceInfo:
@@ -116,76 +105,87 @@ def get_info(service_name: str) -> ServiceInfo:
     return info
 
 
-def find_preset_file(preset_name: str) -> Optional[Path]:
-    """Finds preset file with or without extension."""
-    if preset_name.lower().endswith((".bat", ".cmd")):
-        candidate = BASE_DIR / preset_name
-        if candidate.exists():
-            return candidate
+def _run_sc(args: list[str]) -> Tuple[int, str, str]:
+    """Executes sc.exe command and returns (returncode, stdout, stderr)."""
+    try:
+        proc = subprocess.run(
+            ["sc.exe"] + args,
+            capture_output=True,
+            text=True,
+            encoding="oem",
+            shell=False,
+            timeout=15,
+            check=False,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+        return proc.returncode, proc.stdout, proc.stderr
 
-    for ext in [".bat", ".cmd"]:
-        candidate = BASE_DIR / (preset_name + ext)
-        if candidate.exists():
-            return candidate
-
-    return None
+    except subprocess.TimeoutExpired:
+        return -1, "", "timeout"
+    except (OSError, FileNotFoundError) as e:
+        return -1, "", str(e)
 
 
-def validate_preset(preset_name: str) -> Tuple[bool, Optional[object], str]:
-    """Finds, parses, and validates a preset. Returns (success, parsed_data, error_message)."""
-    preset_file = find_preset_file(preset_name)
-    if not preset_file:
-        return False, None, f"Configuration file not found: {preset_name}"
+def create_service():
+    """Interactive service creation with UI."""
+    ui.print_header("Create/Update Service")
 
-    parsed = parse_preset_file(preset_file)
+    presets = config_parser.list_presets()
+    if not presets:
+        ui.print_err(f"No configuration files (.bat, .cmd) found in {BASE_DIR}")
+        return
+
+    selected = ui.ask_choice("Select a configuration file:", [p.stem for p in presets])
+    if not selected:
+        ui.print_info("Service creation cancelled.")
+        return
+
+    selected_path = next(p for p in presets if p.stem == selected)
+    ui.print_info(f"\nUsing configuration: {ui.Style.BRIGHT}{selected_path.stem}{ui.Style.NORMAL}")
+
+    parsed = config_parser.parse_preset_file(selected_path)
     if not parsed:
-        return False, None, f"Failed to parse preset file: {preset_file.name}"
+        return
 
     if not parsed.executable_path.exists():
-        return False, None, f"Executable not found: {parsed.executable_path}"
+        ui.print_err(f"Executable not found: {parsed.executable_path}")
+        return
 
-    return True, parsed, ""
+    args = parsed.get_full_args_string()
+    print(f"\n{ui.Fore.CYAN}Executable:{ui.Style.RESET_ALL} \"{parsed.executable_path}\"")
+    print(f"{ui.Fore.CYAN}Arguments:{ui.Style.RESET_ALL} {args if args else '[No arguments]'}")
 
-
-def list_presets() -> list[str]:
-    """Returns available preset names (.bat/.cmd files, excluding tool*)."""
-    try:
-        return sorted(
-            [f.stem for f in BASE_DIR.iterdir() if f.suffix.lower() in (".bat", ".cmd") and not f.stem.lower().startswith("tool")]
-        )
-    except OSError:
-        return []
-
-
-def install(preset_name: str) -> Tuple[bool, str]:
-    """
-    Installs and starts service with given preset.
-    Returns (success, error_message).
-    """
-    for name in KNOWN_SERVICE_NAMES:
-        delete(name)
-    kill_process(WINWS_PATH.stem)
-
-    success, parsed, error = validate_preset(preset_name)
-    if not success:
-        return False, error
+    ui.print_info("\nReplacing existing service and starting...")
+    uninstall()
 
     bin_path = subprocess.list2cmdline([str(parsed.executable_path), *parsed.args])
-    display_name = f"{ServiceInfo.DISPLAY_PREFIX} ({preset_name})"
+    display_name = f"{ServiceInfo.DISPLAY_PREFIX} ({selected_path.stem})"
+    success, error = create(SERVICE_NAME, bin_path, display_name)
 
-    return create(SERVICE_NAME, bin_path, display_name)
-
-
-def uninstall() -> None:
-    """Removes all Zapret services and kills any running winws process."""
-    for name in KNOWN_SERVICE_NAMES:
-        delete(name)
-    kill_process(WINWS_PATH.stem)
+    if success:
+        ui.print_ok(f"\nService '{SERVICE_NAME}' started successfully.")
+    else:
+        ui.print_err(error)
 
 
-def status() -> ServiceInfo:
-    """Returns current service status."""
+def delete_service():
+    """Interactive service deletion with UI."""
+    ui.print_header("Delete Service")
+    uninstall()
+    ui.print_ok("Service(s) deleted successfully.")
+
+
+def get_service_status():
+    """Displays service status with UI."""
+    ui.print_header("Service Status")
+
     info = get_info(SERVICE_NAME)
     if not info.exists:
         info = get_info(LEGACY_SERVICE_NAME)
-    return info
+
+    if info.exists:
+        color = ui.Fore.GREEN if info.status == "RUNNING" else ui.Fore.RED
+        print(f"\nService '{SERVICE_NAME}': {color}{info.status}{ui.Style.RESET_ALL}")
+        print(f"Preset: {ui.Style.BRIGHT}{info.preset}{ui.Style.RESET_ALL}")
+    else:
+        print(f"Status: {ui.Fore.RED}NOT INSTALLED{ui.Style.RESET_ALL}")

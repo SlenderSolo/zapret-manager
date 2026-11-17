@@ -1,15 +1,15 @@
-import re
 import os
-import subprocess
-import time
+import re
 import socket
+import subprocess
 import threading
+import time
 from dataclasses import dataclass, field
-from typing import Dict, Optional, List, Tuple, FrozenSet, Iterable
+from typing import Dict, FrozenSet, Iterable, List, Optional, Tuple
 from urllib.parse import urlparse
 
-from config import USER_AGENT, CURL_TIMEOUT, BIN_DIR, CURL_PATH, REDIRECT_AS_SUCCESS
-from ..utils import TokenBucket
+from config import BIN_DIR, CURL_PATH, CURL_TIMEOUT, REDIRECT_AS_SUCCESS, USER_AGENT
+from src.utils import TokenBucket
 
 TIME_MARKER = "::TIME::"
 

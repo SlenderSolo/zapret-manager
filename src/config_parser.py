@@ -4,6 +4,7 @@ from pathlib import Path, PureWindowsPath
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Tuple
 
+from config import BASE_DIR
 from . import ui
 
 _COMMENT_RE = re.compile(r"^(@?rem(\s|$)|::)", re.IGNORECASE)
@@ -33,6 +34,18 @@ class ParsedPreset:
     def get_full_args_string(self) -> str:
         """Returns Windows CLI-quoted arguments string."""
         return subprocess.list2cmdline(self.args)
+
+
+def list_presets(directory: Path = BASE_DIR) -> List[Path]:
+    """Returns sorted list of preset paths (.bat/.cmd files, excluding tool*)."""
+    try:
+        return sorted(
+            f
+            for f in directory.iterdir()
+            if f.is_file() and f.suffix.lower() in (".bat", ".cmd") and not f.stem.lower().startswith("tool")
+        )
+    except OSError:
+        return []
 
 
 def _extract_variables(lines: List[str], script_dir: Path) -> Dict[str, str]:
@@ -191,35 +204,28 @@ def _parse_rules(args: List[str]) -> List[PresetRule]:
 def parse_preset_file(preset_path: Path) -> Optional[ParsedPreset]:
     """Parses a preset file into a structured ParsedPreset object."""
     try:
-        lines = preset_path.read_text(encoding="utf-8-sig").splitlines(keepends=True)
+        lines = preset_path.read_text(encoding="utf-8-sig").splitlines()
     except OSError as e:
         ui.print_err(f"Failed to read {preset_path.name}: {e}")
         return None
 
-    try:
-        script_dir = preset_path.resolve().parent
-        variables = _extract_variables(lines, script_dir)
+    script_dir = preset_path.resolve().parent
+    variables = _extract_variables(lines, script_dir)
 
-        command = _find_winws_command(lines)
-        if not command:
-            ui.print_err(f"Could not find winws.exe command in {preset_path.name}")
-            return None
-
-        command = _substitute_variables(command, variables, script_dir)
-        result = _extract_executable_and_args(command)
-        if not result:
-            ui.print_err(f"Could not extract executable from {preset_path.name}")
-            return None
-
-        executable_path, args = result
-        return ParsedPreset(
-            executable_path=executable_path,
-            args=args,
-            rules=_parse_rules(args),
-        )
-    except Exception as e:
-        ui.print_err(f"Error parsing {preset_path.name}: {e}")
-        import traceback
-
-        traceback.print_exc()
+    command = _find_winws_command(lines)
+    if not command:
+        ui.print_err(f"Could not find winws.exe command in {preset_path.name}")
         return None
+
+    command = _substitute_variables(command, variables, script_dir)
+    result = _extract_executable_and_args(command)
+    if not result:
+        ui.print_err(f"Could not extract executable from {preset_path.name}")
+        return None
+
+    executable_path, args = result
+    return ParsedPreset(
+        executable_path=executable_path,
+        args=args,
+        rules=_parse_rules(args),
+    )

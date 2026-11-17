@@ -1,12 +1,11 @@
 from pathlib import Path
-from typing import Dict, Optional, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from src import ui, service_manager
 import config
-from .blockcheck.blockchecker import BlockChecker, StrategyTestResult
-from .blockcheck.strategy import Strategy
-from .blockcheck.winws_manager import WinwsError
-from .config_parser import parse_preset_file, PresetRule
+
+from . import ui
+from .blockcheck import BlockChecker, Strategy, StrategyTestResult, WinwsError
+from .config_parser import PresetRule, list_presets, parse_preset_file
 
 
 def _initialize_checker(test_domain: str = None) -> BlockChecker:
@@ -152,23 +151,26 @@ def optimize_preset():
     """Main entry point for preset optimization."""
     ui.print_header("Auto-optimize Preset")
 
-    presets = service_manager.list_presets()
+    presets = list_presets()
     if not presets:
         ui.print_err(f"No configuration files found in {config.BASE_DIR}")
         return
 
-    selected = ui.ask_choice("Select preset to optimize:", presets)
+    selected = ui.ask_choice("Select preset to optimize:", [p.stem for p in presets])
     if not selected:
         return
 
-    preset_path = service_manager.find_preset_file(selected)
+    preset_path = next((p for p in presets if p.stem == selected), None)
     if not preset_path:
         ui.print_err(f"File not found for: {selected}")
         return
 
     parsed = parse_preset_file(preset_path)
-    if not parsed or not parsed.rules:
-        ui.print_err("Failed to parse preset or no testable rules found.")
+    if not parsed:
+        return
+
+    if not parsed.rules:
+        ui.print_err("No testable rules found in preset.")
         return
 
     ui.print_ok(f"Parsed {len(parsed.rules)} rules from {ui.Style.BRIGHT}{selected}{ui.Style.NORMAL}")

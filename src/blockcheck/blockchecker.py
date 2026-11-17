@@ -1,16 +1,22 @@
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
+from typing import Dict, List, Optional
 
-from config import *
-from src import ui
-from .network_utils import DNSCache, CurlRunner
-from src.utils import is_process_running, TokenBucket, kill_process
-from .winws_manager import WinwsManager, running_winws, WinwsError
-from .strategy import Strategy, StrategyManager
+from config import (
+    BASE_DIR, BIN_DIR, LISTS_DIR, WINWS_PATH, CURL_PATH,
+    STRATEGIES_PATH, IP_STRATEGIES_PATH, DOMAIN_PRESETS_PATH,
+    DEFAULT_CHECKS, DEFAULT_DOMAIN, DEFAULT_IPSET_DOMAIN, ONLY_BLOCKED_DOMAINS,
+    CURL_MAX_WORKERS, DNS_CACHE_TTL, TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE,
+)
+from src import service_manager, ui
+from src.utils import TokenBucket, is_process_running, kill_process
+
 from .domain_preset_parser import DomainPresetParser
+from .network_utils import CurlRunner, DNSCache
+from .strategy import Strategy, StrategyManager
+from .winws_manager import WinwsError, WinwsManager, running_winws
 
 
 class BlockCheckError(Exception):
@@ -191,13 +197,19 @@ class BlockChecker:
 
         ui.print_ok("All required binaries and strategy files found.")
 
-        if is_process_running("winws"):
+        process_name = WINWS_PATH.stem
+        if is_process_running(process_name):
             ui.print_warn("Active Zapret process detected.")
-            if ui.ask_yes_no("Terminate it before starting?", default_yes=True):
-                if kill_process("winws"):
-                    ui.print_ok("Zapret terminated.")
-                else:
-                    ui.print_err("Failed to terminate 'winws'. Please close it manually.")
+            if not ui.ask_yes_no("Terminate it before starting?", default_yes=True):
+                raise BlockCheckError(f"Cannot run blockcheck while '{process_name}' is running.")
+
+            for name in service_manager.KNOWN_SERVICE_NAMES:
+                service_manager.stop(name)
+
+            if not kill_process(process_name):
+                raise BlockCheckError(f"Failed to terminate '{process_name}'. Please close it manually.")
+
+            ui.print_ok("Zapret terminated.")
 
     def configure_test(self, test_mode: str = "domain"):
         """Interactive test configuration."""
