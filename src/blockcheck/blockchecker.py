@@ -11,7 +11,7 @@ from config import (
     CURL_MAX_WORKERS, DNS_CACHE_TTL, TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE,
 )
 from src import service_manager, ui
-from src.utils import TokenBucket, is_process_running, kill_process
+from src.utils import TokenBucket, is_process_running
 
 from .domain_preset_parser import DomainPresetParser
 from .network_utils import CurlRunner, DNSCache
@@ -203,10 +203,7 @@ class BlockChecker:
             if not ui.ask_yes_no("Terminate it before starting?", default_yes=True):
                 raise BlockCheckError(f"Cannot run blockcheck while '{process_name}' is running.")
 
-            for name in service_manager.KNOWN_SERVICE_NAMES:
-                service_manager.stop(name)
-
-            if not kill_process(process_name):
+            if not service_manager.stop():
                 raise BlockCheckError(f"Failed to terminate '{process_name}'. Please close it manually.")
 
             ui.print_ok("Zapret terminated.")

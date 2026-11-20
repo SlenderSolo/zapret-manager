@@ -1,12 +1,9 @@
 import ctypes
-import csv
-import io
 import os
-import signal
 import subprocess
 import sys
-import time
 import threading
+import time
 
 
 def enable_ansi_support():
@@ -19,7 +16,7 @@ def enable_ansi_support():
             if kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
                 mode.value |= 0x0004
                 kernel32.SetConsoleMode(handle, mode)
-        except AttributeError, ctypes.WinError:
+        except (AttributeError, OSError):
             pass
 
 
@@ -52,57 +49,45 @@ def is_process_running(process_name: str) -> bool:
     """Checks if a process is running by its name."""
     try:
         result = subprocess.run(
-            ["tasklist", "/NH", "/FI", f"IMAGENAME eq {process_name}.exe"],
+            ["tasklist.exe", "/NH", "/FI", f"IMAGENAME eq {process_name}.exe"],
             capture_output=True,
             text=True,
+            encoding="oem",
+            errors="replace",
+            timeout=3,
             check=True,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
-        return f"{process_name}.exe" in result.stdout
-    except subprocess.CalledProcessError, FileNotFoundError:
+        return f"{process_name}.exe".lower() in result.stdout.lower()
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError):
         return False
 
 
-def _get_pids_by_name(process_name: str) -> list[int]:
-    """Returns PIDs of all running processes matching process_name.exe."""
+def kill_process(process_name: str) -> bool:
+    """Terminates all processes matching process_name via taskkill."""
     try:
         result = subprocess.run(
-            ["tasklist", "/NH", "/FO", "CSV", "/FI", f"IMAGENAME eq {process_name}.exe"],
+            ["taskkill.exe", "/F", "/IM", f"{process_name}.exe"],
             capture_output=True,
             text=True,
+            encoding="oem",
+            errors="replace",
+            timeout=3,
+            check=False,
             creationflags=subprocess.CREATE_NO_WINDOW,
         )
-    except OSError, FileNotFoundError:
-        return []
+    except (subprocess.TimeoutExpired, OSError) as e:
+        print(f"Error killing process {process_name}: {e}")
+        return False
 
-    pids = []
-    for row in csv.reader(io.StringIO(result.stdout)):
-        if len(row) >= 2:
-            try:
-                pids.append(int(row[1]))
-            except ValueError:
-                continue
-    return pids
-
-
-def kill_process(process_name: str) -> bool:
-    """Terminates all processes matching process_name via tasklist + os.kill."""
-    pids = _get_pids_by_name(process_name)
-
-    if not pids:
+    # 0 = terminated, 128 = process not found
+    if result.returncode in (0, 128):
         return True
 
-    success = True
-    for pid in pids:
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except ProcessLookupError:
-            continue
-        except OSError as e:
-            print(f"Error killing process {process_name} (PID {pid}): {e}")
-            success = False
-
-    return success
+    err = (result.stderr or result.stdout).strip()
+    if err:
+        print(f"Error killing process {process_name}: {err}")
+    return False
 
 
 class TokenBucket:
