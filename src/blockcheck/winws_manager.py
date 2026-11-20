@@ -45,25 +45,22 @@ class WinwsManager:
             for line in iter(stream.readline, b""):
                 if not self._ready_event.is_set() and self._SUCCESS_MARKER in line:
                     self._ready_event.set()
-        except IOError, ValueError:
+        except (OSError, ValueError):
             pass
 
     def _monitor_stderr(self, stream):
         """Collects stderr output; first non-empty line or EOF before ready signals crash."""
         try:
             for line in iter(stream.readline, b""):
-                try:
-                    decoded = line.decode("utf-8", errors="replace")
-                    self._stderr_lines.append(decoded)
-                    if not self._crashed and decoded.strip():
-                        self._crashed = True
-                        self._ready_event.set()
-                except Exception:
-                    pass
+                decoded = line.decode("utf-8", errors="replace")
+                self._stderr_lines.append(decoded)
+                if not self._crashed and decoded.strip():
+                    self._crashed = True
+                    self._ready_event.set()
             if not self._ready_event.is_set():
                 self._crashed = True
                 self._ready_event.set()
-        except IOError, ValueError:
+        except (OSError, ValueError):
             pass
 
     def start(self, params: List[str], timeout: float = 5.0) -> bool:
@@ -90,7 +87,7 @@ class WinwsManager:
                 creationflags=subprocess.CREATE_NO_WINDOW,
                 cwd=self.bin_dir,
             )
-        except (OSError, FileNotFoundError) as e:
+        except OSError as e:
             self._stderr_lines.append(f"{e}\n")
             self.process = None
             return False
@@ -114,6 +111,8 @@ class WinwsManager:
                 self.process.wait(timeout=0.2)
             if self.process.returncode is not None:
                 self._stderr_lines.append(f"Process exited with code {self.process.returncode}\n")
+            elif not ready:
+                self._stderr_lines.append(f"Startup timed out after {timeout}s\n")
 
         self.stop()
         return False
@@ -131,7 +130,7 @@ class WinwsManager:
             except subprocess.TimeoutExpired:
                 self.process.kill()
                 self.process.wait(timeout=1.0)
-        except ProcessLookupError, OSError:
+        except (OSError, subprocess.TimeoutExpired):
             pass
         finally:
             if self.process:
