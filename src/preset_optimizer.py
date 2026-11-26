@@ -4,8 +4,9 @@ from typing import Dict, List, Optional, Tuple
 import config
 
 from . import ui
-from .blockcheck import BlockChecker, Strategy, StrategyTestResult, WinwsError
-from .config_parser import PresetRule, list_presets, parse_preset_file
+from .blockchecker import BlockChecker
+from .engine import Strategy, StrategyTestResult, WinwsError
+from .preset_parser import PresetRule, list_presets, parse_preset_file
 
 
 def _initialize_checker(test_domain: str = None) -> BlockChecker:

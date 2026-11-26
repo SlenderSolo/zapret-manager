@@ -2,7 +2,7 @@ import os
 import traceback
 
 from src import ui
-from src.blockcheck import BlockChecker, BlockCheckError
+from src.blockchecker import BlockChecker, BlockCheckError
 from src.preset_optimizer import optimize_preset
 from src.service_manager import create_service, delete_service, get_service_status
 from src.utils import enable_ansi_support, run_as_admin

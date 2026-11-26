@@ -1,4 +1,4 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
@@ -10,13 +10,13 @@ from config import (
     DEFAULT_CHECKS, DEFAULT_DOMAIN, DEFAULT_IPSET_DOMAIN, ONLY_BLOCKED_DOMAINS,
     CURL_MAX_WORKERS, DNS_CACHE_TTL, TOKEN_BUCKET_CAPACITY, TOKEN_BUCKET_REFILL_RATE,
 )
-from src import service_manager, ui
-from src.utils import TokenBucket, is_process_running
 
-from .domain_preset_parser import DomainPresetParser
-from .network_utils import CurlRunner, DNSCache
-from .strategy import Strategy, StrategyManager
-from .winws_manager import WinwsError, WinwsManager, running_winws
+from . import ui
+from .engine import (
+    CHECKS_CONFIG, CurlRunner, DNSCache, DomainPresetParser, PrerequisiteError,
+    StrategyManager, StrategyTester, WinwsError, WinwsManager, check_prerequisites,
+)
+from .utils import TokenBucket
 
 
 class BlockCheckError(Exception):
@@ -38,12 +38,7 @@ class TestConfiguration:
     checks_to_run: Dict[str, bool] = field(default_factory=dict)
     test_mode: str = "domain"  # 'domain' or 'ipset'
 
-    CHECKS_CONFIG = {
-        "http": {"title": "HTTP", "test_params": {"port": 80}},
-        "https_tls12": {"title": "HTTPS (TLS 1.2)", "test_params": {"port": 443, "tls_version": "1.2"}},
-        "https_tls13": {"title": "HTTPS (TLS 1.3)", "test_params": {"port": 443, "tls_version": "1.3"}},
-        "http3": {"title": "HTTP/3 (QUIC)", "test_params": {"port": 443, "http3_only": True}},
-    }
+    CHECKS_CONFIG = CHECKS_CONFIG
 
     def __post_init__(self):
         if not self.checks_to_run:
@@ -100,59 +95,6 @@ class TestConfiguration:
         return [key for key, enabled in self.checks_to_run.items() if enabled]
 
 
-# --- Strategy Testing ---
-
-
-@dataclass
-class StrategyTestResult:
-    """Result of a strategy test."""
-
-    success: bool
-    avg_time: float = -1.0
-    error_msg: str = ""
-
-
-class StrategyTester:
-    """Tests strategies with winws process management."""
-
-    def __init__(self, curl_runner: CurlRunner, winws_manager: WinwsManager):
-        self.curl_runner = curl_runner
-        self.winws_manager = winws_manager
-
-    def test_strategy(
-        self, domains: List[str], strategy: Strategy, test_params: dict, repeats: int, ipset_path: Optional[Path] = None
-    ) -> StrategyTestResult:
-        """Tests a strategy with winws and Fail-Fast approach."""
-        winws_cmd = strategy.build_command(domains, ipset_path)
-        total_time = 0
-        total_tests = len(domains) * repeats
-
-        with running_winws(self.winws_manager, winws_cmd):
-            test_func = partial(self.curl_runner.perform_test, **test_params)
-
-            # Fail-Fast: stop at first failure
-            for repeat_idx in range(repeats):
-                with ThreadPoolExecutor(max_workers=CURL_MAX_WORKERS) as executor:
-                    # Submit all domains for this repeat
-                    futures = {executor.submit(test_func, domain=d): d for d in domains}
-
-                    for future in as_completed(futures):
-                        result = future.result()
-
-                        if not result.success:
-                            # Cancel remaining tasks
-                            for f in futures:
-                                f.cancel()
-
-                            output = f"Failed on '{result.domain}': {result.output}" if len(domains) > 1 else result.output
-                            return StrategyTestResult(False, error_msg=output)
-
-                        total_time += result.time_taken
-
-        avg_time = total_time / total_tests if total_tests > 0 else 0
-        return StrategyTestResult(True, avg_time=avg_time)
-
-
 # --- BlockChecker ---
 
 
@@ -188,25 +130,11 @@ class BlockChecker:
 
     def check_prerequisites(self):
         """Validates required files and binaries."""
-        ui.print_header("Checking prerequisites")
-
         required_files = [WINWS_PATH, CURL_PATH, STRATEGIES_PATH, IP_STRATEGIES_PATH]
-        for path in required_files:
-            if not path.exists():
-                raise BlockCheckError(f"Required file not found: '{path}'.")
-
-        ui.print_ok("All required binaries and strategy files found.")
-
-        process_name = WINWS_PATH.stem
-        if is_process_running(process_name):
-            ui.print_warn("Active Zapret process detected.")
-            if not ui.ask_yes_no("Terminate it before starting?", default_yes=True):
-                raise BlockCheckError(f"Cannot run blockcheck while '{process_name}' is running.")
-
-            if not service_manager.stop():
-                raise BlockCheckError(f"Failed to terminate '{process_name}'. Please close it manually.")
-
-            ui.print_ok("Zapret terminated.")
+        try:
+            check_prerequisites(required_files)
+        except PrerequisiteError as e:
+            raise BlockCheckError(str(e)) from e
 
     def configure_test(self, test_mode: str = "domain"):
         """Interactive test configuration."""

@@ -8,7 +8,7 @@ from typing import Callable, Optional, Tuple
 
 from config import BASE_DIR, SERVICE_NAME, WINWS_PATH
 
-from . import config_parser, ui
+from . import preset_parser, ui
 from .utils import kill_process
 
 LEGACY_SERVICE_NAME = "zapret"
@@ -194,7 +194,7 @@ def create_service():
     """Interactive service creation with UI."""
     ui.print_header("Create/Update Service")
 
-    presets = config_parser.list_presets()
+    presets = preset_parser.list_presets()
     if not presets:
         ui.print_err(f"No configuration files (.bat, .cmd) found in {BASE_DIR}")
         return
@@ -207,7 +207,7 @@ def create_service():
     selected_path = next(p for p in presets if p.stem == selected)
     ui.print_info(f"\nUsing configuration: {ui.Style.BRIGHT}{selected_path.stem}{ui.Style.NORMAL}")
 
-    parsed = config_parser.parse_preset_file(selected_path)
+    parsed = preset_parser.parse_preset_file(selected_path)
     if not parsed:
         return
 
